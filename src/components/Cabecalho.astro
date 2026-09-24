@@ -1,0 +1,115 @@
+---
+// =========================================================================
+// CABECALHO FIXO
+// Fica colado no topo enquanto a pagina rola. Os links levam as secoes
+// da propria pagina usando ancoras (#id), sem recarregar nada.
+// =========================================================================
+
+// Os itens do menu vivem em um array. Para acrescentar uma secao,
+// basta adicionar uma linha aqui, nao mexer no HTML.
+import { Image } from "astro:assets";
+import logoArretadas from "../assets/logo-arretadas.svg";
+
+const LINKS = [
+  {
+    texto: "Sobre o projeto",
+    destino: "#sobre",
+  },
+  {
+    texto: "Módulos",
+    destino: "#modulos",
+  },
+  {
+    texto: "Professoras",
+    destino: "#professoras",
+  },
+  { texto: "FAQ", destino: "#faq" },
+  {
+    texto: "Realização",
+    destino: "#realizacao",
+  },
+];
+
+// Link externo do formulario de inscricao. Troque pelo endereco real.
+const LINK_INSCRICAO =
+  "https://forms.gle/exemplo";
+---
+
+<header class="cabecalho">
+  <div class="conteudo barra">
+    <a>
+      <Image
+        src={logoArretadas}
+        alt="Logo Arretadas"
+      />
+    </a>
+
+    <nav
+      class="menu"
+      aria-label="Navegação Principal"
+    >
+      {
+        LINKS.map((link) => (
+          <a href="{link.destino}">
+            {link.texto}
+          </a>
+        ))
+      }
+    </nav>
+
+    <a
+      class="botao"
+      href="{LINK_INSCRICAO}"
+      target="_blank"
+      rel="noopener norefferer"
+    >
+      Inscreva-se já!
+    </a>
+  </div>
+</header>
+
+<style>
+  .cabecalho {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--creme);
+    /* box-shadow: 0 2px 16px
+      rgba(46, 27, 94, 0.08); */
+  }
+
+  .barra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--esp-3);
+    padding-block: 0.75rem;
+  }
+
+  .menu {
+    display: flex;
+    gap: var(--esp-3);
+  }
+
+  .menu a {
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding-block: 0.25rem;
+    border-bottom: 2px solid transparent;
+    transition:
+      border-color var(--transicao),
+      color var(--transicao);
+  }
+
+  .menu a:hover {
+    color: var(--coral);
+    border-bottom-color: var(--coral);
+  }
+
+  @media (max-width: 900px) {
+    .menu {
+      display: none;
+    }
+  }
+</style>

@@ -1,0 +1,144 @@
+---
+// =========================================================================
+// SEÇÃO DE CITAÇÃO
+// Faixa roxa com a onda creme escorrendo do Hero para dentro dela.
+// =========================================================================
+
+import Faixa from "./Faixa.astro";
+import Enfeite from "./Enfeite.astro";
+
+const CITACAO = `Serei dona do espaço que deve ser
+meu. Inteira, indomável, e não passageira, na rua,
+nas redes, no balanço de saber quem sou eu.`;
+---
+
+<Faixa
+  onda="onda-creme"
+  cor="var(--roxo)"
+  corOnda="var(--creme)"
+  id="sobre"
+  classe="citacao"
+  papel
+  forcaPapel={0.15}
+>
+  <Enfeite
+    forma="asterisco"
+    cor="var(--roxo-claro)"
+    tamanho="{100}"
+    topo="14%"
+    esquerda="-4%"
+    noCelular
+    tamanhoMobile={58}
+    topoMobile="8%"
+    esquerdaMobile="-2%"
+  />
+
+  <Enfeite
+    forma="estrela"
+    cor="var(--laranja)"
+    tamanho={72}
+    topo="22%"
+    esquerda="10.5%"
+    giro={9}
+    noCelular
+    tamanhoMobile={44}
+    topoMobile="17%"
+    esquerdaMobile="8%"
+  />
+
+  <Enfeite
+    forma="trevo"
+    cor="var(--creme)"
+    tamanho={130}
+    topo="3%"
+    esquerda="12%"
+    papel
+    forcaPapel={0.15}
+    noCelular
+    tamanhoMobile={76}
+    topoMobile="1%"
+    esquerdaMobile="4%"
+  />
+
+  <Enfeite
+    forma="estrela-arredondada"
+    cor="var(--creme)"
+    tamanho={300}
+    topo="-19%"
+    direita="4%"
+    giro="35"
+    papel
+    forcaPapel={0.15}
+    noCelular
+    tamanhoMobile={140}
+    topoMobile="-8%"
+    direitaMobile="-8%"
+  />
+
+  <Enfeite
+    forma="estrela"
+    cor="var(--creme)"
+    tamanho={86}
+    topo="30%"
+    esquerda="18%"
+    papel
+    forcaPapel={0.15}
+    noCelular
+    tamanhoMobile={52}
+    topoMobile="26%"
+    esquerdaMobile="12%"
+  />
+
+  <blockquote
+    class="conteudo frase surge"
+  >
+    <p>
+      {CITACAO}
+    </p>
+  </blockquote>
+</Faixa>
+
+<style>
+  .faixa {
+    position: relative;
+    z-index: 1;
+  }
+
+  .enfeite {
+    position: absolute;
+    z-index: 0;
+  }
+
+  .conteudo {
+    position: relative;
+    z-index: 2;
+  }
+
+  .frase {
+    text-align: center;
+    max-width: 1200px;
+    width: 90%;
+    margin-inline: auto;
+    color: var(--creme);
+    margin: 100px auto 0 auto;
+  }
+
+  .frase p {
+    white-space: pre-line;
+    font-size: clamp(
+      1.25rem,
+      2.6vw,
+      2.6rem
+    );
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .frase p::before {
+    content: "“";
+  }
+
+  .frase p::after {
+    content: "”";
+  }
+</style>

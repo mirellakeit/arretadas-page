@@ -1,0 +1,139 @@
+---
+import Faixa from "./Faixa.astro";
+import Enfeite from "./Enfeite.astro";
+import { PERGUNTAS } from "../data/faq.js";
+
+interface Pergunta {
+  pergunta: string;
+  resposta: string;
+}
+
+const perguntas: Pergunta[] = PERGUNTAS;
+---
+
+<Faixa
+  onda="onda-laranja"
+  cor="var(--branco)"
+  corOnda="var(--laranja)"
+  id="faq"
+  classe="faq"
+>
+  <div class="conteudo">
+    <h2 class="surge">FAQ</h2>
+
+    <div class="lista">
+      {
+        perguntas.map((item, i) => (
+          <details
+            class="item surge"
+            style={`--atraso: ${i * 80}ms`}
+          >
+            <summary>
+              <span>
+                {item.pergunta}
+              </span>
+              <svg
+                class="seta"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  d="M6 9l6 6 6-6"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </summary>
+            <div class="resposta">
+              <p>{item.resposta}</p>
+            </div>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</Faixa>
+
+<style>
+  h2 {
+    text-align: center;
+    font-size: clamp(
+      1.75rem,
+      3.5vw,
+      2.5rem
+    );
+    color: var(--roxo);
+    margin-bottom: var(--esp-4);
+  }
+
+  .lista {
+    display: grid;
+    gap: var(--esp-1);
+    max-width: 780px;
+    margin-inline: auto;
+  }
+
+  .item {
+    background: var(--roxo-palido);
+    border-radius: var(--raio);
+    overflow: hidden;
+  }
+
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--esp-2);
+    padding: 1rem 1.25rem;
+    font-weight: 700;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  sumary::-webkit-details-marker {
+    display: none;
+  }
+
+  sumary:hover {
+    color: var(--coral);
+  }
+
+  summary:focus-visible {
+    outline: 3px solid var(--roxo);
+    outline-offset: -3px;
+  }
+
+  .seta {
+    width: 22px;
+  }
+
+  .item[open] .seta {
+    transform: rotate(180deg);
+  }
+
+  .resposta{ 
+    padding 0 1.25rem 1.25rem;
+  }
+
+  .resposta p{
+    mas-width: 62ch;
+    padding: 0 1rem 1.25rem 1rem;
+  }
+
+  @supports selector(detais::details-content) {
+    .item::details-content{
+      block-size: 0;
+      overflow: hidden;
+      transition: block-size var(--transicao), content-visibility var(--transicao);
+      transition-behavior: allow-discrete;
+    }
+  
+    .item[open]::details-content {
+      block-size: auto;
+    }
+  }
+
+</style>

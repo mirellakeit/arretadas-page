@@ -1,0 +1,73 @@
+---
+import Faixa from "./Faixa.astro";
+import Enfeite from "./Enfeite.astro";
+import Svg from "./Svg.astro";
+
+const APRENDIZADOS = [
+  { texto: "" },
+  { texto: "" },
+  { texto: "" },
+  { texto: "" },
+];
+---
+
+<!-- <Faixa
+  onda="onda-creme"
+  cor="var(--creme)"
+  corOnda="var(--branco)"
+  alturaOnda="clamp(50px, 7vw, 110px)"
+  id="topo"
+  classe="hero"
+> -->
+<Faixa
+  onda="onda-lilas"
+  cor="var(--laranja)"
+  corOnda="var(--laranja)"
+>
+  <div class="conteudo grade">
+    <h2 class="surge">
+      Ao final do curso, você terá
+      aprendido:
+    </h2>
+    <ul class="aprendizados">
+      {
+        APRENDIZADOS.map((item, i) => (
+          <li
+            class="surge esquerda"
+            style={`--atraso: ${i * 110}ms`}
+          >
+            {item.texto}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Faixa>
+
+<style>
+  h2 {
+    margin-top: 30px;
+    text-align: center;
+    font-size: 32px;
+  }
+
+  .aprendizados {
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--esp-2);
+  }
+
+  .aprendizados li {
+    padding: var(--esp-3);
+    border-radius: var(--raio);
+    background: #d9d9d9;
+    color: #443057;
+    font-weight: 800;
+    list-style-type: none;
+  }
+
+  .aprendizados li::marker {
+    display: none;
+  }
+</style>

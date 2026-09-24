@@ -1,0 +1,134 @@
+---
+import Faixa from "./Faixa.astro";
+import Enfeite from "./Enfeite.astro";
+import Svg from "./Svg.astro";
+import { Image } from "astro:assets";
+import logoArretadas from "../assets/logo-arretadas.svg";
+
+const CITACAO =
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+
+import papel from "../assets/fundos/papel.webp";
+---
+
+<!-- <Faixa
+  onda="onda-creme"
+  cor="var(--roxo)"
+  corOnda="var(--creme)"
+  id="sobre"
+  classe="citacao"
+> -->
+<Faixa
+  onda="onda-roxa"
+  cor="var(--branco)"
+  corOnda="var(--roxo)"
+  id="extra"
+  classe="citacao"
+>
+  <div
+    class="textura-papel"
+    aria-hidden="true"
+    style={`background-image: url("${papel.src}")`}
+  >
+  </div>
+
+  <div class="conteudo">
+    <h2 class="surge">Sobre o Projeto</h2>
+    <div class="grade">
+      <div class="midia surge esquerda">
+        <div
+          class="placeholder"
+          role="img"
+          aria-label="Espaço reservado para a imagem de abertura"
+        >
+          <Svg
+            nome="video-placeholder"
+            recolorir={false}
+          />
+        </div>
+      </div>
+      <div class="informacoes surge direita" style="--atraso: 150ms">
+        <Image
+          src={logoArretadas}
+          alt="Logo Arretadas"
+        />
+        <p>
+          {CITACAO}
+        </p>
+      </div>
+    </div>
+  </div>
+</Faixa>
+
+<style>
+  .faixa {
+    isolation: isolate;
+  }
+
+  .conteudo {
+    align-items: center;
+  }
+
+  h2 {
+    margin-bottom: var(--esp-4);
+    text-align: center;
+  }
+
+  .grade {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: var(--esp-5);
+    align-items: center;
+  }
+
+  .fundo-formas {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    line-height: 0;
+    opacity: 0.15; /* as formas são textura, não devem competir com o texto */
+  }
+
+  .fundo-formas :global(svg) {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    display: block;
+  }
+
+  /* Mesma receita do arquivo de design: 15% de opacidade em multiply,
+     o suficiente para sujar o creme sem escurecer a leitura. */
+  .textura-papel {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.15;
+    mix-blend-mode: multiply;
+  }
+
+  .informacoes {
+    display: grid;
+    gap: var(--esp-3);
+  }
+
+  .informacoes :global(img) {
+    width: min(100%, 280px);
+  }
+
+  .placeholder :global(svg) {
+    width: 100%;
+    height: auto;
+    border-radius: var(--raio);
+  }
+
+  @media (max-width: 860px) {
+    .grade {
+      grid-template-columns: 1fr;
+      gap: var(--esp-4);
+    }
+  }
+</style>

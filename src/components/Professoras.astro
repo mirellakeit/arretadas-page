@@ -1,0 +1,89 @@
+---
+import Faixa from "./Faixa.astro";
+import Enfeite from "./Enfeite.astro";
+import Svg from "./Svg.astro";
+
+const PROFESSORAS = [
+  {
+    texto: "Professoras Minibio",
+    imagem: "",
+  },
+  {
+    texto: "Professoras Minibio",
+    imagem: "",
+  },
+  {
+    texto: "Professoras Minibio",
+    imagem: "",
+  },
+  {
+    texto: "Professoras Minibio",
+    imagem: "",
+  },
+];
+---
+
+<!-- <Faixa
+  onda="onda-creme"
+  cor="var(--creme)"
+  corOnda="var(--branco)"
+  alturaOnda="clamp(50px, 7vw, 110px)"
+  id="topo"
+  classe="hero"
+> -->
+<Faixa
+  onda="onda-laranja"
+  cor="var(--laranja)"
+  cor-faixa="var(--laranja)"
+  corOnda="var(--laranja)"
+>
+  <div class="conteudo grade">
+    <h2 class="surge">Equipe Colaboradora</h2>
+    <ul class="professoras">
+      {
+        PROFESSORAS.map((item, i) => (
+          <li
+            class="surge zoom"
+            style={`--atraso: ${i * 120}ms`}
+          >
+            <Svg
+              nome="circulo"
+              recolorir={false}
+            />
+            <p>{item.texto}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Faixa>
+
+<style>
+  .grade h2 {
+    text-align: center;
+    margin: 20px auto 60px auto;
+  }
+
+  .professoras {
+    display: flex;
+    justify-content: center;
+    gap: var(--esp-6);
+    list-style: none;
+  }
+
+  .professoras li {
+    flex: 0 0 clamp(140px, 25vw, 200px);
+    text-align: center;
+  }
+
+  .professoras li svg {
+    width: 70%;
+    max-width: none;
+    height: auto;
+  }
+
+  .professoras li p {
+    font-size: 1.37rem;
+    font-weight: bold;
+  }
+</style>

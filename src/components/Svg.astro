@@ -1,0 +1,64 @@
+---
+// =========================================================================
+// SVG
+//
+// Lê um arquivo .svg de src/assets e joga o conteúdo direto no HTML,
+// em vez de usar <img src="...">. Duas vantagens:
+//   1. o desenho fica no mesmo arquivo da página, sem requisição extra
+//   2. dá para mudar a cor por CSS, coisa impossível com <img>
+//
+// O import.meta.glob varre a pasta no momento do build. Para acrescentar
+// uma forma nova, basta jogar o .svg em src/assets/formas/ e usar o nome
+// do arquivo. Nenhum import manual, nenhuma lista para manter.
+// =========================================================================
+
+
+const ARQUIVOS = import.meta.glob('../assets/**/*.svg', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
+
+const {
+  nome,
+  // Quando true, troca a cor original do arquivo por currentColor,
+  // permitindo controlar o tom pelo CSS. As ondas mantêm a cor
+  // que veio do arquivo de design.
+  recolorir = true,
+  // Usado só nas ondas: faz o desenho cobrir a faixa e cortar o excesso
+  // pelo topo, deixando visível apenas a parte ondulada de baixo.
+  ancora = null,
+} = Astro.props;
+
+const chave = Object.keys(ARQUIVOS).find((k) => k.endsWith(`/${nome}.svg`));
+if (!chave) {
+  throw new Error(
+    `SVG "${nome}" não encontrado. Arquivos disponíveis: ` +
+      Object.keys(ARQUIVOS).map((k) => k.split('/').pop()).join(', ')
+  );
+}
+
+let svg = ARQUIVOS[chave];
+
+// Tira width e height fixos DA TAG <svg> de fora. Sem isso o desenho
+// ignora o CSS e fica sempre do tamanho que o Figma exportou.
+// A substituição é feita só na primeira tag: um <rect> lá dentro
+// precisa das medidas dele para existir.
+svg = svg.replace(/<svg[^>]*>/, (tag) =>
+  tag.replace(/\s(width|height)="[^"]*"/g, '')
+);
+
+// Troca as cores por currentColor, preservando fill="none".
+if (recolorir) {
+  svg = svg.replace(/fill="(?!none)[^"]*"/g, 'fill="currentColor"');
+}
+
+if (ancora) {
+  svg = svg.replace('<svg', `<svg preserveAspectRatio="${ancora}"`);
+}
+
+// aria-hidden porque é decoração: leitores de tela devem ignorar.
+svg = svg.replace('<svg', '<svg aria-hidden="true" focusable="false"');
+---
+
+<Fragment set:html={svg} />

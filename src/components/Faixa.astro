@@ -1,0 +1,183 @@
+---
+// =========================================================================
+// FAIXA
+//
+// Uma seção de página com fundo chapado e, opcionalmente, uma onda
+// escorrendo do topo.
+//
+// Props:
+//   onda        nome do arquivo em src/assets/ondas (sem a extensão)
+//   cor         fundo da faixa
+//   corOnda     cor da seção anterior, para tapar a fresta do antialias
+//   alturaOnda  altura da tira da onda
+//   id, classe
+//   papel       true carimba a textura de papel dentro da onda
+//   forcaPapel  quanto a textura aparece, de 0 a 1 (padrão 0.15). Aqui a
+//               área é grande e os vincos aparecem inteiros, por isso o
+//               valor é bem menor que o padrão do <Enfeite>.
+// =========================================================================
+
+import Svg from "./Svg.astro";
+import papelTextura from "../assets/fundos/papel.webp";
+
+// O mesmo arquivo que o <Svg> injeta inline, agora como URL: a textura é
+// recortada no desenho da onda com mask-image, e máscara em CSS só aceita
+// URL, nunca um SVG que já está inline no HTML.
+const ONDAS_URL = import.meta.glob(
+  "../assets/ondas/*.svg",
+  {
+    query: "?url",
+    import: "default",
+    eager: true,
+  },
+);
+
+const {
+  onda = null,
+  cor = "var(--branco)",
+  // Cor da seção anterior. Pinta apenas os primeiros pixels acima da
+  // onda, tapando a fresta clara que o antialias do navegador deixa
+  // na emenda entre as duas seções.
+  corOnda = "transparent",
+  alturaOnda = "clamp(60px, 9vw, 200px)",
+  id = null,
+  classe = "",
+  papel = false,
+  forcaPapel = 0.15,
+} = Astro.props;
+
+const chaveOnda =
+  onda &&
+  Object.keys(ONDAS_URL).find((k) =>
+    k.endsWith(`/${onda}.svg`),
+  );
+
+if (onda && papel && !chaveOnda) {
+  throw new Error(
+    `Faixa: não achei "${onda}.svg" em src/assets/ondas para usar de ` +
+      `máscara do papel. Disponíveis: ` +
+      Object.keys(ONDAS_URL)
+        .map((k) => k.split("/").pop())
+        .join(", "),
+  );
+}
+
+const usaPapel = Boolean(
+  onda && papel && chaveOnda,
+);
+
+const estilo = [
+  `--cor-faixa:${cor}`,
+  `--cor-onda:${corOnda}`,
+  `--altura-onda:${alturaOnda}`,
+  usaPapel
+    ? `--onda-forma:url("${ONDAS_URL[chaveOnda]}")`
+    : null,
+  usaPapel
+    ? `--papel:url("${papelTextura.src}")`
+    : null,
+  usaPapel
+    ? `--forca-papel:${forcaPapel}`
+    : null,
+]
+  .filter(Boolean)
+  .join("; ");
+---
+
+<section
+  class:list={["faixa", classe]}
+  id={id}
+  style={estilo}
+>
+  {
+    onda && (
+      <div class="onda">
+        <Svg
+          nome={onda}
+          recolorir={false}
+          ancora="xMidYMax slice"
+        />
+        {usaPapel && (
+          <span class="papel" />
+        )}
+      </div>
+    )
+  }
+
+  <slot />
+</section>
+
+<style>
+  .faixa {
+    position: relative; /* referência para a onda e para os enfeites */
+    z-index: 2;
+    overflow: hidden; /* corta o que escapar e evita rolagem lateral */
+    background: var(--cor-faixa);
+    padding-block: calc(
+        var(--altura-onda) +
+          var(--esp-4)
+      )
+      var(--esp-5);
+  }
+
+  .onda {
+    position: absolute;
+    top: -1px; /* 1px de sobreposição mata a linha clara do antialias */
+    left: 0;
+    right: 0;
+    height: var(--altura-onda);
+    background: linear-gradient(
+      to bottom,
+      var(--cor-onda) 0 3px,
+      transparent 3px
+    );
+    line-height: 0;
+    z-index: 1; /* acima dos enfeites, sem cobrir o conteúdo */
+  }
+  .onda :global(svg) {
+    position: relative;
+    z-index: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* A textura cobre a tira inteira e a máscara deixa aparecer só o que
+     cai dentro da onda; o resto continua sendo o fundo da faixa.
+     cover + center bottom é a tradução exata do preserveAspectRatio
+     "xMidYMax slice" que o <Svg> aplica no desenho, então a borda da
+     textura cai em cima da borda da onda, sem meio pixel de folga. */
+  .papel {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+
+    background-image: var(--papel);
+    background-size: cover;
+    background-position: center;
+
+    opacity: var(--forca-papel, 0.15);
+    mix-blend-mode: multiply;
+
+    -webkit-mask-image: var(
+      --onda-forma
+    );
+    mask-image: var(--onda-forma);
+    -webkit-mask-size: cover;
+    mask-size: cover;
+    -webkit-mask-position: center bottom;
+    mask-position: center bottom;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+  }
+
+  @media (max-width: 860px) {
+    .faixa {
+      padding-block: calc(
+          var(--altura-onda) +
+            var(--esp-3)
+        )
+        var(--esp-4);
+    }
+  }
+</style>

@@ -1,0 +1,90 @@
+---
+import Faixa from "./Faixa.astro";
+import Enfeite from "./Enfeite.astro";
+import Svg from "./Svg.astro";
+
+const CONTEMPLADAS = [
+  "Acessoras",
+  "Líderes",
+  "Empresárias",
+  "Universitárias",
+];
+import papel from "../assets/fundos/papel.webp";
+---
+
+<!-- <Faixa
+  onda="onda-roxa"
+  cor="var(--branco)"
+  corOnda="var(--roxo)"
+  alturaOnda="min(10vw, 96px)"
+  id="faq"
+  classe="faq"
+> -->
+<Faixa
+  onda="onda-branca"
+  cor="var(--branco)"
+  cor-onda="var(--branco)"
+  altura-onda="clamp(60px, 9vw, 140px)"
+>
+  <div
+    class="textura-papel"
+    aria-hidden="true"
+    style={`background-image: url("${papel.src}")`}
+  >
+  </div>
+
+  <div class="conteudo grade">
+    <div class="midia surge esquerda">
+      <div
+        class="imagem"
+        role="img"
+        aria-label="Espaço reservado para a imagem de abertura"
+      >
+        <Svg
+          nome="computador"
+          recolorir={false}
+        />
+      </div>
+    </div>
+    <div class="coluna">
+      <h2 class="surge direita">Para quem é o curso?</h2>
+      <ul class="contempladas">
+        {
+          CONTEMPLADAS.map((item, i) => (
+            <li
+              class="surge direita"
+              style={`--atraso: ${150 + i * 100}ms`}
+            >
+              {item}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</Faixa>
+
+<style>
+  .grade {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: var(--esp-5);
+    align-items: center;
+  }
+
+  .midia {
+    width: min(100%, 460px);
+    margin-inline: auto;
+  }
+
+  .textura-papel {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.15;
+    mix-blend-mode: multiply;
+  }
+</style>

@@ -1,0 +1,236 @@
+/* =========================================================================
+   ESTILOS GLOBAIS
+   ========================================================================= */
+
+:root {
+  /* -----------------------------------------------------------------
+     Cores lidas diretamente dos SVGs exportados do design.
+     ----------------------------------------------------------------- */
+  --roxo: #584080; /* onda roxa.svg */
+  --roxo-claro: #7f62a9; /* estrela arredondada.svg */
+  --creme: #fefbd3; /* onda creme.svg, estrela creme.svg */
+  --cinza: #d9d9d9; /* retangulo cinza.svg */
+  --branco: #ffffff; /* onda branca.svg */
+  --laranja: #fbb169;
+  --lilas: #dccef2;
+
+  /* Tons derivados dos anteriores, para texto e profundidade. */
+  --roxo-escuro: #33245c;
+  --roxo-palido: #efe9f8;
+
+  /* ATENÇÃO: não veio cor de destaque nos arquivos enviados.
+     Este coral é um palpite para o botão de inscrição e para os
+     subtítulos. Troque pelo valor da identidade visual. */
+  --coral: #e8543f;
+
+  --cor-texto: var(--roxo-escuro);
+  --cor-fundo: var(--branco);
+  --cor-destaque: var(--coral);
+
+  --esp-1: 0.5rem;
+  --esp-2: 1rem;
+  --esp-3: 1.5rem;
+  --esp-4: 2.5rem;
+  --esp-5: 4rem;
+  --esp-6: 6rem;
+
+  --largura-conteudo: 1140px;
+  --raio: 16px; /* o mesmo rx do retangulo cinza.svg */
+  --transicao: 240ms ease;
+
+  interpolate-size: allow-keywords;
+}
+
+/* ------------------------------ reset ------------------------------ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 90px;
+}
+
+body {
+  font-family:
+    "Nunito Sans",
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--cor-texto);
+  background: var(--cor-fundo);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.15;
+  font-weight: 800;
+  text-wrap: balance;
+}
+
+a {
+  color: inherit;
+}
+
+/* --------------------------- utilitários --------------------------- */
+.conteudo {
+  position: relative;
+  z-index: 2; /* acima da onda e dos enfeites */
+  width: min(
+    100% - 2.5rem,
+    var(--largura-conteudo)
+  );
+  margin-inline: auto;
+  margin-bottom: -3rem;
+}
+
+.botao {
+  display: inline-block;
+  padding: 0.85rem 1.75rem;
+  border-radius: 999px;
+  background: var(--cor-destaque);
+  color: var(--branco);
+  font-weight: 800;
+  text-decoration: none;
+  transition:
+    transform var(--transicao),
+    box-shadow var(--transicao);
+}
+
+.botao:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px
+    rgba(232, 84, 63, 0.35);
+}
+
+.botao:focus-visible {
+  outline: 3px solid var(--roxo);
+  outline-offset: 3px;
+}
+
+/* ----------------------- animação de rolagem -----------------------
+   Quem marca é o HTML: coloque a classe "surge" em qualquer elemento e
+   ele sobe e aparece quando entra na tela. O script em index.astro
+   observa a rolagem e acrescenta ".visivel" uma única vez.
+
+   Variações (use junto com "surge"):
+     esquerda   entra vindo da esquerda
+     direita    entra vindo da direita
+     zoom       cresce de leve enquanto aparece
+   Atraso: style="--atraso: 150ms", útil para escalonar itens de lista.
+
+   Tudo depende da classe "js" no <html>. Sem JavaScript nada fica
+   escondido, a página só perde a animação.
+
+   Os deslocamentos usam as propriedades translate, scale e rotate, e não
+   transform, para não apagar o transform que alguns elementos já têm
+   (o giro dos enfeites, por exemplo). */
+@keyframes surgir {
+  from {
+    opacity: 0;
+    translate: var(--de-x, 0) var(--de-y, 40px);
+    scale: var(--de-escala, 1);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+
+.js .surge:not(.visivel) {
+  opacity: 0;
+}
+
+.js .surge.visivel {
+  animation: surgir 800ms
+    cubic-bezier(0.2, 0.7, 0.2, 1)
+    var(--atraso, 0ms) both;
+}
+
+.surge.esquerda {
+  --de-x: -60px;
+  --de-y: 0;
+}
+
+.surge.direita {
+  --de-x: 60px;
+  --de-y: 0;
+}
+
+.surge.zoom {
+  --de-escala: 0.9;
+}
+
+/* Enfeites brotam girando. Não mexem na opacidade porque cada enfeite
+   já define a sua no atributo style. */
+@keyframes brotar {
+  from {
+    scale: 0;
+    rotate: -120deg;
+  }
+  to {
+    scale: 1;
+    rotate: 0deg;
+  }
+}
+
+.js .brota:not(.visivel) {
+  scale: 0;
+}
+
+.js .brota.visivel {
+  animation: brotar 900ms
+    cubic-bezier(0.34, 1.56, 0.64, 1)
+    var(--atraso, 0ms) both;
+}
+
+/* Gira devagar e para sempre. Usado em um ou dois enfeites grandes,
+   nunca em todos: movimento demais cansa e atrapalha a leitura. */
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.gira :global(svg) {
+  animation: girar 40s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .js .surge,
+  .js .brota {
+    animation: none !important;
+    opacity: 1 !important;
+    scale: 1 !important;
+    translate: none !important;
+  }
+}
