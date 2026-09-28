@@ -8,8 +8,12 @@
 // Props:
 //   forma     nome do arquivo em src/assets/formas (sem a extensão)
 //   cor       cor do enfeite (a forma foi convertida para currentColor)
-//   tamanho   largura em pixels
-//   topo, esquerda, direita   posição dentro da faixa, em % ou px
+//   tamanho   largura. Número vira px; texto passa direto ("8vw",
+//             "clamp(...)"), útil para acompanhar a largura da tela
+//   topo, baixo, esquerda, direita   posição dentro da faixa, em % ou px.
+//             Com baixo e sem topo, a forma se ancora pela base da faixa
+//   frente    true coloca a forma acima da onda da faixa (mas ainda atrás
+//             do conteúdo). Serve para formas que passam por cima da onda
 //   giro      rotação em graus
 //   opacidade
 //   noCelular manter visível abaixo de 720px
@@ -37,7 +41,8 @@ const {
   forma = "estrela",
   cor = "var(--roxo-claro)",
   tamanho = 48,
-  topo = "10%",
+  topo = null,
+  baixo = null,
   esquerda = null,
   direita = null,
   giro = 0,
@@ -49,7 +54,12 @@ const {
   direitaMobile = null,
   papel = false,
   forcaPapel = 0.3,
+  frente = false,
 } = Astro.props;
+
+// Número é px, texto vai como veio (vw, clamp, calc...).
+const medida = (v) =>
+  typeof v === "number" ? `${v}px` : v;
 
 const chaveForma = Object.keys(
   FORMAS_URL,
@@ -70,7 +80,7 @@ if (papel && !chaveForma) {
 // Cada enfeite mostra um pedaço diferente da folha de papel. Sem isso
 // todos repetiriam o mesmo amassado e a repetição fica evidente.
 // O sorteio é determinístico: mesma posição, mesmo recorte em todo build.
-const semente = `${forma}${topo}${esquerda}${direita}${tamanho}`;
+const semente = `${forma}${topo}${baixo}${esquerda}${direita}${tamanho}`;
 let h = 0;
 for (const c of semente) {
   h =
@@ -79,14 +89,15 @@ for (const c of semente) {
 const recorte = `${h % 100}% ${Math.floor(h / 100) % 100}%`;
 
 const estilo = [
-  `--topo:${topo}`,
+  `--topo:${topo ?? (baixo ? "auto" : "10%")}`,
+  baixo ? `--baixo:${baixo}` : null,
   esquerda
     ? `--esquerda:${esquerda}`
     : null,
   direita
     ? `--direita:${direita}`
     : null,
-  `--tamanho:${tamanho}px`,
+  `--tamanho:${medida(tamanho)}`,
   topoMobile
     ? `--topo-mobile:${topoMobile}`
     : null,
@@ -97,7 +108,7 @@ const estilo = [
     ? `--direita-mobile:${direitaMobile}`
     : null,
   tamanhoMobile
-    ? `--tamanho-mobile:${tamanhoMobile}px`
+    ? `--tamanho-mobile:${medida(tamanhoMobile)}`
     : null,
   `color:${cor}`,
   `opacity:${opacidade}`,
@@ -126,7 +137,7 @@ const estilo = [
   class:list={[
     "enfeite",
     "brota",
-    { "no-celular": noCelular },
+    { "no-celular": noCelular, frente },
   ]}
   style={estilo}
 >
@@ -138,12 +149,19 @@ const estilo = [
   .enfeite {
     position: absolute; /* sai do fluxo e flutua nas coordenadas dadas */
     top: var(--topo);
+    bottom: var(--baixo, auto);
     left: var(--esquerda, auto);
     right: var(--direita, auto);
     width: var(--tamanho);
     pointer-events: none; /* não intercepta cliques de botões e links */
     z-index: 0; /* atrás da onda e do conteúdo da faixa */
     line-height: 0;
+  }
+
+  /* Mesma camada da onda, mas vem depois dela no HTML: pinta por cima
+     da onda e continua atrás do .conteudo (z-index 2). */
+  .enfeite.frente {
+    z-index: 1;
   }
 
   .enfeite :global(svg) {

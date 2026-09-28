@@ -15,6 +15,7 @@ import Svg from "./Svg.astro";
 // o paper.svg original é só um PNG de 4 MB embrulhado em SVG, e inline
 // ele iria parar dentro do HTML. Aqui vira um .webp de ~50 kB.
 import papel from "../assets/fundos/papel.webp";
+import Enfeite from "./Enfeite.astro";
 ---
 
 <section class="hero" id="topo">
@@ -38,15 +39,99 @@ import papel from "../assets/fundos/papel.webp";
   >
   </div>
 
+  <Enfeite
+    forma="trevo-cinco-lados"
+    cor="var(--laranja)"
+    tamanho={220}
+    topo="10%"
+    esquerda="-5%"
+    noCelular
+    tamanhoMobile={58}
+    opacidade={0.5}
+    topoMobile="8%"
+    esquerdaMobile="-2%"
+  />
+
+  <Enfeite
+    forma="asterisco"
+    cor="var(--laranja)"
+    tamanho={400}
+    topo="-10%"
+    direita="-10%"
+    noCelular
+    opacidade={0.5}
+    tamanhoMobile={58}
+    topoMobile="8%"
+    esquerdaMobile="-2%"
+  />
+
+  <Enfeite
+    forma="estrela-cinco-lados"
+    cor="var(--laranja)"
+    tamanho={100}
+    topo="20%"
+    esquerda="40%"
+    noCelular
+    tamanhoMobile={58}
+    topoMobile="8%"
+    esquerdaMobile="-2%"
+  />
+
+  <Enfeite
+    forma="trevo-cinco-lados"
+    cor="var(--laranja)"
+    tamanho={150}
+    topo="20%"
+    direita="20%"
+    noCelular
+    tamanhoMobile={58}
+    opacidade={0.5}
+    topoMobile="8%"
+    esquerdaMobile="-2%"
+  />
+
+  <Enfeite
+    forma="estrela-cinco-lados"
+    cor="var(--laranja)"
+    tamanho={160}
+    topo="60%"
+    direita="10%"
+    noCelular
+    giro={12.5}
+    tamanhoMobile={58}
+    opacidade={0.5}
+    topoMobile="8%"
+    esquerdaMobile="-2%"
+  />
+
+  <Enfeite
+    forma="estrela-arredondada"
+    cor="var(--laranja)"
+    tamanho={240}
+    topo="58%"
+    esquerda="-5%"
+    noCelular
+    giro={12.5}
+    tamanhoMobile={58}
+    opacidade={0.5}
+    topoMobile="8%"
+    esquerdaMobile="-2%"
+  />
+
   <div class="conteudo grade">
-    <div class="ilustracao surge esquerda">
+    <div
+      class="ilustracao surge esquerda"
+    >
       <Svg
         nome="hero"
         recolorir={false}
       />
     </div>
 
-    <div class="texto surge direita" style="--atraso: 150ms">
+    <div
+      class="texto surge direita"
+      style="--atraso: 150ms"
+    >
       <h1>
         <span class="titulo-fino"
           >Fortalecendo</span

@@ -1,7 +1,17 @@
 ---
+// =========================================================================
+// PARA QUEM
+//
+// Ilustração do computador à esquerda, sobre um fundo de formas lilases
+// (quem-fez.png). As formas não são mais <Enfeite> soltos: vêm prontas
+// numa imagem só, e o computador é posicionado em cima dela em
+// porcentagens, então os dois crescem e encolhem juntos.
+// =========================================================================
+
 import Faixa from "./Faixa.astro";
-import Enfeite from "./Enfeite.astro";
 import Svg from "./Svg.astro";
+import papel from "../assets/fundos/papel.webp";
+import formas from "../assets/fundos/quem-fez.png";
 
 const CONTEMPLADAS = [
   "Acessoras",
@@ -9,22 +19,13 @@ const CONTEMPLADAS = [
   "Empresárias",
   "Universitárias",
 ];
-import papel from "../assets/fundos/papel.webp";
 ---
 
-<!-- <Faixa
-  onda="onda-roxa"
-  cor="var(--branco)"
-  corOnda="var(--roxo)"
-  alturaOnda="min(10vw, 96px)"
-  id="faq"
-  classe="faq"
-> -->
 <Faixa
   onda="onda-branca"
   cor="var(--branco)"
-  cor-onda="var(--branco)"
-  altura-onda="clamp(60px, 9vw, 140px)"
+  corOnda="var(--branco)"
+  alturaOnda="clamp(60px, 9vw, 140px)"
 >
   <div
     class="textura-papel"
@@ -34,11 +35,14 @@ import papel from "../assets/fundos/papel.webp";
   </div>
 
   <div class="conteudo grade">
-    <div class="midia surge esquerda">
+    <div
+      class="midia surge esquerda"
+      style={`--formas: url("${formas.src}")`}
+    >
       <div
-        class="imagem"
+        class="computador"
         role="img"
-        aria-label="Espaço reservado para a imagem de abertura"
+        aria-label="Punhos erguidos segurando bandeiras com o símbolo feminino saindo de um notebook"
       >
         <Svg
           nome="computador"
@@ -46,18 +50,29 @@ import papel from "../assets/fundos/papel.webp";
         />
       </div>
     </div>
+
     <div class="coluna">
-      <h2 class="surge direita">Para quem é o curso?</h2>
+      <h2 class="titulo surge direita">
+        <span class="titulo-fino"
+          >Quem já fez o</span
+        >
+        <span class="titulo-forte"
+          >curso?</span
+        >
+      </h2>
+
       <ul class="contempladas">
         {
-          CONTEMPLADAS.map((item, i) => (
-            <li
-              class="surge direita"
-              style={`--atraso: ${150 + i * 100}ms`}
-            >
-              {item}
-            </li>
-          ))
+          CONTEMPLADAS.map(
+            (item, i) => (
+              <li
+                class="surge direita"
+                style={`--atraso: ${150 + i * 100}ms`}
+              >
+                {item}
+              </li>
+            ),
+          )
         }
       </ul>
     </div>
@@ -67,14 +82,97 @@ import papel from "../assets/fundos/papel.webp";
 <style>
   .grade {
     display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: var(--esp-5);
+    grid-template-columns:
+      minmax(0, 1.4fr)
+      minmax(0, 1fr);
+    gap: var(--esp-4);
     align-items: center;
   }
 
+  /* ----------------------- ilustração + fundo ----------------------
+     A caixa tem a proporção exata do quem-fez.png (970 x 786), e o
+     PNG cobre a caixa inteira. O computador entra por cima com
+     medidas relativas a essa caixa, tiradas do layout. */
   .midia {
-    width: min(100%, 460px);
-    margin-inline: auto;
+    position: relative;
+    width: min(100%, 640px);
+    aspect-ratio: 970 / 786;
+    justify-self: start;
+    background-image: var(--formas);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+  }
+
+  .computador {
+    position: absolute;
+    left: 18%;
+    top: 4.5%;
+    width: 71%;
+  }
+
+  .computador :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* ------------------------------ texto ----------------------------- */
+  .coluna {
+    justify-self: center;
+    display: grid;
+    gap: var(--esp-3);
+  }
+
+  .titulo {
+    display: grid;
+    justify-items: center;
+    line-height: 0.95;
+    color: #dd6a75;
+  }
+
+  .titulo-fino {
+    font-size: clamp(
+      1.1rem,
+      2.1vw,
+      1.8rem
+    );
+    font-weight: 800;
+  }
+
+  .titulo-forte {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 900;
+    letter-spacing: -0.01em;
+  }
+
+  .contempladas {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.9em;
+    font-size: clamp(
+      1.05rem,
+      1.6vw,
+      1.45rem
+    );
+    color: var(--roxo);
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.8em;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  li::before {
+    content: "";
+    flex: 0 0 1.25em;
+    width: 1.25em;
+    height: 1.25em;
+    border-radius: 0.4em;
+    background: var(--roxo);
   }
 
   .textura-papel {
@@ -86,5 +184,18 @@ import papel from "../assets/fundos/papel.webp";
     background-position: center;
     opacity: 0.15;
     mix-blend-mode: multiply;
+  }
+
+  /* ------------------------- telas pequenas ------------------------- */
+  @media (max-width: 860px) {
+    .grade {
+      grid-template-columns: 1fr;
+      gap: var(--esp-3);
+    }
+
+    .midia {
+      width: min(100%, 460px);
+      justify-self: center;
+    }
   }
 </style>

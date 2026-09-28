@@ -13,7 +13,7 @@ import logoArretadas from "../assets/logo-arretadas.svg";
 const LINKS = [
   {
     texto: "Sobre o projeto",
-    destino: "#sobre",
+    destino: "#extra",
   },
   {
     texto: "Módulos",
@@ -50,7 +50,7 @@ const LINK_INSCRICAO =
     >
       {
         LINKS.map((link) => (
-          <a href="{link.destino}">
+          <a href={link.destino}>
             {link.texto}
           </a>
         ))
@@ -59,9 +59,9 @@ const LINK_INSCRICAO =
 
     <a
       class="botao"
-      href="{LINK_INSCRICAO}"
+      href={LINK_INSCRICAO}
       target="_blank"
-      rel="noopener norefferer"
+      rel="noopener noreferrer"
     >
       Inscreva-se já!
     </a>

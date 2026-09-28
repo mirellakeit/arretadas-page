@@ -13,6 +13,8 @@
   --branco: #ffffff; /* onda branca.svg */
   --laranja: #fbb169;
   --lilas: #dccef2;
+  --pessego: #ffe8d1; /* fundo dos Materiais Adicionais */
+  --coral-escuro: #c24452; /* títulos dos Materiais */
 
   /* Tons derivados dos anteriores, para texto e profundidade. */
   --roxo-escuro: #33245c;
@@ -54,7 +56,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 90px;
+  scroll-padding-top: 110px; /* altura do cabeçalho fixo */
 }
 
 body {
