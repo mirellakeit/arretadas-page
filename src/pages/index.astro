@@ -5,11 +5,13 @@ import "../styles/global.css";
 import SecaoCitacao from "../components/Citacao.astro";
 import Faq from "../components/Faq.astro";
 import Extra from "../components/Extra.astro";
-import Modulos from "../components/Modulos.astro";
+import SobreCurso from "../components/SobreCurso.astro";
 import ParaQuem from "../components/ParaQuem.astro";
-import Aprendizado from "../components/Aprendizado.astro";
+import MateriaisAdicionais from "../components/MateriaisAdicionais.astro";
 // import Materiais from "../components/Materiais.astro";
 import Professoras from "../components/Professoras.astro";
+import Materiais from "../components/Materiais.astro";
+import Footer from "../components/Footer.astro";
 ---
 
 <html lang="en">
@@ -61,89 +63,90 @@ import Professoras from "../components/Professoras.astro";
       <SecaoCitacao />
       <Extra />
       <ParaQuem />
-      <Modulos />
-      <!-- <Materiais /> -->
-      <Aprendizado />
+      <SobreCurso />
+      <Materiais />
+      <MateriaisAdicionais />
       <Professoras />
       <Faq />
-    </main>
+      <Footer />
 
-    <script>
-      // Anima as seções à medida que a página rola. Cada elemento com
-      // "surge" ou "brota" ganha ".visivel" quando entra na tela e
-      // deixa de ser observado: a animação acontece uma vez só.
-      const alvos =
-        document.querySelectorAll(
-          ".surge, .brota",
-        );
-
-      if (
-        !(
-          "IntersectionObserver" in
-          window
-        )
-      ) {
-        alvos.forEach((el) =>
-          el.classList.add("visivel"),
-        );
-      } else {
-        const observador =
-          new IntersectionObserver(
-            (entradas) => {
-              for (const entrada of entradas) {
-                if (
-                  !entrada.isIntersecting
-                )
-                  continue;
-                entrada.target.classList.add(
-                  "visivel",
-                );
-                observador.unobserve(
-                  entrada.target,
-                );
-              }
-            },
-            // Dispara quando o elemento já subiu um pouco acima da
-            // borda de baixo da tela, não no primeiro pixel.
-            {
-              rootMargin:
-                "0px 0px -8% 0px",
-              threshold: 0.1,
-            },
+      <script>
+        // Anima as seções à medida que a página rola. Cada elemento com
+        // "surge" ou "brota" ganha ".visivel" quando entra na tela e
+        // deixa de ser observado: a animação acontece uma vez só.
+        const alvos =
+          document.querySelectorAll(
+            ".surge, .brota",
           );
-        alvos.forEach((el) =>
-          observador.observe(el),
-        );
 
-        // No fim da página a rolagem acaba antes de o último item subir
-        // além da margem acima. Chegando ao fundo, revela o que sobrou.
-        addEventListener(
-          "scroll",
-          () => {
-            const noFundo =
-              innerHeight + scrollY >=
-              document.documentElement
-                .scrollHeight -
-                4;
-            if (!noFundo) return;
-            document
-              .querySelectorAll(
-                ".surge:not(.visivel), .brota:not(.visivel)",
-              )
-              .forEach((el) => {
-                if (
-                  el.getBoundingClientRect()
-                    .top < innerHeight
-                ) {
-                  el.classList.add(
+        if (
+          !(
+            "IntersectionObserver" in
+            window
+          )
+        ) {
+          alvos.forEach((el) =>
+            el.classList.add("visivel"),
+          );
+        } else {
+          const observador =
+            new IntersectionObserver(
+              (entradas) => {
+                for (const entrada of entradas) {
+                  if (
+                    !entrada.isIntersecting
+                  )
+                    continue;
+                  entrada.target.classList.add(
                     "visivel",
                   );
+                  observador.unobserve(
+                    entrada.target,
+                  );
                 }
-              });
-          },
-          { passive: true },
-        );
-      }
-    </script>
+              },
+              // Dispara quando o elemento já subiu um pouco acima da
+              // borda de baixo da tela, não no primeiro pixel.
+              {
+                rootMargin:
+                  "0px 0px -8% 0px",
+                threshold: 0.1,
+              },
+            );
+          alvos.forEach((el) =>
+            observador.observe(el),
+          );
+
+          // No fim da página a rolagem acaba antes de o último item subir
+          // além da margem acima. Chegando ao fundo, revela o que sobrou.
+          addEventListener(
+            "scroll",
+            () => {
+              const noFundo =
+                innerHeight + scrollY >=
+                document.documentElement
+                  .scrollHeight -
+                  4;
+              if (!noFundo) return;
+              document
+                .querySelectorAll(
+                  ".surge:not(.visivel), .brota:not(.visivel)",
+                )
+                .forEach((el) => {
+                  if (
+                    el.getBoundingClientRect()
+                      .top < innerHeight
+                  ) {
+                    el.classList.add(
+                      "visivel",
+                    );
+                  }
+                });
+            },
+            { passive: true },
+          );
+        }
+      </script>
+    </main>
   </body>
 </html>

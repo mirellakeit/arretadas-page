@@ -1,0 +1,683 @@
+---
+import Faixa from "./Faixa.astro";
+import Enfeite from "./Enfeite.astro";
+import feministas from "../assets/personagens/feministas.svg";
+import violencia from "../assets/personagens/violencia.svg";
+import misoginia from "../assets/personagens/misoginia.svg";
+import comunicacao from "../assets/personagens/comunicacao.svg";
+import autodefesa from "../assets/personagens/autodefesa.svg";
+
+// Enfeites tirados de fundos/sobre-curso.png (layout de 1920px):
+// tamanho e topo em vw, esquerda em % da faixa. As formas grandes e
+// apagadas usam o roxo claro em opacidade baixa sobre o lilás.
+const APAGADA = "#B9A3DC";
+
+const ENFEITES = [
+  // Brancas penduradas na onda que vem do "Quem já fez o curso?".
+  {
+    forma: "trevo-cinco-lados",
+    cor: "#F5F9FA",
+    tamanho: "12.6vw",
+    topo: "-1.1vw",
+    esquerda: "7.4%",
+    noCelular: true,
+    tamanhoMobile: "18vw",
+  },
+  {
+    forma: "asterisco",
+    cor: "#F5F9FA",
+    tamanho: "12.6vw",
+    topo: "-3.9vw",
+    esquerda: "73.8%",
+    giro: 15,
+  },
+
+  // Grandes e apagadas, no fundo. Cabem inteiras na faixa: o fim dela
+  // cortaria a forma numa linha reta.
+  {
+    forma: "asterisco",
+    cor: APAGADA,
+    opacidade: 0.3,
+    tamanho: "30vw",
+    topo: "-4vw",
+    esquerda: "31%",
+  },
+  {
+    forma: "estrela-arredondada",
+    cor: APAGADA,
+    opacidade: 0.35,
+    tamanho: "25.8vw",
+    topo: "23.9vw",
+    esquerda: "82.8%",
+    giro: 8,
+  },
+  {
+    forma: "asterisco",
+    cor: APAGADA,
+    opacidade: 0.3,
+    tamanho: "32vw",
+    topo: "22vw",
+    esquerda: "-17%",
+    giro: -10,
+  },
+  {
+    forma: "trevo-cinco-lados",
+    cor: APAGADA,
+    opacidade: 0.3,
+    tamanho: "22vw",
+    baixo: "0.5vw",
+    esquerda: "31%",
+  },
+
+  // Destaques em roxo claro e branco.
+  {
+    forma: "estrela",
+    cor: "var(--roxo-claro)",
+    tamanho: "3.1vw",
+    topo: "6.8vw",
+    esquerda: "66.1%",
+  },
+  {
+    forma: "trevo",
+    cor: "var(--roxo-claro)",
+    tamanho: "12.7vw",
+    topo: "7.9vw",
+    esquerda: "93.5%",
+    noCelular: true,
+    tamanhoMobile: "18vw",
+  },
+  {
+    forma: "estrela-arredondada",
+    cor: "#F5F9FA",
+    tamanho: "8.4vw",
+    topo: "9.9vw",
+    esquerda: "67.7%",
+    giro: 12,
+    noCelular: true,
+    tamanhoMobile: "13vw",
+  },
+  {
+    forma: "estrela",
+    cor: "var(--roxo-claro)",
+    opacidade: 0.52,
+    tamanho: "4vw",
+    topo: "10.8vw",
+    esquerda: "15.4%",
+  },
+  {
+    forma: "estrela-arredondada",
+    cor: "var(--roxo-claro)",
+    tamanho: "9.8vw",
+    topo: "13.5vw",
+    esquerda: "3%",
+    noCelular: true,
+    tamanhoMobile: "15vw",
+  },
+  {
+    forma: "trevo",
+    cor: "var(--roxo-claro)",
+    opacidade: 0.87,
+    tamanho: "5.5vw",
+    topo: "13.5vw",
+    esquerda: "22.9%",
+  },
+  {
+    forma: "estrela",
+    cor: "var(--roxo-claro)",
+    opacidade: 0.66,
+    tamanho: "4.3vw",
+    topo: "16.4vw",
+    esquerda: "90%",
+  },
+];
+
+// Cada módulo tem a cor de fundo do cartão, a personagem (em
+// src/assets/personagens) e a cor da sombra que escurece a base da
+// ilustração, onde fica o nome. Troque "descricao" pelo texto real.
+const LOREM =
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.";
+
+const MODULOS = [
+  {
+    titulo:
+      "Feminismos e Direitos das Mulheres",
+    descricao: LOREM,
+    cor: "#ffc5b3",
+    sombra: "#3e2a5c",
+    personagem: feministas,
+  },
+  {
+    titulo:
+      "Violência Política de Gênero e Raça",
+    descricao: LOREM,
+    cor: "#8062aa",
+    sombra: "#1d0f45",
+    personagem: violencia,
+  },
+  {
+    titulo:
+      "Misoginia Digital Interseccional",
+    descricao: LOREM,
+    cor: "#f0dae2",
+    sombra: "#3a0e1e",
+    personagem: misoginia,
+  },
+  {
+    titulo: "Comunicação Feminista",
+    descricao: LOREM,
+    cor: "#f2d3bc",
+    sombra: "#35203f",
+    personagem: comunicacao,
+  },
+  {
+    titulo:
+      "Autodefesa Digital Feminista",
+    descricao: LOREM,
+    cor: "#e6acb3",
+    sombra: "#2e0f1e",
+    personagem: autodefesa,
+  },
+];
+---
+
+<Faixa
+  onda="onda-branca"
+  id="modulos"
+  cor="var(--lilas)"
+  corOnda="var(--branco)"
+  papel
+>
+  {
+    ENFEITES.map((e) => (
+      <Enfeite {...e} />
+    ))
+  }
+
+  <div class="conteudo">
+    <header class="titulo surge">
+      <span class="sobre">Sobre o</span>
+      <h2>Curso</h2>
+      <p class="subtitulo">
+        O curso é dividido em 5 módulos
+      </p>
+    </header>
+
+    <!-- Em repouso os cinco cartões dividem a largura. Passando o mouse
+         (ou tocando, ou chegando pelo teclado) num deles, ele abre e
+         mostra o texto ao lado da personagem; os outros viram faixas
+         de cor. O script no fim do arquivo só troca as classes. -->
+    <ul class="modulos" data-modulos>
+      {
+        MODULOS.map((m, i) => (
+          <li
+            class="modulo surge"
+            tabindex="0"
+            style={`--cor-modulo: ${m.cor}; --sombra: ${m.sombra}; --atraso: ${i * 110}ms`}
+          >
+            <div class="arte">
+              <img
+                src={m.personagem.src}
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
+              <span
+                class="nome"
+                aria-hidden="true"
+              >
+                {m.titulo}
+              </span>
+            </div>
+
+            <div class="detalhe">
+              <div class="detalhe-texto">
+                <h3>{m.titulo}</h3>
+                <p>{m.descricao}</p>
+              </div>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Faixa>
+
+<script>
+  // Liga a sanfona de cada lista de módulos. Só vale nas telas largas:
+  // abaixo de 1025px todos os módulos já aparecem abertos, um embaixo
+  // do outro, e o script não faz nada.
+  const larga = matchMedia(
+    "(min-width: 1025px)",
+  );
+
+  document
+    .querySelectorAll<HTMLElement>(
+      "[data-modulos]",
+    )
+    .forEach((lista) => {
+      const itens = [
+        ...lista.querySelectorAll<HTMLElement>(
+          ".modulo",
+        ),
+      ];
+      let ultimoPonteiro = "mouse";
+
+      const ativar = (
+        alvo: HTMLElement | null,
+      ) => {
+        for (const item of itens) {
+          item.classList.toggle(
+            "ativo",
+            item === alvo,
+          );
+        }
+        lista.classList.toggle(
+          "tem-ativo",
+          Boolean(alvo),
+        );
+      };
+
+      lista.addEventListener(
+        "pointerdown",
+        (e) => {
+          ultimoPonteiro =
+            e.pointerType;
+        },
+      );
+
+      for (const item of itens) {
+        // Mouse: abre ao passar por cima.
+        item.addEventListener(
+          "pointerenter",
+          (e) => {
+            if (
+              e.pointerType ===
+                "mouse" &&
+              larga.matches
+            )
+              ativar(item);
+          },
+        );
+
+        // Toque: abre no primeiro toque, fecha no segundo.
+        item.addEventListener(
+          "click",
+          () => {
+            if (
+              !larga.matches ||
+              ultimoPonteiro === "mouse"
+            )
+              return;
+            ativar(
+              item.classList.contains(
+                "ativo",
+              )
+                ? null
+                : item,
+            );
+          },
+        );
+
+        // Teclado: o cartão com foco fica aberto.
+        item.addEventListener(
+          "focus",
+          () => {
+            if (larga.matches)
+              ativar(item);
+          },
+        );
+      }
+
+      // Saindo da lista, volta todo mundo ao repouso.
+      lista.addEventListener(
+        "pointerleave",
+        (e) => {
+          if (e.pointerType === "mouse")
+            ativar(null);
+        },
+      );
+
+      lista.addEventListener(
+        "focusout",
+        (e) => {
+          if (
+            !lista.contains(
+              e.relatedTarget as Node,
+            )
+          )
+            ativar(null);
+        },
+      );
+
+      larga.addEventListener(
+        "change",
+        () => ativar(null),
+      );
+    });
+</script>
+
+<style>
+  .conteudo {
+    /* Os cartões ocupam 68% da tela: um pouco menos que no layout
+       (80%), para a seção caber inteira na tela. */
+    width: min(
+      100% - 2.5rem,
+      68vw,
+      1300px
+    );
+    margin-bottom: -5rem;
+  }
+
+  /* --------------------------- título --------------------------- */
+  .titulo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-top: var(--esp-5);
+  }
+
+  .sobre {
+    font-size: clamp(
+      1.25rem,
+      2.2vw,
+      2.4rem
+    );
+    font-weight: 800;
+    line-height: 1;
+    color: var(--roxo);
+  }
+
+  h2 {
+    font-size: clamp(3rem, 7vw, 6rem);
+    line-height: 0.95;
+    font-weight: 900;
+    color: #432d5e;
+  }
+
+  .subtitulo {
+    margin-top: var(--esp-2);
+    font-size: clamp(
+      1.1rem,
+      2.3vw,
+      2.6rem
+    );
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--roxo);
+  }
+
+  /* --------------------------- módulos -------------------------- */
+  /* Medidas do layout em 1920px: cartão de 286 x 745 e faixa fechada
+     com metade da largura do cartão. Tudo sai da largura da lista
+     (cqw), então a proporção se mantém em qualquer tela larga. */
+  .modulos {
+    container-type: inline-size;
+    --vao: clamp(10px, 1.1vw, 22px);
+    --cartao: calc(
+      (100cqw - 4 * var(--vao)) / 5
+    );
+    --faixa: calc(var(--cartao) * 0.5);
+    --detalhe: calc(
+      100cqw - var(--cartao) - 4 *
+        (var(--faixa) + var(--vao))
+    );
+
+    display: flex;
+    gap: var(--vao);
+    margin: clamp(2rem, 4vw, 5rem) 0
+      var(--esp-6);
+    padding: 0;
+    list-style: none;
+  }
+
+  .modulo {
+    flex: 1 1 0;
+    min-width: 0;
+    /* No layout o cartão tem 2,6 vezes a largura na altura. Aqui fica
+       em 2,4 e nunca passa de 72% da altura da tela. */
+    height: min(
+      calc(var(--cartao) * 2.4),
+      72vh
+    );
+    display: flex;
+    border-radius: var(--raio);
+    overflow: hidden;
+    background: var(--cor-modulo);
+    cursor: pointer;
+    transition:
+      flex-grow 500ms
+        cubic-bezier(0.4, 0, 0.2, 1),
+      flex-basis 500ms
+        cubic-bezier(0.4, 0, 0.2, 1),
+      background-color 300ms ease;
+  }
+
+  .modulo:focus-visible {
+    outline: 3px solid var(--roxo);
+    outline-offset: 3px;
+  }
+
+  /* Um aberto: os outros viram faixas, ele ocupa o resto. */
+  .modulos.tem-ativo .modulo {
+    flex: 0 0 var(--faixa);
+  }
+
+  .modulos.tem-ativo .modulo.ativo {
+    flex: 1 1 0;
+    background: var(--branco);
+    cursor: default;
+  }
+
+  /* ----------------------------- arte --------------------------- */
+  .arte {
+    position: relative;
+    flex: none;
+    width: 100%;
+    height: 100%;
+    background: var(--cor-modulo);
+    overflow: hidden;
+    transition: width 500ms
+      cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .modulo.ativo .arte {
+    width: var(--cartao);
+  }
+
+  .arte img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+
+  /* Sombra na base, para o nome em branco ficar legível. */
+  .arte::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      transparent 55%,
+      color-mix(
+          in srgb,
+          var(--sombra) 70%,
+          transparent
+        )
+        80%,
+      var(--sombra) 100%
+    );
+    pointer-events: none;
+  }
+
+  .nome {
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    right: 0;
+    bottom: clamp(
+      0.6rem,
+      1.2vw,
+      1.5rem
+    );
+    padding-inline: 0.5rem;
+    color: var(--branco);
+    font-size: clamp(
+      0.9rem,
+      1.25vw,
+      1.6rem
+    );
+    font-weight: 800;
+    line-height: 1.05;
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  /* Faixas fechadas: só a cor, sem personagem. */
+  .arte img,
+  .arte::after,
+  .nome {
+    transition: opacity 300ms ease;
+  }
+
+  .modulos.tem-ativo
+    .modulo:not(.ativo)
+    .arte
+    img,
+  .modulos.tem-ativo
+    .modulo:not(.ativo)
+    .arte::after,
+  .modulos.tem-ativo
+    .modulo:not(.ativo)
+    .nome {
+    opacity: 0;
+  }
+
+  /* --------------------------- detalhe -------------------------- */
+  /* O texto tem largura fixa (a do cartão aberto) e fica escondido
+     atrás do overflow enquanto o cartão cresce. Assim ele não fica
+     se reorganizando durante a animação: só aparece. */
+  .detalhe {
+    flex: 1 1 0;
+    min-width: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+
+  .detalhe-texto {
+    flex: none;
+    width: var(--detalhe);
+    padding: var(--esp-3)
+      clamp(1rem, 2vw, 2.5rem);
+    opacity: 0;
+    transition: opacity 250ms ease;
+  }
+
+  .modulo.ativo .detalhe-texto {
+    opacity: 1;
+    transition-delay: 220ms;
+  }
+
+  h3 {
+    font-size: clamp(
+      1.3rem,
+      1.8vw,
+      2.2rem
+    );
+    font-weight: 800;
+    line-height: 1;
+    text-wrap: wrap; /* o balance global quebraria em três linhas */
+    color: var(--coral-escuro);
+    margin-bottom: clamp(
+      0.75rem,
+      1.6vw,
+      1.75rem
+    );
+  }
+
+  .detalhe p {
+    font-size: clamp(
+      0.95rem,
+      1.05vw,
+      1.25rem
+    );
+    line-height: 1.4;
+    color: #111;
+  }
+
+  /* ------------------ telas médias e pequenas ------------------- */
+  /* Cinco cartões lado a lado não cabem: cada módulo aparece aberto,
+     um embaixo do outro, com a personagem à esquerda do texto. */
+  @media (max-width: 1024px) {
+    .conteudo {
+      width: min(100% - 2.5rem, 760px);
+    }
+
+    .modulos {
+      container-type: normal;
+      flex-direction: column;
+      gap: var(--esp-2);
+    }
+
+    .modulo,
+    .modulos.tem-ativo .modulo {
+      flex: none;
+      height: auto;
+      min-height: 20rem;
+      background: var(--branco);
+      cursor: default;
+    }
+
+    .arte,
+    .modulo.ativo .arte {
+      width: min(38%, 15rem);
+      height: auto;
+      align-self: stretch;
+    }
+
+    .arte img {
+      position: absolute;
+      inset: 0;
+    }
+
+    .modulos.tem-ativo
+      .modulo:not(.ativo)
+      .arte
+      img,
+    .modulos.tem-ativo
+      .modulo:not(.ativo)
+      .arte::after,
+    .modulos.tem-ativo
+      .modulo:not(.ativo)
+      .nome {
+      opacity: 1;
+    }
+
+    .detalhe-texto {
+      width: 100%;
+      flex: 1 1 auto;
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .modulo,
+    .modulos.tem-ativo .modulo {
+      min-height: 17rem;
+    }
+
+    .nome {
+      font-size: 0.85rem;
+    }
+
+    h3 {
+      margin-bottom: var(--esp-1);
+    }
+
+    .detalhe p {
+      font-size: 0.95rem;
+    }
+  }
+</style>

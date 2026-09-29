@@ -94,7 +94,6 @@ const estilo = [
       <div class="onda">
         <Svg
           nome={onda}
-          recolorir={false}
           ancora="xMidYMax slice"
         />
         {usaPapel && (
@@ -126,6 +125,7 @@ const estilo = [
     left: 0;
     right: 0;
     height: var(--altura-onda);
+    color: var(--cor-onda);
     background: linear-gradient(
       to bottom,
       var(--cor-onda) 0 3px,

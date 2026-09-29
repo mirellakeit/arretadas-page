@@ -1,0 +1,26 @@
+---
+import Svg from "./Svg.astro";
+---
+
+<footer class="rodape">
+  <div class="regua">
+    <Svg
+      nome="regua-de-marcas"
+      recolorir={false}
+    />
+  </div>
+</footer>
+
+<style>
+  .rodape {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 150px 0 50px 0;
+    background-color: var(--roxo);
+  }
+  .regua {
+    width: 60%;
+  }
+</style>

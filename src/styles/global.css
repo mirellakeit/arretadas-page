@@ -148,7 +148,8 @@ a {
 @keyframes surgir {
   from {
     opacity: 0;
-    translate: var(--de-x, 0) var(--de-y, 40px);
+    translate: var(--de-x, 0)
+      var(--de-y, 40px);
     scale: var(--de-escala, 1);
   }
   to {

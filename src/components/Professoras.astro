@@ -32,14 +32,25 @@ const PROFESSORAS = [
   classe="hero"
 > -->
 <Faixa
-  onda="onda-laranja"
+  onda="onda-pessego"
   id="professoras"
-  cor="var(--laranja)"
-  cor-faixa="var(--laranja)"
+  cor="var(--pessego)"
+  cor-faixa="var(--pessego)"
   corOnda="var(--laranja)"
 >
   <div class="conteudo grade">
-    <h2 class="surge">Equipe Colaboradora</h2>
+    <header class="titulo surge">
+      <span class="equipe">Equipe</span>
+      <h2>Elaboradora</h2>
+      <div class="corpo">
+        <h3>As</h3>
+        <h3 class="mulheres">
+          mulheres
+        </h3>
+        <h3>que fizeram acontecer</h3>
+      </div>
+    </header>
+
     <ul class="professoras">
       {
         PROFESSORAS.map((item, i) => (
@@ -60,9 +71,63 @@ const PROFESSORAS = [
 </Faixa>
 
 <style>
-  .grade h2 {
-    text-align: center;
-    margin: 20px auto 60px auto;
+  .grade {
+    margin-top: clamp(
+      -6rem,
+      -10vw,
+      -10rem
+    );
+  }
+
+  .titulo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: clamp(
+      1.5rem,
+      5vw,
+      6rem
+    );
+  }
+
+  .equipe {
+    font-size: clamp(
+      1.1rem,
+      1.9vw,
+      1.6rem
+    );
+    font-weight: 800;
+    line-height: 1;
+    color: var(--roxo);
+    margin-bottom: -0.1em;
+  }
+
+  h2 {
+    font-size: clamp(
+      2.4rem,
+      5.4vw,
+      4.4rem
+    );
+    font-weight: 900;
+    line-height: 1;
+    color: var(--roxo-escuro);
+  }
+
+  .corpo {
+    margin-top: 10px;
+    font-size: clamp(
+      1rem,
+      2.35vw,
+      1.8rem
+    );
+    display: flex;
+    gap: 8px;
+    color: var(--roxo);
+    font-size:;
+  }
+
+  .mulheres {
+    color: #c24452;
   }
 
   .professoras {

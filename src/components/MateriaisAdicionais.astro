@@ -1,0 +1,516 @@
+---
+// =========================================================================
+// MATERIAIS ADICIONAIS
+//
+// Faixa pêssego logo depois do "Sobre o Curso", com a onda lilás
+// escorrendo do topo. Três materiais em zigue-zague: a capa (que é o
+// link de download) alterna de lado a cada item, e a chamada fica do
+// outro lado. Nos itens pares o texto se alinha à direita, colado na
+// capa, como no layout.
+// =========================================================================
+
+import Faixa from "./Faixa.astro";
+import Enfeite from "./Enfeite.astro";
+
+// Troque "link" pelo endereço real de cada PDF e, quando houver, "capa"
+// por uma imagem importada de src/assets (ex.: import capaCartilha
+// from "../assets/capas/cartilha.png").
+const MATERIAIS = [
+  {
+    titulo: [
+      "Cartilha de Prevenção",
+      "e Proteção nas Redes",
+    ],
+    texto:
+      "Clique na imagem ao lado para baixar a Cartilha de Prevenção e Proteção nas Redes!",
+    link: "#",
+    capa: null,
+  },
+  {
+    titulo: ["Livro de Formação"],
+    texto:
+      "Clique na imagem ao lado para baixar o Livro de Formação!",
+    link: "#",
+    capa: null,
+  },
+  {
+    titulo: [
+      "PDF do Curso",
+      "‘Fortalecendo Mulheres’",
+    ],
+    texto:
+      "Clique na imagem ao lado para baixar o PDF do Curso ‘Fortalecendo Mulheres’!",
+    link: "#",
+    capa: null,
+  },
+];
+
+// Enfeites medidos no layout (1920px): tamanho e topo em vw, esquerda
+// em % da faixa. Os que ficam mais para baixo usam topo em %, porque a
+// altura da faixa muda com a largura da tela e com o texto.
+const APAGADA = "#FDD9B5";
+const LILAS_FORTE = "#BFA9CD";
+const VERMELHO = "#E85453";
+
+const ENFEITES = [
+  // Grandes e apagadas, no fundo.
+  {
+    forma: "estrela-cinco-lados",
+    cor: APAGADA,
+    opacidade: 0.5,
+    tamanho: "30.7vw",
+    topo: "7vw",
+    esquerda: "7.7%",
+    giro: -15,
+  },
+  {
+    forma: "estrela",
+    cor: APAGADA,
+    opacidade: 0.5,
+    tamanho: "8.8vw",
+    topo: "30%",
+    esquerda: "54.2%",
+  },
+  {
+    forma: "trevo-cinco-lados",
+    cor: APAGADA,
+    opacidade: 0.5,
+    tamanho: "17.5vw",
+    topo: "20%",
+    esquerda: "82.2%",
+  },
+  {
+    forma: "asterisco",
+    cor: APAGADA,
+    opacidade: 0.5,
+    tamanho: "36vw",
+    topo: "38%",
+    esquerda: "40%",
+    giro: 10,
+  },
+  {
+    forma: "trevo-cinco-lados",
+    cor: APAGADA,
+    opacidade: 0.5,
+    tamanho: "24vw",
+    topo: "58%",
+    esquerda: "-2%",
+    giro: -8,
+  },
+  {
+    forma: "trevo-cinco-lados",
+    cor: APAGADA,
+    opacidade: 0.5,
+    tamanho: "20vw",
+    baixo: "0",
+    esquerda: "72%",
+    giro: 20,
+  },
+
+  // Penduradas na onda lilás.
+  {
+    forma: "estrela-arredondada",
+    cor: "var(--lilas)",
+    tamanho: "16vw",
+    topo: "-7vw",
+    esquerda: "4%",
+    giro: -10,
+  },
+  {
+    forma: "estrela-arredondada",
+    cor: "var(--lilas)",
+    tamanho: "19vw",
+    topo: "-6vw",
+    esquerda: "73%",
+    giro: 6,
+    noCelular: true,
+    tamanhoMobile: "26vw",
+  },
+
+  // Destaques do topo.
+  {
+    forma: "estrela",
+    cor: LILAS_FORTE,
+    opacidade: 0.6,
+    tamanho: "4vw",
+    topo: "6vw",
+    esquerda: "3.6%",
+  },
+  {
+    forma: "trevo-cinco-lados",
+    cor: "#EF8279",
+    tamanho: "7.1vw",
+    topo: "8.9vw",
+    esquerda: "6.2%",
+    noCelular: true,
+    tamanhoMobile: "11vw",
+  },
+  {
+    forma: "asterisco",
+    cor: VERMELHO,
+    tamanho: "18vw",
+    topo: "17.5vw",
+    esquerda: "-7%",
+    giro: -6,
+    noCelular: true,
+    tamanhoMobile: "24vw",
+    esquerdaMobile: "-12%",
+  },
+  {
+    forma: "trevo-cinco-lados",
+    cor: LILAS_FORTE,
+    tamanho: "9.7vw",
+    topo: "9.3vw",
+    esquerda: "58%",
+  },
+  {
+    forma: "estrela-cinco-lados",
+    cor: "#ED726C",
+    tamanho: "4.4vw",
+    topo: "19vw",
+    esquerda: "67%",
+    giro: 10,
+  },
+  {
+    forma: "estrela",
+    cor: LILAS_FORTE,
+    opacidade: 0.6,
+    tamanho: "4vw",
+    topo: "7.9vw",
+    esquerda: "79.4%",
+  },
+  {
+    forma: "estrela-arredondada",
+    cor: "#EF847C",
+    tamanho: "7.5vw",
+    topo: "2.4vw",
+    esquerda: "86.1%",
+    giro: 14,
+    frente: true,
+    noCelular: true,
+    tamanhoMobile: "11vw",
+  },
+  {
+    forma: "asterisco",
+    cor: "var(--lilas)",
+    tamanho: "18.8vw",
+    topo: "8.9vw",
+    esquerda: "90%",
+    giro: 18,
+    noCelular: true,
+    tamanhoMobile: "24vw",
+  },
+];
+
+// Estrelinha vermelha no canto de baixo de cada capa, do lado de fora.
+const ESTRELINHA = {
+  forma: "estrela",
+  cor: VERMELHO,
+  tamanho: "clamp(20px, 2.4vw, 42px)",
+  baixo:
+    "calc(clamp(20px, 2.4vw, 42px) * -0.7)",
+};
+---
+
+<Faixa
+  onda="onda-pessego"
+  id="materiais"
+  cor="var(--pessego)"
+  corOnda="var(--lilas)"
+>
+  {
+    ENFEITES.map((e) => (
+      <Enfeite {...e} />
+    ))
+  }
+
+  <div class="conteudo">
+    <header class="titulo surge">
+      <span class="sobre"
+        >Materiais</span
+      >
+      <h2>Adicionais</h2>
+    </header>
+
+    <ul class="materiais">
+      {
+        MATERIAIS.map((m, i) => {
+          const invertido = i % 2 === 1;
+          return (
+            <li
+              class:list={[
+                "item",
+                { invertido },
+              ]}
+            >
+              <div
+                class:list={[
+                  "moldura",
+                  "surge",
+                  invertido
+                    ? "direita"
+                    : "esquerda",
+                ]}
+              >
+                <a
+                  class="capa"
+                  href={m.link}
+                  download
+                  aria-label={`Baixar: ${m.titulo.join(" ")}`}
+                >
+                  {m.capa && (
+                    <img
+                      src={""}
+                      alt=""
+                      loading="lazy"
+                    />
+                  )}
+                </a>
+                <Enfeite
+                  {...ESTRELINHA}
+                  esquerda={
+                    invertido
+                      ? null
+                      : "calc(clamp(20px, 2.4vw, 42px) * -0.7)"
+                  }
+                  direita={
+                    invertido
+                      ? "calc(clamp(20px, 2.4vw, 42px) * -0.7)"
+                      : null
+                  }
+                  frente
+                />
+              </div>
+
+              <div
+                class:list={[
+                  "chamada",
+                  "surge",
+                  invertido
+                    ? "esquerda"
+                    : "direita",
+                ]}
+                style="--atraso: 150ms"
+              >
+                <h3>
+                  {m.titulo.map(
+                    (linha) => (
+                      <span class="linha">
+                        {linha}
+                      </span>
+                    ),
+                  )}
+                </h3>
+                <p>{m.texto}</p>
+              </div>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</Faixa>
+
+<style>
+  /* Duas colunas iguais com um vão largo no meio. A coluna da esquerda
+     encosta o conteúdo no vão (justify-self: end) e a da direita
+     também (start): assim a capa de um item e o texto do seguinte
+     ficam alinhados pela mesma borda, como no layout. */
+  .conteudo {
+    --vao: clamp(2rem, 9vw, 12rem);
+    --largura-capa: min(100%, 28rem);
+    margin-top: clamp(1rem, 4vw, 4rem);
+    margin-bottom: 0;
+  }
+
+  .titulo,
+  .item {
+    display: grid;
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(0, 1fr);
+    column-gap: var(--vao);
+  }
+
+  /* --------------------------- título --------------------------- */
+  .titulo {
+    color: var(--coral-escuro);
+    margin-bottom: clamp(
+      1rem,
+      2.5vw,
+      2.5rem
+    );
+  }
+
+  /* O título fica centrado sobre a primeira capa. */
+  .titulo > * {
+    grid-column: 1;
+    justify-self: end;
+    width: var(--largura-capa);
+    text-align: center;
+  }
+
+  .sobre {
+    font-size: clamp(
+      1.1rem,
+      1.9vw,
+      1.5rem
+    );
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: -0.1em;
+  }
+
+  h2 {
+    font-size: clamp(
+      2.6rem,
+      6vw,
+      4.4rem
+    );
+    line-height: 1;
+    font-weight: 900;
+  }
+
+  /* --------------------------- itens ---------------------------- */
+  .materiais {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 3rem);
+  }
+
+  .item {
+    align-items: center;
+  }
+
+  .moldura {
+    position: relative; /* referência para a estrelinha do canto */
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: end;
+    width: var(--largura-capa);
+  }
+
+  .chamada {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: start;
+    display: grid;
+    gap: var(--esp-2);
+    max-width: 30rem;
+  }
+
+  /* Itens pares: capa à direita, texto à esquerda alinhado à direita. */
+  .invertido .moldura {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .invertido .chamada {
+    grid-column: 1;
+    justify-self: end;
+    text-align: right;
+  }
+
+  /* ---------------------------- capa ---------------------------- */
+  .capa {
+    display: block;
+    width: 100%;
+    aspect-ratio: 275 / 255;
+    border-radius: 10px;
+    background: #f0dae2;
+    overflow: hidden;
+    transition:
+      transform var(--transicao),
+      box-shadow var(--transicao);
+  }
+
+  .capa img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .capa:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px
+      rgba(194, 68, 82, 0.2);
+  }
+
+  .capa:focus-visible {
+    outline: 3px solid
+      var(--coral-escuro);
+    outline-offset: 4px;
+  }
+
+  /* --------------------------- chamada -------------------------- */
+  h3 {
+    font-size: clamp(
+      1.4rem,
+      2.3vw,
+      2.1rem
+    );
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--coral-escuro);
+  }
+
+  /* Cada pedaço do título numa linha, como no layout. No celular volta
+     a correr junto com o resto. */
+  .linha {
+    display: block;
+  }
+
+  .chamada p {
+    font-size: clamp(
+      1.05rem,
+      1.5vw,
+      1.3rem
+    );
+    line-height: 1.45;
+    color: #222;
+  }
+
+  /* ------------------------ telas pequenas ---------------------- */
+  @media (max-width: 860px) {
+    .titulo,
+    .item {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      text-align: center;
+    }
+
+    .titulo > *,
+    .moldura,
+    .invertido .moldura {
+      grid-column: 1;
+      grid-row: auto;
+      justify-self: center;
+    }
+
+    .moldura {
+      width: min(100%, 22rem);
+    }
+
+    .chamada,
+    .invertido .chamada {
+      grid-column: 1;
+      grid-row: auto;
+      justify-self: center;
+      text-align: center;
+      margin-top: var(--esp-3);
+    }
+
+    .materiais {
+      gap: var(--esp-5);
+    }
+
+    .linha {
+      display: inline;
+    }
+
+    .linha + .linha::before {
+      content: " ";
+    }
+  }
+</style>

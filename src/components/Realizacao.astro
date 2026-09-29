@@ -1,0 +1,78 @@
+---
+// =========================================================================
+// REALIZAÇÃO
+//
+// Título e régua de marcas das instituições. Não é uma faixa própria:
+// fica no topo da faixa do FAQ (Faq.astro), dividindo o mesmo fundo de
+// papel, como no layout.
+//
+// A régua vem pronta de src/assets/regua-de-marcas.svg, já com o
+// retângulo roxo e os logos em branco. Para trocar um logo, substitua o
+// arquivo inteiro.
+// =========================================================================
+
+import Svg from "./Svg.astro";
+
+// Lido pelos leitores de tela, já que o desenho em si é decorativo.
+const INSTITUICOES = [
+  "Arretadas em Rede",
+  "Fundação Cetrede",
+  "Universidade Federal do Ceará",
+  "Universidade de Brasília (UnB)",
+];
+---
+
+<div class="realizacao" id="realizacao">
+  <h2 class="surge">Realização</h2>
+
+  <div
+    class="regua surge zoom"
+    style="--atraso: 120ms"
+    role="img"
+    aria-label={`Realização: ${INSTITUICOES.join(", ")}`}
+  >
+    <Svg
+      nome="regua-de-marcas"
+      recolorir={false}
+    />
+  </div>
+</div>
+
+<style>
+  .realizacao {
+    display: grid;
+    justify-items: center;
+    gap: clamp(1rem, 2.6vw, 3.4rem);
+  }
+
+  h2 {
+    font-size: clamp(
+      2.4rem,
+      5.4vw,
+      3.5rem
+    );
+    font-weight: 900;
+    line-height: 1;
+    color: var(--roxo);
+    text-align: center;
+  }
+
+  /* No layout a régua ocupa 92% da largura da lista de perguntas. */
+  .regua {
+    width: 70%;
+    max-width: 1537px; /* tamanho real do arquivo */
+    line-height: 0;
+  }
+
+  .regua :global(svg) {
+    width: 100%;
+    height: auto;
+  }
+
+  /* No celular a régua usa a largura toda, senão os logos somem. */
+  @media (max-width: 720px) {
+    .regua {
+      width: 100%;
+    }
+  }
+</style>

@@ -8,27 +8,27 @@
 
 export const PERGUNTAS = [
   {
-    pergunta: "O curso é gratuito?",
+    pergunta: "É realmente gratuito?",
     resposta:
-      "Sim. O curso é inteiramente gratuito e não há cobrança em nenhuma etapa, incluindo a emissão do certificado.",
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
   },
   {
     pergunta:
-      "Preciso ter formação na área para participar?",
+      "Quem pode participar das formações?",
     resposta:
-      "Não. O curso foi desenhado para assessoras, líderes comunitárias, empresárias e universitárias, com linguagem acessível a quem nunca estudou o tema formalmente.",
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
   },
   {
     pergunta:
-      "Como funcionam as aulas?",
+      "Como funciona a certificação?",
     resposta:
-      "As aulas são a distância e assíncronas, em plataforma própria. Você assiste aos vídeos e faz as atividades no horário que puder, respeitando os prazos de cada módulo.",
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
   },
   {
     pergunta:
       "Qual a carga horária total?",
     resposta:
-      "O curso é dividido em cinco módulos. Cada módulo reúne videoaulas, textos de apoio e uma atividade avaliativa.",
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
   },
   {
     pergunta:
