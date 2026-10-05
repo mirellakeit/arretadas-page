@@ -1,0 +1,41 @@
+---
+// =========================================================================
+// TEXTURA DE PAPEL
+//
+// Papel amassado por cima do fundo da seção, em multiply: suja a cor de
+// fundo sem escurecer a leitura. Coloque logo no começo da seção.
+//
+// Props:
+//   forca    quanto o papel aparece, de 0 a 1 (padrão 0.15)
+//   porCima  true: passa também por cima dos enfeites da seção
+//
+// A imagem é um .webp de ~50 kB. O paper.svg original é um PNG de 4 MB
+// embrulhado em SVG e não deve ser usado.
+// =========================================================================
+
+import papel from "../assets/fundos/papel.webp";
+
+const { forca = 0.15, porCima = false } = Astro.props;
+---
+
+<div
+  class:list={["textura-papel", { "por-cima": porCima }]}
+  aria-hidden="true"
+  style={`background-image: url("${papel.src}"); opacity: ${forca}`}
+></div>
+
+<style>
+  .textura-papel {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-size: cover;
+    background-position: center;
+    mix-blend-mode: multiply;
+  }
+
+  .por-cima {
+    z-index: 1;
+  }
+</style>

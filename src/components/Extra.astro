@@ -1,152 +1,131 @@
 ---
+// =========================================================================
+// SOBRE O PROJETO
+//
+// Faixa branca com a onda roxa escorrendo da citação. Grade 2 x 2:
+//
+//     título | logo
+//     vídeo  | texto
+//
+// Assim o título fica na altura do logo e o texto começa na altura do
+// topo do vídeo. No celular vira uma coluna só.
+// =========================================================================
+
+import { Image } from "astro:assets";
 import Faixa from "./Faixa.astro";
 import Enfeite from "./Enfeite.astro";
+import Enfeites from "./Enfeites.astro";
 import Svg from "./Svg.astro";
-import { Image } from "astro:assets";
+import TexturaPapel from "./TexturaPapel.astro";
 import logoArretadas from "../assets/logo-arretadas.svg";
+import { ENFEITES_SOBRE_PROJETO, BRILHO_VIDEO } from "../data/enfeites.js";
 
-const CITACAO =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-
-import papel from "../assets/fundos/papel.webp";
-
-// Enfeites tirados de fundos/sobre-projeto.png (layout de 1920px):
-// tamanho e topo em vw, esquerda em % da faixa.
-const ENFEITES = [
-  // Estes três vêm do fim da citação e passam por cima da onda roxa.
-  { forma: "asterisco", cor: "#F5F9FA", tamanho: "10.7vw", topo: "-0.5vw", esquerda: "13.1%", giro: -8, frente: true, noCelular: true, tamanhoMobile: "16vw" },
-  { forma: "estrela", cor: "#E6E3D2", tamanho: "2.7vw", topo: "2.3vw", esquerda: "37.8%", frente: true },
-  { forma: "estrela-arredondada", cor: "#F5F9FA", tamanho: "7.1vw", topo: "1.7vw", esquerda: "72%", giro: 10, frente: true, noCelular: true, tamanhoMobile: "12vw" },
-
-  // Formas roxas penduradas na onda.
-  { forma: "trevo", cor: "var(--roxo)", tamanho: "8.3vw", topo: "2.3vw", esquerda: "83.1%", noCelular: true, tamanhoMobile: "14vw" },
-  { forma: "estrela-arredondada", cor: "var(--roxo)", tamanho: "6.6vw", topo: "6.1vw", esquerda: "9%", noCelular: true, tamanhoMobile: "12vw" },
-  { forma: "asterisco", cor: "var(--roxo)", tamanho: "14.5vw", topo: "10vw", esquerda: "93.3%", giro: 20, noCelular: true, tamanhoMobile: "22vw" },
-  { forma: "estrela", cor: "var(--roxo)", opacidade: 0.8, tamanho: "2.25vw", topo: "12.7vw", esquerda: "87.2%" },
-  { forma: "estrela", cor: "var(--roxo)", opacidade: 0.8, tamanho: "2.25vw", topo: "15.4vw", esquerda: "4.8%" },
-];
+const TEXTO =
+  "O projeto acadêmico “Arretadas em Rede: Livres de Misoginia”, da Universidade Federal do Ceará (UFC) em parceria com a Universidade de Brasília (UnB), fortalece mulheres e redes de proteção para identificar e enfrentar a misoginia digital e a violência política de gênero. Por meio de formação, comunicação e conteúdos educativos acessíveis, produz e difunde conhecimento para tornar o ambiente digital mais seguro, democrático e inclusivo.";
 ---
 
-<!-- <Faixa
-  onda="onda-creme"
-  cor="var(--roxo)"
-  corOnda="var(--creme)"
-  id="sobre"
-  classe="citacao"
-> -->
 <Faixa
-  onda="onda-roxa"
+  onda="onda-roxa-final"
   cor="var(--branco)"
   corOnda="var(--roxo)"
   id="extra"
-  classe="citacao"
 >
-  <div
-    class="textura-papel"
-    aria-hidden="true"
-    style={`background-image: url("${papel.src}")`}
-  >
-  </div>
-
-  {ENFEITES.map((e) => <Enfeite {...e} />)}
+  <TexturaPapel />
+  <Enfeites lista={ENFEITES_SOBRE_PROJETO} />
 
   <div class="conteudo">
-    <h2 class="surge">Sobre o Projeto</h2>
     <div class="grade">
+      <h2 class="titulo surge esquerda">
+        <span class="titulo-fino">Sobre o</span>
+        <span class="titulo-forte">projeto</span>
+      </h2>
+
+      <div class="logo surge direita" style="--atraso: 150ms">
+        <Image
+          src={logoArretadas}
+          alt="Logo Arretadas em Rede: Livres de Misoginia"
+        />
+      </div>
+
       <div class="midia surge esquerda">
         <div
           class="placeholder"
           role="img"
           aria-label="Espaço reservado para a imagem de abertura"
         >
-          <Svg
-            nome="video-placeholder"
-            recolorir={false}
-          />
+          <Svg nome="video-placeholder" recolorir={false} />
         </div>
-        <!-- Brilho preso no canto de baixo do vídeo, como no layout. -->
-        <Enfeite
-          forma="estrela"
-          cor="var(--roxo)"
-          opacidade={0.8}
-          tamanho="2.5vw"
-          topo="calc(100% - 1.25vw)"
-          esquerda="calc(100% - 1.25vw)"
-        />
+        <Enfeite {...BRILHO_VIDEO} />
       </div>
-      <div class="informacoes surge direita" style="--atraso: 150ms">
-        <Image
-          src={logoArretadas}
-          alt="Logo Arretadas"
-        />
-        <p>
-          {CITACAO}
-        </p>
-      </div>
+
+      <p class="texto surge direita" style="--atraso: 250ms">
+        {TEXTO}
+      </p>
     </div>
   </div>
 </Faixa>
 
 <style>
-  .faixa {
-    isolation: isolate;
-  }
-
+  /* O global.css puxa a próxima seção 3rem para cima, o que cortava o
+     brilho do canto do vídeo. Aqui puxamos menos, sobrando 3rem embaixo.
+     Se ainda cortar, aproxime de 0; se sobrar espaço, volte para -2rem. */
   .conteudo {
-    align-items: center;
+    margin-bottom: -1rem;
   }
 
-  h2 {
-    margin-bottom: var(--esp-4);
-    text-align: center;
-  }
-
+  /* ---------------------------- grade ----------------------------- */
   .grade {
+    container-type: inline-size; /* régua para o tamanho do texto */
     display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: var(--esp-5);
-    align-items: center;
+    grid-template-columns: 1.2fr 1fr; /* vídeo | texto */
+    grid-template-areas:
+      "titulo logo"
+      "video  texto";
+    column-gap: var(--esp-6); /* entre as duas colunas */
+    row-gap: var(--esp-4); /* entre o título e o vídeo */
+    align-items: start;
   }
 
-  .fundo-formas {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    line-height: 0;
-    opacity: 0.15; /* as formas são textura, não devem competir com o texto */
+  /* --------------------------- título ----------------------------- */
+  .titulo {
+    grid-area: titulo;
+    align-self: end; /* encosta no vídeo */
+    display: grid;
+    justify-items: center;
+    line-height: 0.95;
+    color: var(--roxo);
   }
 
-  .fundo-formas :global(svg) {
-    width: 100%;
-    height: 100%;
-    max-width: none;
+  .titulo-fino {
+    font-size: clamp(1.1rem, 2.1vw, 1.8rem);
+    font-weight: 800;
+  }
+
+  .titulo-forte {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 900;
+    letter-spacing: -0.01em;
+  }
+
+  /* ---------------------------- logo ------------------------------ */
+  .logo {
+    grid-area: logo;
+    align-self: center;
+    justify-self: center;
+  }
+
+  .logo :global(img) {
     display: block;
+    width: min(100%, 880px);
+    height: auto;
+    margin-top: 20px;
+    transform: scale(1.33);
+    transform-origin: center;
   }
 
-  /* Mesma receita do arquivo de design: 15% de opacidade em multiply,
-     o suficiente para sujar o creme sem escurecer a leitura. */
-  .textura-papel {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background-size: cover;
-    background-position: center;
-    opacity: 0.15;
-    mix-blend-mode: multiply;
-  }
-
-  .informacoes {
-    display: grid;
-    gap: var(--esp-3);
-  }
-
-  .informacoes :global(img) {
-    width: min(100%, 280px);
-  }
-
+  /* ---------------------------- vídeo ----------------------------- */
   .midia {
+    grid-area: video;
     position: relative; /* referência para o brilho do canto */
   }
 
@@ -156,10 +135,27 @@ const ENFEITES = [
     border-radius: var(--raio);
   }
 
+  /* ---------------------------- texto ----------------------------- */
+  /* cqi = 1% da largura da .grade (não da tela). Com 1.95cqi o texto
+     ocupa mais ou menos a altura do vídeo em qualquer monitor. */
+  .texto {
+    grid-area: texto;
+    margin: 0;
+    font-size: clamp(1rem, 1.95cqi, 1.4rem);
+    line-height: 1.35;
+    color: var(--roxo-escuro);
+  }
+
+  /* ------------------------ telas pequenas ------------------------ */
   @media (max-width: 860px) {
     .grade {
       grid-template-columns: 1fr;
-      gap: var(--esp-4);
+      grid-template-areas:
+        "titulo"
+        "video"
+        "logo"
+        "texto";
+      row-gap: var(--esp-3);
     }
   }
 </style>

@@ -1,70 +1,52 @@
 ---
-import Hero from "../components/Hero.astro";
-import Cabecalho from "../components/Cabecalho.astro";
+// =========================================================================
+// PÁGINA INICIAL
+//
+// A ordem dos componentes abaixo é a ordem das seções na tela.
+// As cores, espaçamentos e animações globais ficam em styles/global.css.
+// =========================================================================
+
 import "../styles/global.css";
-import SecaoCitacao from "../components/Citacao.astro";
-import Faq from "../components/Faq.astro";
+import Cabecalho from "../components/Cabecalho.astro";
+import Hero from "../components/Hero.astro";
+import Citacao from "../components/Citacao.astro";
 import Extra from "../components/Extra.astro";
-import SobreCurso from "../components/SobreCurso.astro";
 import ParaQuem from "../components/ParaQuem.astro";
+import SobreCurso from "../components/SobreCurso.astro";
 import MateriaisAdicionais from "../components/MateriaisAdicionais.astro";
-// import Materiais from "../components/Materiais.astro";
 import Professoras from "../components/Professoras.astro";
-import Materiais from "../components/Materiais.astro";
+import Faq from "../components/Faq.astro";
 import Footer from "../components/Footer.astro";
 ---
 
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="utf-8" />
     <!-- Avisa o CSS de que há JavaScript. Precisa rodar antes da
          pintura, senão o conteúdo pisca antes de sumir. -->
     <script is:inline>
-      document.documentElement.classList.add(
-        "js",
-      );
+      document.documentElement.classList.add("js");
     </script>
-    <link
-      rel="icon"
-      type="image/svg+xml"
-      href="/favicon.svg"
-    />
-    <link
-      rel="icon"
-      href="/favicon.ico"
-    />
-    <meta
-      name="viewport"
-      content="width=device-width"
-    />
-    <link
-      rel="preconnect"
-      href="https://fonts.googleapis.com"
-    />
-    <link
-      rel="preconnect"
-      href="https://fonts.gstatic.com"
-      crossorigin
-    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap"
       rel="stylesheet"
     />
-    <meta
-      name="generator"
-      content={Astro.generator}
-    />
-    <title>Astro</title>
+    <meta name="generator" content={Astro.generator} />
+    <title>Fortalecendo Mulheres | Arretadas em Rede</title>
   </head>
   <body>
     <Cabecalho />
     <main>
       <Hero />
-      <SecaoCitacao />
+      <Citacao />
       <Extra />
       <ParaQuem />
       <SobreCurso />
-      <Materiais />
       <MateriaisAdicionais />
       <Professoras />
       <Faq />
@@ -74,48 +56,27 @@ import Footer from "../components/Footer.astro";
         // Anima as seções à medida que a página rola. Cada elemento com
         // "surge" ou "brota" ganha ".visivel" quando entra na tela e
         // deixa de ser observado: a animação acontece uma vez só.
-        const alvos =
-          document.querySelectorAll(
-            ".surge, .brota",
-          );
+        const alvos = document.querySelectorAll(".surge, .brota");
 
-        if (
-          !(
-            "IntersectionObserver" in
-            window
-          )
-        ) {
-          alvos.forEach((el) =>
-            el.classList.add("visivel"),
-          );
+        if (!("IntersectionObserver" in window)) {
+          alvos.forEach((el) => el.classList.add("visivel"));
         } else {
-          const observador =
-            new IntersectionObserver(
-              (entradas) => {
-                for (const entrada of entradas) {
-                  if (
-                    !entrada.isIntersecting
-                  )
-                    continue;
-                  entrada.target.classList.add(
-                    "visivel",
-                  );
-                  observador.unobserve(
-                    entrada.target,
-                  );
-                }
-              },
-              // Dispara quando o elemento já subiu um pouco acima da
-              // borda de baixo da tela, não no primeiro pixel.
-              {
-                rootMargin:
-                  "0px 0px -8% 0px",
-                threshold: 0.1,
-              },
-            );
-          alvos.forEach((el) =>
-            observador.observe(el),
+          const observador = new IntersectionObserver(
+            (entradas) => {
+              for (const entrada of entradas) {
+                if (!entrada.isIntersecting) continue;
+                entrada.target.classList.add("visivel");
+                observador.unobserve(entrada.target);
+              }
+            },
+            // Dispara quando o elemento já subiu um pouco acima da
+            // borda de baixo da tela, não no primeiro pixel.
+            {
+              rootMargin: "0px 0px -8% 0px",
+              threshold: 0.1,
+            },
           );
+          alvos.forEach((el) => observador.observe(el));
 
           // No fim da página a rolagem acaba antes de o último item subir
           // além da margem acima. Chegando ao fundo, revela o que sobrou.
@@ -124,22 +85,13 @@ import Footer from "../components/Footer.astro";
             () => {
               const noFundo =
                 innerHeight + scrollY >=
-                document.documentElement
-                  .scrollHeight -
-                  4;
+                document.documentElement.scrollHeight - 4;
               if (!noFundo) return;
               document
-                .querySelectorAll(
-                  ".surge:not(.visivel), .brota:not(.visivel)",
-                )
+                .querySelectorAll(".surge:not(.visivel), .brota:not(.visivel)")
                 .forEach((el) => {
-                  if (
-                    el.getBoundingClientRect()
-                      .top < innerHeight
-                  ) {
-                    el.classList.add(
-                      "visivel",
-                    );
+                  if (el.getBoundingClientRect().top < innerHeight) {
+                    el.classList.add("visivel");
                   }
                 });
             },

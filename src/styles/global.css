@@ -1,41 +1,80 @@
 /* =========================================================================
    ESTILOS GLOBAIS
+
+   1. Variáveis (cores, espaçamentos, medidas)
+   2. Reset
+   3. Utilitários (.conteudo, .botao)
+   4. Animações de entrada (.surge, .brota, .gira)
+
+   REGRA DO PROJETO: nenhuma cor é escrita direto nos componentes. Toda
+   cor nova entra aqui como variável e é usada com var(--nome).
    ========================================================================= */
 
+/* ------------------------------------------------------------------------
+   1. VARIÁVEIS
+   ------------------------------------------------------------------------ */
 :root {
-  /* -----------------------------------------------------------------
-     Cores lidas diretamente dos SVGs exportados do design.
-     ----------------------------------------------------------------- */
-  --roxo: #584080; /* onda roxa.svg */
-  --roxo-claro: #7f62a9; /* estrela arredondada.svg */
-  --creme: #fefbd3; /* onda creme.svg, estrela creme.svg */
-  --cinza: #d9d9d9; /* retangulo cinza.svg */
-  --branco: #ffffff; /* onda branca.svg */
-  --laranja: #fbb169;
-  --lilas: #dccef2;
-  --pessego: #ffe8d1; /* fundo dos Materiais Adicionais */
-  --coral-escuro: #c24452; /* títulos dos Materiais */
-
-  /* Tons derivados dos anteriores, para texto e profundidade. */
-  --roxo-escuro: #33245c;
+  /* ── Paleta principal (lida dos SVGs do design) ─────────────────── */
+  --roxo: #584080; /* onda roxa, títulos */
+  --roxo-claro: #7f62a9; /* estrela arredondada, módulo "Violência" */
+  --roxo-medio: #9a7fbf; /* enfeite do FAQ */
+  --roxo-escuro: #33245c; /* texto principal */
+  --roxo-profundo: #432d5e; /* título "Curso" */
   --roxo-palido: #efe9f8;
 
-  /* ATENÇÃO: não veio cor de destaque nos arquivos enviados.
-     Este coral é um palpite para o botão de inscrição e para os
-     subtítulos. Troque pelo valor da identidade visual. */
-  --coral: #e8543f;
+  --lilas: #dccef2; /* fundo do "Sobre o Curso" */
+  --lilas-claro: #cdbdea;
+  --lilas-medio: #b9a2d8;
+  --lilas-forte: #bfa9cd;
+  --lilas-acinzentado: #bca1c9; /* formas apagadas da citação */
 
+  --creme: #fefbd3; /* fundo do hero e do cabeçalho */
+  --bege: #e6e3d2;
+  --branco: #ffffff;
+  --branco-gelo: #f5f9fa; /* formas brancas penduradas nas ondas */
+  --cinza: #d9d9d9;
+
+  --pessego: #ffe8d1; /* fundo dos Materiais e das Professoras */
+  --pessego-claro: #ffe1c0;
+  --pessego-apagado: #fdd9b5;
+  --pessego-cartao: #fbd5ab; /* cartão aberto da professora */
+  --laranja: #fbb169;
+
+  --coral: #e8543f; /* botão de inscrição e subtítulos */
+  --coral-escuro: #c24452; /* títulos dos Materiais */
+  --vermelho: #e85453;
+  --salmao: #ef8279;
+  --salmao-forte: #ed726c;
+  --rosa: #dd6a75; /* "Quem já fez o curso?" */
+  --rosa-palido: #f0dae2; /* capa dos Materiais, módulo "Misoginia" */
+
+  /* ── Módulos do curso: cor do cartão e da sombra da ilustração ──── */
+  --modulo-feministas: #ffc5b3;
+  --modulo-feministas-sombra: #3e2a5c;
+  --modulo-violencia: var(--roxo-claro);
+  --modulo-violencia-sombra: #1d0f45;
+  --modulo-misoginia: var(--rosa-palido);
+  --modulo-misoginia-sombra: #3a0e1e;
+  --modulo-comunicacao: #f2d3bc;
+  --modulo-comunicacao-sombra: #35203f;
+  --modulo-autodefesa: #e6acb3;
+  --modulo-autodefesa-sombra: #2e0f1e;
+
+  /* ── Papéis: troque aqui para mudar o site todo de uma vez ──────── */
   --cor-texto: var(--roxo-escuro);
+  --cor-texto-neutro: #222222; /* parágrafos longos, quase preto */
   --cor-fundo: var(--branco);
   --cor-destaque: var(--coral);
 
-  --esp-1: 0.5rem;
-  --esp-2: 1rem;
-  --esp-3: 1.5rem;
-  --esp-4: 2.5rem;
-  --esp-5: 4rem;
-  --esp-6: 6rem;
+  /* ── Espaçamentos ───────────────────────────────────────────────── */
+  --esp-1: 0.5rem; /*  8px */
+  --esp-2: 1rem; /* 16px */
+  --esp-3: 1.5rem; /* 24px */
+  --esp-4: 2.5rem; /* 40px */
+  --esp-5: 4rem; /* 64px */
+  --esp-6: 6rem; /* 96px */
 
+  /* ── Medidas ────────────────────────────────────────────────────── */
   --largura-conteudo: 1140px;
   --raio: 16px; /* o mesmo rx do retangulo cinza.svg */
   --transicao: 240ms ease;
@@ -43,7 +82,9 @@
   interpolate-size: allow-keywords;
 }
 
-/* ------------------------------ reset ------------------------------ */
+/* ------------------------------------------------------------------------
+   2. RESET
+   ------------------------------------------------------------------------ */
 *,
 *::before,
 *::after {
@@ -92,14 +133,16 @@ a {
   color: inherit;
 }
 
-/* --------------------------- utilitários --------------------------- */
+/* ------------------------------------------------------------------------
+   3. UTILITÁRIOS
+   ------------------------------------------------------------------------ */
+
+/* Caixa centralizada com a largura máxima do layout. A margem negativa
+   embaixo puxa a seção seguinte para cima, por baixo da onda dela. */
 .conteudo {
   position: relative;
   z-index: 2; /* acima da onda e dos enfeites */
-  width: min(
-    100% - 2.5rem,
-    var(--largura-conteudo)
-  );
+  width: min(100% - 2.5rem, var(--largura-conteudo));
   margin-inline: auto;
   margin-bottom: -3rem;
 }
@@ -120,7 +163,7 @@ a {
 .botao:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 24px
-    rgba(232, 84, 63, 0.35);
+    color-mix(in srgb, var(--cor-destaque) 35%, transparent);
 }
 
 .botao:focus-visible {
@@ -128,7 +171,9 @@ a {
   outline-offset: 3px;
 }
 
-/* ----------------------- animação de rolagem -----------------------
+/* ------------------------------------------------------------------------
+   4. ANIMAÇÕES DE ENTRADA
+
    Quem marca é o HTML: coloque a classe "surge" em qualquer elemento e
    ele sobe e aparece quando entra na tela. O script em index.astro
    observa a rolagem e acrescenta ".visivel" uma única vez.
@@ -144,12 +189,12 @@ a {
 
    Os deslocamentos usam as propriedades translate, scale e rotate, e não
    transform, para não apagar o transform que alguns elementos já têm
-   (o giro dos enfeites, por exemplo). */
+   (o giro dos enfeites, por exemplo).
+   ------------------------------------------------------------------------ */
 @keyframes surgir {
   from {
     opacity: 0;
-    translate: var(--de-x, 0)
-      var(--de-y, 40px);
+    translate: var(--de-x, 0) var(--de-y, 40px);
     scale: var(--de-escala, 1);
   }
   to {
@@ -164,9 +209,7 @@ a {
 }
 
 .js .surge.visivel {
-  animation: surgir 800ms
-    cubic-bezier(0.2, 0.7, 0.2, 1)
-    var(--atraso, 0ms) both;
+  animation: surgir 800ms cubic-bezier(0.2, 0.7, 0.2, 1) var(--atraso, 0ms) both;
 }
 
 .surge.esquerda {
@@ -201,9 +244,8 @@ a {
 }
 
 .js .brota.visivel {
-  animation: brotar 900ms
-    cubic-bezier(0.34, 1.56, 0.64, 1)
-    var(--atraso, 0ms) both;
+  animation: brotar 900ms cubic-bezier(0.34, 1.56, 0.64, 1) var(--atraso, 0ms)
+    both;
 }
 
 /* Gira devagar e para sempre. Usado em um ou dois enfeites grandes,
@@ -214,7 +256,7 @@ a {
   }
 }
 
-.gira :global(svg) {
+.gira svg {
   animation: girar 40s linear infinite;
 }
 
@@ -222,6 +264,7 @@ a {
   html {
     scroll-behavior: auto;
   }
+
   *,
   *::before,
   *::after {
@@ -229,6 +272,7 @@ a {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+
   .js .surge,
   .js .brota {
     animation: none !important;

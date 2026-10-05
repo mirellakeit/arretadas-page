@@ -10,148 +10,35 @@
 // =========================================================================
 
 import Svg from "./Svg.astro";
-
-// A textura de papel entra como imagem de fundo, não como <Svg> inline:
-// o paper.svg original é só um PNG de 4 MB embrulhado em SVG, e inline
-// ele iria parar dentro do HTML. Aqui vira um .webp de ~50 kB.
-import papel from "../assets/fundos/papel.webp";
-import Enfeite from "./Enfeite.astro";
+import Enfeites from "./Enfeites.astro";
+import FundoFormas from "./FundoFormas.astro";
+import TexturaPapel from "./TexturaPapel.astro";
+import { ENFEITES_HERO } from "../data/enfeites.js";
 ---
 
 <section class="hero" id="topo">
-  <!-- Formas claras do design, bem apagadas, dando textura ao creme. -->
-  <div
-    class="fundo-formas"
-    aria-hidden="true"
-  >
-    <Svg
-      nome="formas-fundo"
-      recolorir={false}
-      ancora="xMidYMid slice"
-    />
-  </div>
-
-  <!-- Papel amassado por cima do creme e das formas, em multiply. -->
-  <div
-    class="textura-papel"
-    aria-hidden="true"
-    style={`background-image: url("${papel.src}")`}
-  >
-  </div>
-
-  <Enfeite
-    forma="trevo-cinco-lados"
-    cor="var(--laranja)"
-    tamanho={220}
-    topo="10%"
-    esquerda="-5%"
-    noCelular
-    tamanhoMobile={58}
-    opacidade={0.5}
-    topoMobile="8%"
-    esquerdaMobile="-2%"
-  />
-
-  <Enfeite
-    forma="asterisco"
-    cor="var(--laranja)"
-    tamanho={400}
-    topo="-10%"
-    direita="-10%"
-    noCelular
-    opacidade={0.5}
-    tamanhoMobile={58}
-    topoMobile="8%"
-    esquerdaMobile="-2%"
-  />
-
-  <Enfeite
-    forma="estrela-cinco-lados"
-    cor="var(--laranja)"
-    tamanho={100}
-    topo="20%"
-    esquerda="40%"
-    noCelular
-    tamanhoMobile={58}
-    topoMobile="8%"
-    esquerdaMobile="-2%"
-  />
-
-  <Enfeite
-    forma="trevo-cinco-lados"
-    cor="var(--laranja)"
-    tamanho={150}
-    topo="20%"
-    direita="20%"
-    noCelular
-    tamanhoMobile={58}
-    opacidade={0.5}
-    topoMobile="8%"
-    esquerdaMobile="-2%"
-  />
-
-  <Enfeite
-    forma="estrela-cinco-lados"
-    cor="var(--laranja)"
-    tamanho={160}
-    topo="60%"
-    direita="10%"
-    noCelular
-    giro={12.5}
-    tamanhoMobile={58}
-    opacidade={0.5}
-    topoMobile="8%"
-    esquerdaMobile="-2%"
-  />
-
-  <Enfeite
-    forma="estrela-arredondada"
-    cor="var(--laranja)"
-    tamanho={240}
-    topo="58%"
-    esquerda="-5%"
-    noCelular
-    giro={12.5}
-    tamanhoMobile={58}
-    opacidade={0.5}
-    topoMobile="8%"
-    esquerdaMobile="-2%"
-  />
+  <FundoFormas cobrir />
+  <TexturaPapel porCima />
+  <Enfeites lista={ENFEITES_HERO} />
 
   <div class="conteudo grade">
-    <div
-      class="ilustracao surge esquerda"
-    >
-      <Svg
-        nome="hero"
-        recolorir={false}
-      />
+    <div class="ilustracao surge esquerda">
+      <Svg nome="hero" recolorir={false} />
     </div>
 
-    <div
-      class="texto surge direita"
-      style="--atraso: 150ms"
-    >
+    <div class="texto surge direita" style="--atraso: 150ms">
       <h1>
-        <span class="titulo-fino"
-          >Fortalecendo</span
-        >
-        <span class="titulo-forte"
-          >Mulheres</span
-        >
+        <span class="titulo-fino">Fortalecendo</span>
+        <span class="titulo-forte">Mulheres</span>
         <span class="subtitulo">
-          Direitos, defesa digital e
-          participação política
+          Direitos, defesa digital e participação política
         </span>
       </h1>
 
       <p class="chamada">
-        Um curso de aperfeiçoamento
-        gratuito e a distância sobre
-        mobilização de redes,
-        enfrentamento à violência
-        política de gênero e ocupação
-        dos espaços de decisão.
+        Um curso de aperfeiçoamento gratuito e a distância sobre mobilização de
+        redes, enfrentamento à violência política de gênero e ocupação dos
+        espaços de decisão.
       </p>
     </div>
   </div>
@@ -165,36 +52,6 @@ import Enfeite from "./Enfeite.astro";
     background: var(--creme);
     padding-top: 1rem;
     margin-bottom: -1rem;
-  }
-
-  /* --------------------------- fundo --------------------------- */
-  .fundo-formas {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    line-height: 0;
-    opacity: 0.15; /* as formas são textura, não devem competir com o texto */
-  }
-
-  .fundo-formas :global(svg) {
-    width: 100%;
-    height: 100%;
-    max-width: none;
-    display: block;
-  }
-
-  /* Mesma receita do arquivo de design: 15% de opacidade em multiply,
-     o suficiente para sujar o creme sem escurecer a leitura. */
-  .textura-papel {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    background-size: cover;
-    background-position: center;
-    opacity: 0.15;
-    mix-blend-mode: multiply;
   }
 
   /* -------------------------- estrutura ------------------------- */
@@ -214,24 +71,12 @@ import Enfeite from "./Enfeite.astro";
        ilustração encosta na borda da tela sem nunca ser cortada. */
     --sangria: max(
       0px,
-      min(
-        11vw,
-        13rem,
-        calc(
-          (
-              100vw -
-                var(--largura-conteudo)
-            ) /
-            2
-        )
-      )
+      min(11vw, 13rem, calc((100vw - var(--largura-conteudo)) / 2))
     );
 
     justify-self: start;
     width: calc(100% + var(--sangria));
-    margin-inline-start: calc(
-      -1 * var(--sangria)
-    );
+    margin-inline-start: calc(-1 * var(--sangria));
   }
 
   .ilustracao :global(svg) {
@@ -246,6 +91,11 @@ import Enfeite from "./Enfeite.astro";
      redimensiona "Fortalecendo", "Mulheres" e o subtítulo juntos. */
   .texto {
     --t: clamp(2.75rem, 8.6vw, 8rem);
+
+    /* Contorno creme em volta das letras do título. */
+    --contorno:
+      3px 3px 0 var(--creme), -1px -1px 0 var(--creme), 1px -1px 0 var(--creme),
+      -1px 1px 0 var(--creme), 1px 1px 0 var(--creme);
   }
 
   h1 {
@@ -258,13 +108,7 @@ import Enfeite from "./Enfeite.astro";
     font-size: calc(var(--t) * 0.47);
     font-weight: 800;
     color: var(--coral);
-
-    text-shadow:
-      3px 3px 0 var(--creme),
-      -1px -1px 0 var(--creme),
-      1px -1px 0 var(--creme),
-      -1px 1px 0 var(--creme),
-      1px 1px 0 var(--creme);
+    text-shadow: var(--contorno);
   }
 
   .titulo-forte {
@@ -272,20 +116,12 @@ import Enfeite from "./Enfeite.astro";
     font-weight: 800;
     letter-spacing: -0.015em;
     color: var(--roxo);
-    text-shadow:
-      3px 3px 0 var(--creme),
-      -1px -1px 0 var(--creme),
-      1px -1px 0 var(--creme),
-      -1px 1px 0 var(--creme),
-      1px 1px 0 var(--creme);
+    text-shadow: var(--contorno);
   }
 
   .subtitulo {
     margin-top: 0.45rem;
-    font-size: max(
-      1.05rem,
-      calc(var(--t) * 0.195)
-    );
+    font-size: max(1.05rem, calc(var(--t) * 0.195));
     font-weight: 700;
     line-height: 1.2;
     color: var(--coral);
@@ -293,11 +129,7 @@ import Enfeite from "./Enfeite.astro";
 
   .chamada {
     font-size: 1.2rem;
-    margin-top: clamp(
-      0.5rem,
-      2.2vw,
-      1.2rem
-    );
+    margin-top: clamp(0.5rem, 2.2vw, 1.2rem);
     max-width: 58ch; /* 50 a 75 caracteres é a faixa confortável de leitura */
   }
 

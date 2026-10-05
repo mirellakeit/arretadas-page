@@ -28,14 +28,11 @@ import papelTextura from "../assets/fundos/papel.webp";
 // Os mesmos arquivos que o <Svg> injeta inline, agora como URL. A textura
 // é recortada na forma com mask-image, e máscara em CSS só aceita URL:
 // não dá para apontar para um SVG que já está inline no HTML.
-const FORMAS_URL = import.meta.glob(
-  "../assets/formas/*.svg",
-  {
-    query: "?url",
-    import: "default",
-    eager: true,
-  },
-);
+const FORMAS_URL = import.meta.glob("../assets/formas/*.svg", {
+  query: "?url",
+  import: "default",
+  eager: true,
+});
 
 const {
   forma = "estrela",
@@ -58,12 +55,9 @@ const {
 } = Astro.props;
 
 // Número é px, texto vai como veio (vw, clamp, calc...).
-const medida = (v) =>
-  typeof v === "number" ? `${v}px` : v;
+const medida = (v) => (typeof v === "number" ? `${v}px` : v);
 
-const chaveForma = Object.keys(
-  FORMAS_URL,
-).find((k) =>
+const chaveForma = Object.keys(FORMAS_URL).find((k) =>
   k.endsWith(`/${forma}.svg`),
 );
 
@@ -83,48 +77,27 @@ if (papel && !chaveForma) {
 const semente = `${forma}${topo}${baixo}${esquerda}${direita}${tamanho}`;
 let h = 0;
 for (const c of semente) {
-  h =
-    (h * 31 + c.charCodeAt(0)) % 100000;
+  h = (h * 31 + c.charCodeAt(0)) % 100000;
 }
 const recorte = `${h % 100}% ${Math.floor(h / 100) % 100}%`;
 
 const estilo = [
   `--topo:${topo ?? (baixo ? "auto" : "10%")}`,
   baixo ? `--baixo:${baixo}` : null,
-  esquerda
-    ? `--esquerda:${esquerda}`
-    : null,
-  direita
-    ? `--direita:${direita}`
-    : null,
+  esquerda ? `--esquerda:${esquerda}` : null,
+  direita ? `--direita:${direita}` : null,
   `--tamanho:${medida(tamanho)}`,
-  topoMobile
-    ? `--topo-mobile:${topoMobile}`
-    : null,
-  esquerdaMobile
-    ? `--esquerda-mobile:${esquerdaMobile}`
-    : null,
-  direitaMobile
-    ? `--direita-mobile:${direitaMobile}`
-    : null,
-  tamanhoMobile
-    ? `--tamanho-mobile:${medida(tamanhoMobile)}`
-    : null,
+  topoMobile ? `--topo-mobile:${topoMobile}` : null,
+  esquerdaMobile ? `--esquerda-mobile:${esquerdaMobile}` : null,
+  direitaMobile ? `--direita-mobile:${direitaMobile}` : null,
+  tamanhoMobile ? `--tamanho-mobile:${medida(tamanhoMobile)}` : null,
   `color:${cor}`,
   `opacity:${opacidade}`,
   `transform:rotate(${giro}deg)`,
-  papel
-    ? `--forma:url("${FORMAS_URL[chaveForma!]}")`
-    : null,
-  papel
-    ? `--papel:url("${papelTextura.src}")`
-    : null,
-  papel
-    ? `--forca-papel:${forcaPapel}`
-    : null,
-  papel
-    ? `--recorte-papel:${recorte}`
-    : null,
+  papel ? `--forma:url("${FORMAS_URL[chaveForma!]}")` : null,
+  papel ? `--papel:url("${papelTextura.src}")` : null,
+  papel ? `--forca-papel:${forcaPapel}` : null,
+  papel ? `--recorte-papel:${recorte}` : null,
   // Atraso sorteado com a mesma semente, para os enfeites de uma
   // mesma faixa não brotarem todos no mesmo instante.
   `--atraso:${(h % 5) * 90}ms`,
@@ -134,11 +107,7 @@ const estilo = [
 ---
 
 <span
-  class:list={[
-    "enfeite",
-    "brota",
-    { "no-celular": noCelular, frente },
-  ]}
+  class:list={["enfeite", "brota", { "no-celular": noCelular, frente }]}
   style={estilo}
 >
   <Svg nome={forma} />
@@ -186,15 +155,8 @@ const estilo = [
     z-index: 1;
 
     background-image: var(--papel);
-    background-size: var(
-        --escala-papel,
-        600px
-      )
-      auto;
-    background-position: var(
-      --recorte-papel,
-      center
-    );
+    background-size: var(--escala-papel, 600px) auto;
+    background-position: var(--recorte-papel, center);
 
     opacity: var(--forca-papel, 0.3);
     mix-blend-mode: multiply;
@@ -213,22 +175,10 @@ const estilo = [
     }
 
     .enfeite.no-celular {
-      top: var(
-        --topo-mobile,
-        var(--topo)
-      );
-      left: var(
-        --esquerda-mobile,
-        var(--esquerda, auto)
-      );
-      right: var(
-        --direita-mobile,
-        var(--direita, auto)
-      );
-      width: var(
-        --tamanho-mobile,
-        var(--tamanho)
-      );
+      top: var(--topo-mobile, var(--topo));
+      left: var(--esquerda-mobile, var(--esquerda, auto));
+      right: var(--direita-mobile, var(--direita, auto));
+      width: var(--tamanho-mobile, var(--tamanho));
     }
   }
 </style>

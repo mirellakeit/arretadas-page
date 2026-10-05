@@ -1,15 +1,15 @@
 ---
 // =========================================================================
-// CABECALHO FIXO
-// Fica colado no topo enquanto a pagina rola. Os links levam as secoes
-// da propria pagina usando ancoras (#id), sem recarregar nada.
+// CABEÇALHO FIXO
+// Fica colado no topo enquanto a página rola. Os links levam às seções
+// da própria página usando âncoras (#id), sem recarregar nada.
 // =========================================================================
 
-// Os itens do menu vivem em um array. Para acrescentar uma secao,
-// basta adicionar uma linha aqui, nao mexer no HTML.
 import { Image } from "astro:assets";
 import logoArretadas from "../assets/logo-arretadas.svg";
 
+// Os itens do menu vivem em um array. Para acrescentar uma seção,
+// basta adicionar uma linha aqui, sem mexer no HTML.
 const LINKS = [
   {
     texto: "Sobre o projeto",
@@ -30,31 +30,20 @@ const LINKS = [
   },
 ];
 
-// Link externo do formulario de inscricao. Troque pelo endereco real.
-const LINK_INSCRICAO =
-  "https://forms.gle/exemplo";
+// Link externo do formulário de inscrição. Troque pelo endereço real.
+const LINK_INSCRICAO = "https://forms.gle/exemplo";
 ---
 
 <header class="cabecalho">
   <div class="conteudo barra">
-    <a>
-      <Image
-        src={logoArretadas}
-        alt="Logo Arretadas"
-      />
+    <a href="#topo" aria-label="Voltar ao início">
+      <Image src={logoArretadas} alt="Logo Arretadas" />
     </a>
 
-    <nav
-      class="menu"
-      aria-label="Navegação Principal"
-    >
-      {
-        LINKS.map((link) => (
-          <a href={link.destino}>
-            {link.texto}
-          </a>
-        ))
-      }
+    <nav class="menu" aria-label="Navegação Principal">
+      {LINKS.map((link) => (
+        <a href={link.destino}>{link.texto}</a>
+      ))}
     </nav>
 
     <a
@@ -74,8 +63,6 @@ const LINK_INSCRICAO =
     top: 0;
     z-index: 50;
     background: var(--creme);
-    /* box-shadow: 0 2px 16px
-      rgba(46, 27, 94, 0.08); */
   }
 
   .barra {

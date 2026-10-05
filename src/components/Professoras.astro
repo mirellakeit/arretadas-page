@@ -1,101 +1,249 @@
 ---
+// =========================================================================
+// EQUIPE ELABORADORA
+//
+// Carrossel com as fotos das professoras. Mostra algumas por vez (4 no
+// computador, 3 no tablet, 2 no celular) e as setas giram a fila, que é
+// circular: depois da última volta a primeira.
+//
+// Ao passar o mouse (ou tocar, ou chegar pelo Tab) numa professora, ela
+// vira um cartão pêssego com nome e minibio, e as vizinhas encolhem para
+// abrir espaço. Todo o efeito é CSS; o script só cuida das setas.
+//
+// As fotos ficam em src/assets/professoras. Para trocar nome ou texto,
+// edite a lista PROFESSORAS abaixo; a ordem da lista é a ordem na tela.
+// =========================================================================
+
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
 import Faixa from "./Faixa.astro";
-import Enfeite from "./Enfeite.astro";
-import Svg from "./Svg.astro";
+
+const FOTOS = import.meta.glob<{
+  default: ImageMetadata;
+}>("../assets/professoras/*.png", {
+  eager: true,
+});
+
+// Texto provisório até chegarem as minibios de verdade.
+const LOREM =
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do " +
+  "eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim " +
+  "ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut " +
+  "aliquip ex ea commodo consequat.";
 
 const PROFESSORAS = [
   {
-    texto: "Professoras Minibio",
-    imagem: "",
+    foto: "Ellipse 144.png",
+    nome: "Nome da Professora",
+    bio: LOREM,
   },
   {
-    texto: "Professoras Minibio",
-    imagem: "",
+    foto: "Ellipse 145.png",
+    nome: "Nome da Professora",
+    bio: LOREM,
   },
   {
-    texto: "Professoras Minibio",
-    imagem: "",
+    foto: "Ellipse 146.png",
+    nome: "Nome da Professora",
+    bio: LOREM,
   },
   {
-    texto: "Professoras Minibio",
-    imagem: "",
+    foto: "Ellipse 147.png",
+    nome: "Nome da Professora",
+    bio: LOREM,
+  },
+  {
+    foto: "Ellipse 148.png",
+    nome: "Nome da Professora",
+    bio: LOREM,
+  },
+  {
+    foto: "Ellipse 149.png",
+    nome: "Nome da Professora",
+    bio: LOREM,
+  },
+  {
+    foto: "Ellipse 150.png",
+    nome: "Nome da Professora",
+    bio: LOREM,
+  },
+  {
+    foto: "Ellipse 151.png",
+    nome: "Nome da Professora",
+    bio: LOREM,
+  },
+  {
+    foto: "Ellipse 152.png",
+    nome: "Nome da Professora",
+    bio: LOREM,
+  },
+  {
+    foto: "Ellipse 154.png",
+    nome: "Nome da Professora",
+    bio: LOREM,
+  },
+  {
+    foto: "Ellipse 155.png",
+    nome: "Nome da Professora",
+    bio: LOREM,
   },
 ];
+
+// Acha a foto de cada professora pelo nome do arquivo. Se faltar
+// alguma, o build para e diz qual.
+const lista = PROFESSORAS.map((p) => {
+  const chave = Object.keys(FOTOS).find((k) => k.endsWith(`/${p.foto}`));
+  if (!chave) {
+    throw new Error(
+      `Professoras: não achei "${p.foto}" em src/assets/professoras.`,
+    );
+  }
+  return {
+    ...p,
+    imagem: FOTOS[chave].default,
+  };
+});
 ---
 
-<!-- <Faixa
-  onda="onda-creme"
-  cor="var(--creme)"
-  corOnda="var(--branco)"
-  alturaOnda="clamp(50px, 7vw, 110px)"
-  id="topo"
-  classe="hero"
-> -->
-<Faixa
-  onda="onda-pessego"
-  id="professoras"
-  cor="var(--pessego)"
-  cor-faixa="var(--pessego)"
-  corOnda="var(--laranja)"
->
+<Faixa onda="onda-pessego-final" id="professoras" cor="var(--pessego)">
   <div class="conteudo grade">
     <header class="titulo surge">
       <span class="equipe">Equipe</span>
       <h2>Elaboradora</h2>
-      <div class="corpo">
-        <h3>As</h3>
-        <h3 class="mulheres">
-          mulheres
-        </h3>
-        <h3>que fizeram acontecer</h3>
-      </div>
+      <p class="corpo">
+        As <span class="mulheres">mulheres</span> que fizeram acontecer
+      </p>
     </header>
 
-    <ul class="professoras">
-      {
-        PROFESSORAS.map((item, i) => (
-          <li
-            class="surge zoom"
-            style={`--atraso: ${i * 120}ms`}
-          >
-            <Svg
-              nome="circulo"
-              recolorir={false}
-            />
-            <p>{item.texto}</p>
+    <div class="carrossel surge zoom" style="--atraso: 120ms" data-carrossel>
+      <button
+        type="button"
+        class="seta"
+        data-seta="-1"
+        aria-label="Professoras anteriores"
+      >
+        <svg viewBox="0 0 24 40" aria-hidden="true" focusable="false">
+          <path d="M19 4 5 20l14 16"></path>
+        </svg>
+      </button>
+
+      <ul class="professoras" aria-live="polite">
+        {lista.map((p) => (
+          <li>
+            <article class="cartao" tabindex="0">
+              <div class="foto">
+                <Image
+                  src={p.imagem}
+                  alt=""
+                  width={226}
+                  height={226}
+                  loading="lazy"
+                />
+              </div>
+              <h3 class="nome">{p.nome}</h3>
+              <div class="bio">
+                <p>{p.bio}</p>
+              </div>
+            </article>
           </li>
-        ))
-      }
-    </ul>
+        ))}
+      </ul>
+
+      <button
+        type="button"
+        class="seta"
+        data-seta="1"
+        aria-label="Próximas professoras"
+      >
+        <svg viewBox="0 0 24 40" aria-hidden="true" focusable="false">
+          <path d="M5 4l14 16L5 36"></path>
+        </svg>
+      </button>
+    </div>
   </div>
 </Faixa>
 
+<script>
+  // Gira a fila de professoras. Não esconde nem recria nada no HTML:
+  // usa a propriedade order do flexbox para pôr na frente quem deve
+  // aparecer e esconde o resto com a classe "fora".
+  document
+    .querySelectorAll<HTMLElement>("[data-carrossel]")
+    .forEach((carrossel) => {
+      const lista = carrossel.querySelector<HTMLElement>(".professoras")!;
+      const itens = [...lista.querySelectorAll<HTMLElement>(":scope > li")];
+      const setas =
+        carrossel.querySelectorAll<HTMLButtonElement>("[data-seta]");
+      let inicio = 0;
+
+      // Quantas cabem na tela vem do CSS (--visiveis), para o número
+      // mudar junto com as media queries, sem repetir breakpoint aqui.
+      const visiveis = () =>
+        parseInt(getComputedStyle(carrossel).getPropertyValue("--visiveis")) ||
+        4;
+
+      const desenhar = () => {
+        const n = Math.min(visiveis(), itens.length);
+        itens.forEach((li, i) => {
+          const pos = (i - inicio + itens.length) % itens.length;
+          li.style.order = String(pos);
+          li.classList.toggle("fora", pos >= n);
+        });
+        setas.forEach((s) => (s.hidden = itens.length <= n));
+      };
+
+      setas.forEach((seta) =>
+        seta.addEventListener("click", () => {
+          const passo = Number(seta.dataset.seta);
+          inicio = (inicio + passo + itens.length) % itens.length;
+
+          // Tira o foco de quem saiu da tela, senão o cartão
+          // continua aberto escondido.
+          const ativo = document.activeElement;
+          if (ativo instanceof HTMLElement && lista.contains(ativo)) {
+            ativo.blur();
+          }
+
+          lista.classList.remove("anda-1", "anda--1");
+          void lista.offsetWidth; // reinicia a animação
+          lista.classList.add(`anda-${passo}`);
+          desenhar();
+        }),
+      );
+
+      addEventListener("resize", desenhar, { passive: true });
+      desenhar();
+      carrossel.classList.add("pronto");
+    });
+</script>
+
 <style>
-  .grade {
-    margin-top: clamp(
-      -6rem,
-      -10vw,
-      -10rem
-    );
+  /* A seção aparece por cima da seguinte, para o cartão aberto poder
+     avançar sobre a onda do FAQ em vez de reservar um vão vazio
+     embaixo das fotos. */
+  :global(#professoras) {
+    overflow: visible;
+    z-index: 3;
   }
 
+  /* Sobe o título para dentro da faixa da onda, mas nunca mais do que a
+     própria onda: no celular ela é baixa e o título ficava cortado. */
+  .grade {
+    margin-top: max(-6rem, calc(1rem - var(--altura-onda)));
+    margin-bottom: -4rem;
+  }
+
+  /* ---------------------------- título ---------------------------- */
   .titulo {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: clamp(
-      1.5rem,
-      5vw,
-      6rem
-    );
+    text-align: center;
+    margin-bottom: clamp(1.5rem, 4vw, 4rem);
   }
 
   .equipe {
-    font-size: clamp(
-      1.1rem,
-      1.9vw,
-      1.6rem
-    );
+    font-size: clamp(1.1rem, 1.9vw, 1.6rem);
     font-weight: 800;
     line-height: 1;
     color: var(--roxo);
@@ -103,11 +251,7 @@ const PROFESSORAS = [
   }
 
   h2 {
-    font-size: clamp(
-      2.4rem,
-      5.4vw,
-      4.4rem
-    );
+    font-size: clamp(2.4rem, 5.4vw, 4.4rem);
     font-weight: 900;
     line-height: 1;
     color: var(--roxo-escuro);
@@ -115,41 +259,266 @@ const PROFESSORAS = [
 
   .corpo {
     margin-top: 10px;
-    font-size: clamp(
-      1rem,
-      2.35vw,
-      1.8rem
-    );
-    display: flex;
-    gap: 8px;
+    font-size: clamp(1rem, 2.35vw, 1.8rem);
+    font-weight: 800;
+    line-height: 1.2;
     color: var(--roxo);
-    font-size:;
   }
 
   .mulheres {
-    color: #c24452;
+    color: var(--coral-escuro);
+  }
+
+  /* --------------------------- carrossel --------------------------- */
+  .carrossel {
+    --visiveis: 4;
+    --foto: clamp(90px, 13vw, 190px);
+    --cartao: var(--pessego-cartao);
+
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: start;
+    gap: clamp(0.5rem, 2vw, 2rem);
+    max-width: 980px;
+    margin-inline: auto;
+  }
+
+  @media (max-width: 900px) {
+    .carrossel {
+      --visiveis: 3;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .grade {
+      margin-bottom: -10rem;
+    }
+
+    .carrossel {
+      --visiveis: 2;
+      --foto: clamp(80px, 28vw, 120px);
+    }
+  }
+
+  .seta {
+    /* Centraliza a seta na altura das fotos, não do cartão aberto. */
+    margin-top: calc(1rem + var(--foto) / 2 - 1.5rem);
+    width: 3rem;
+    height: 3rem;
+    padding: 0.3rem;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--roxo);
+    cursor: pointer;
+    transition: transform var(--transicao);
+  }
+
+  .seta[hidden] {
+    display: block;
+    visibility: hidden;
+  }
+
+  .seta svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .seta:hover {
+    transform: scale(1.12);
+  }
+
+  .seta:focus-visible {
+    outline: 3px solid var(--roxo);
+    outline-offset: 2px;
   }
 
   .professoras {
     display: flex;
-    justify-content: center;
-    gap: var(--esp-6);
+    align-items: flex-start;
+    gap: clamp(0.5rem, 1.5vw, 1.25rem);
     list-style: none;
+    padding: 0;
+    /* Altura só da foto com o nome. O cartão aberto passa dessa
+       altura e fica por cima do que vem embaixo, sem empurrar a
+       página. */
+    height: calc(var(--foto) + 6rem);
+  }
+
+  /* Sem JavaScript não há setas que funcionem: mostra todas em grade. */
+  html:not(.js) .professoras {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  html:not(.js) .seta {
+    visibility: hidden;
+  }
+
+  /* Antes do script rodar, já esconde quem não cabe, para a fila
+     inteira não piscar na tela. */
+  .js .carrossel:not(.pronto) li:nth-child(n + 5),
+  .professoras li.fora {
+    display: none;
   }
 
   .professoras li {
-    flex: 0 0 clamp(140px, 25vw, 200px);
+    flex: 1 1 0;
+    min-width: 0;
+    transition: flex-grow 380ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  /* ----------------------------- cartão ----------------------------- */
+  .cartao {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
+    padding: 1rem 0.9rem 1.2rem;
+    border-radius: calc(var(--raio) * 1.4);
+    background: transparent;
+    outline: none;
+    cursor: default;
+    transition: background-color 280ms ease;
   }
 
-  .professoras li svg {
-    width: 70%;
-    max-width: none;
+  /* A caixa da foto tem sempre a altura da foto grande. Assim, quando
+     a foto encolhe, ela fica centralizada na mesma linha das outras. */
+  .foto {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: var(--foto);
+  }
+
+  .foto :global(img) {
+    width: min(100%, var(--foto));
     height: auto;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    object-fit: cover;
+    transition: width 380ms cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
-  .professoras li p {
-    font-size: 1.37rem;
-    font-weight: bold;
+  .nome {
+    margin-top: 0.6rem;
+    font-size: clamp(0.85rem, 1.1vw, 1.05rem);
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--roxo-escuro);
+    transition:
+      font-size 280ms ease,
+      color 280ms ease;
+  }
+
+  /* A minibio fica no HTML o tempo todo (os leitores de tela a leem
+     sempre) e abre com a altura animada de 0 até o tamanho do texto. */
+  .bio {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition:
+      grid-template-rows 380ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      opacity 200ms ease;
+  }
+
+  .bio p {
+    overflow: hidden;
+    min-height: 0;
+    font-size: clamp(0.75rem, 0.85vw, 0.85rem);
+    line-height: 1.4;
+    color: var(--roxo-escuro);
+  }
+
+  /* ------------------------- estado aberto -------------------------
+     Aberta é a professora sob o mouse. Sem mouse em cima da lista,
+     vale a que recebeu foco pelo teclado ou pelo toque. */
+  .professoras li:has(.cartao:hover),
+  .professoras:not(:hover) li:has(.cartao:focus-visible) {
+    flex-grow: 1.9;
+  }
+
+  .professoras li:has(.cartao:hover) .cartao,
+  .professoras:not(:hover) .cartao:focus-visible {
+    background: var(--cartao);
+  }
+
+  .professoras li:has(.cartao:hover) .nome,
+  .professoras:not(:hover) .cartao:focus-visible .nome {
+    font-size: clamp(1rem, 1.35vw, 1.3rem);
+    color: var(--roxo);
+  }
+
+  .professoras li:has(.cartao:hover) .bio,
+  .professoras:not(:hover) .cartao:focus-visible .bio {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transition-delay: 0ms, 120ms;
+  }
+
+  /* As vizinhas encolhem enquanto uma está aberta. */
+  .professoras:has(.cartao:hover) li:not(:has(.cartao:hover)) img,
+  .professoras:not(:hover):has(.cartao:focus-visible)
+    li:not(:has(.cartao:focus-visible))
+    img {
+    width: min(100%, var(--foto) * 0.66);
+  }
+
+  .professoras:has(.cartao:hover) li:not(:has(.cartao:hover)) .nome,
+  .professoras:not(:hover):has(.cartao:focus-visible)
+    li:not(:has(.cartao:focus-visible))
+    .nome {
+    font-size: clamp(0.7rem, 0.8vw, 0.8rem);
+  }
+
+  /* ------------------ animação ao trocar de página ------------------ */
+  @keyframes entra-direita {
+    from {
+      opacity: 0.2;
+      translate: 40px 0;
+    }
+  }
+  @keyframes entra-esquerda {
+    from {
+      opacity: 0.2;
+      translate: -40px 0;
+    }
+  }
+  .professoras.anda-1 {
+    animation: entra-direita 420ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .professoras.anda--1 {
+    animation: entra-esquerda 420ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  /* Com três por vez o cartão é mais estreito e o texto, mais longo. */
+  @media (max-width: 900px) {
+    .professoras {
+      height: calc(var(--foto) + 8rem);
+    }
+  }
+
+  /* No celular o cartão aberto precisa de mais espaço para o texto. */
+  @media (max-width: 600px) {
+    .professoras li:has(.cartao:hover),
+    .professoras:not(:hover) li:has(.cartao:focus-visible) {
+      flex-grow: 3;
+    }
+    .cartao {
+      padding-inline: 0.15rem;
+    }
+    .professoras li:has(.cartao:hover) .cartao,
+    .professoras:not(:hover) .cartao:focus-visible {
+      padding-inline: 0.6rem;
+    }
+    /* No celular o cartão aberto é mais comprido que o espaço da onda
+       seguinte, então aqui ainda reservamos uma parte da altura. */
+    .professoras {
+      height: calc(var(--foto) + 14.5rem);
+    }
   }
 </style>

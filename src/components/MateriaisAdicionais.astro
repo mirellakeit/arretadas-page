@@ -11,16 +11,15 @@
 
 import Faixa from "./Faixa.astro";
 import Enfeite from "./Enfeite.astro";
+import Enfeites from "./Enfeites.astro";
+import { ENFEITES_MATERIAIS, estrelinhaCapa } from "../data/enfeites.js";
 
 // Troque "link" pelo endereço real de cada PDF e, quando houver, "capa"
 // por uma imagem importada de src/assets (ex.: import capaCartilha
 // from "../assets/capas/cartilha.png").
 const MATERIAIS = [
   {
-    titulo: [
-      "Cartilha de Prevenção",
-      "e Proteção nas Redes",
-    ],
+    titulo: ["Cartilha de Prevenção", "e Proteção nas Redes"],
     texto:
       "Clique na imagem ao lado para baixar a Cartilha de Prevenção e Proteção nas Redes!",
     link: "#",
@@ -28,285 +27,75 @@ const MATERIAIS = [
   },
   {
     titulo: ["Livro de Formação"],
-    texto:
-      "Clique na imagem ao lado para baixar o Livro de Formação!",
+    texto: "Clique na imagem ao lado para baixar o Livro de Formação!",
     link: "#",
     capa: null,
   },
   {
-    titulo: [
-      "PDF do Curso",
-      "‘Fortalecendo Mulheres’",
-    ],
+    titulo: ["PDF do Curso", "‘Fortalecendo Mulheres’"],
     texto:
       "Clique na imagem ao lado para baixar o PDF do Curso ‘Fortalecendo Mulheres’!",
     link: "#",
     capa: null,
   },
 ];
-
-// Enfeites medidos no layout (1920px): tamanho e topo em vw, esquerda
-// em % da faixa. Os que ficam mais para baixo usam topo em %, porque a
-// altura da faixa muda com a largura da tela e com o texto.
-const APAGADA = "#FDD9B5";
-const LILAS_FORTE = "#BFA9CD";
-const VERMELHO = "#E85453";
-
-const ENFEITES = [
-  // Grandes e apagadas, no fundo.
-  {
-    forma: "estrela-cinco-lados",
-    cor: APAGADA,
-    opacidade: 0.5,
-    tamanho: "30.7vw",
-    topo: "7vw",
-    esquerda: "7.7%",
-    giro: -15,
-  },
-  {
-    forma: "estrela",
-    cor: APAGADA,
-    opacidade: 0.5,
-    tamanho: "8.8vw",
-    topo: "30%",
-    esquerda: "54.2%",
-  },
-  {
-    forma: "trevo-cinco-lados",
-    cor: APAGADA,
-    opacidade: 0.5,
-    tamanho: "17.5vw",
-    topo: "20%",
-    esquerda: "82.2%",
-  },
-  {
-    forma: "asterisco",
-    cor: APAGADA,
-    opacidade: 0.5,
-    tamanho: "36vw",
-    topo: "38%",
-    esquerda: "40%",
-    giro: 10,
-  },
-  {
-    forma: "trevo-cinco-lados",
-    cor: APAGADA,
-    opacidade: 0.5,
-    tamanho: "24vw",
-    topo: "58%",
-    esquerda: "-2%",
-    giro: -8,
-  },
-  {
-    forma: "trevo-cinco-lados",
-    cor: APAGADA,
-    opacidade: 0.5,
-    tamanho: "20vw",
-    baixo: "0",
-    esquerda: "72%",
-    giro: 20,
-  },
-
-  // Penduradas na onda lilás.
-  {
-    forma: "estrela-arredondada",
-    cor: "var(--lilas)",
-    tamanho: "16vw",
-    topo: "-7vw",
-    esquerda: "4%",
-    giro: -10,
-  },
-  {
-    forma: "estrela-arredondada",
-    cor: "var(--lilas)",
-    tamanho: "19vw",
-    topo: "-6vw",
-    esquerda: "73%",
-    giro: 6,
-    noCelular: true,
-    tamanhoMobile: "26vw",
-  },
-
-  // Destaques do topo.
-  {
-    forma: "estrela",
-    cor: LILAS_FORTE,
-    opacidade: 0.6,
-    tamanho: "4vw",
-    topo: "6vw",
-    esquerda: "3.6%",
-  },
-  {
-    forma: "trevo-cinco-lados",
-    cor: "#EF8279",
-    tamanho: "7.1vw",
-    topo: "8.9vw",
-    esquerda: "6.2%",
-    noCelular: true,
-    tamanhoMobile: "11vw",
-  },
-  {
-    forma: "asterisco",
-    cor: VERMELHO,
-    tamanho: "18vw",
-    topo: "17.5vw",
-    esquerda: "-7%",
-    giro: -6,
-    noCelular: true,
-    tamanhoMobile: "24vw",
-    esquerdaMobile: "-12%",
-  },
-  {
-    forma: "trevo-cinco-lados",
-    cor: LILAS_FORTE,
-    tamanho: "9.7vw",
-    topo: "9.3vw",
-    esquerda: "58%",
-  },
-  {
-    forma: "estrela-cinco-lados",
-    cor: "#ED726C",
-    tamanho: "4.4vw",
-    topo: "19vw",
-    esquerda: "67%",
-    giro: 10,
-  },
-  {
-    forma: "estrela",
-    cor: LILAS_FORTE,
-    opacidade: 0.6,
-    tamanho: "4vw",
-    topo: "7.9vw",
-    esquerda: "79.4%",
-  },
-  {
-    forma: "estrela-arredondada",
-    cor: "#EF847C",
-    tamanho: "7.5vw",
-    topo: "2.4vw",
-    esquerda: "86.1%",
-    giro: 14,
-    frente: true,
-    noCelular: true,
-    tamanhoMobile: "11vw",
-  },
-  {
-    forma: "asterisco",
-    cor: "var(--lilas)",
-    tamanho: "18.8vw",
-    topo: "8.9vw",
-    esquerda: "90%",
-    giro: 18,
-    noCelular: true,
-    tamanhoMobile: "24vw",
-  },
-];
-
-// Estrelinha vermelha no canto de baixo de cada capa, do lado de fora.
-const ESTRELINHA = {
-  forma: "estrela",
-  cor: VERMELHO,
-  tamanho: "clamp(20px, 2.4vw, 42px)",
-  baixo:
-    "calc(clamp(20px, 2.4vw, 42px) * -0.7)",
-};
 ---
 
 <Faixa
-  onda="onda-pessego"
+  onda="onda-lilas-final"
+  corOnda="var(--lilas)"
   id="materiais"
   cor="var(--pessego)"
-  corOnda="var(--lilas)"
 >
-  {
-    ENFEITES.map((e) => (
-      <Enfeite {...e} />
-    ))
-  }
+  <Enfeites lista={ENFEITES_MATERIAIS} />
 
   <div class="conteudo">
     <header class="titulo surge">
-      <span class="sobre"
-        >Materiais</span
-      >
+      <span class="sobre">Materiais</span>
       <h2>Adicionais</h2>
     </header>
 
     <ul class="materiais">
-      {
-        MATERIAIS.map((m, i) => {
-          const invertido = i % 2 === 1;
-          return (
-            <li
+      {MATERIAIS.map((m, i) => {
+        const invertido = i % 2 === 1;
+        return (
+          <li class:list={["item", { invertido }]}>
+            <div
               class:list={[
-                "item",
-                { invertido },
+                "moldura",
+                "surge",
+                invertido ? "direita" : "esquerda",
               ]}
             >
-              <div
-                class:list={[
-                  "moldura",
-                  "surge",
-                  invertido
-                    ? "direita"
-                    : "esquerda",
-                ]}
+              <a
+                class="capa"
+                href={m.link}
+                download
+                aria-label={`Baixar: ${m.titulo.join(" ")}`}
               >
-                <a
-                  class="capa"
-                  href={m.link}
-                  download
-                  aria-label={`Baixar: ${m.titulo.join(" ")}`}
-                >
-                  {m.capa && (
-                    <img
-                      src={""}
-                      alt=""
-                      loading="lazy"
-                    />
-                  )}
-                </a>
-                <Enfeite
-                  {...ESTRELINHA}
-                  esquerda={
-                    invertido
-                      ? null
-                      : "calc(clamp(20px, 2.4vw, 42px) * -0.7)"
-                  }
-                  direita={
-                    invertido
-                      ? "calc(clamp(20px, 2.4vw, 42px) * -0.7)"
-                      : null
-                  }
-                  frente
-                />
-              </div>
+                {m.capa && <img src={m.capa.src} alt="" loading="lazy" />}
+              </a>
+              <Enfeite {...estrelinhaCapa(invertido)} />
+            </div>
 
-              <div
-                class:list={[
-                  "chamada",
-                  "surge",
-                  invertido
-                    ? "esquerda"
-                    : "direita",
-                ]}
-                style="--atraso: 150ms"
-              >
-                <h3>
-                  {m.titulo.map(
-                    (linha) => (
-                      <span class="linha">
-                        {linha}
-                      </span>
-                    ),
-                  )}
-                </h3>
-                <p>{m.texto}</p>
-              </div>
-            </li>
-          );
-        })
-      }
+            <div
+              class:list={[
+                "chamada",
+                "surge",
+                invertido ? "esquerda" : "direita",
+              ]}
+              style="--atraso: 150ms"
+            >
+              <h3>
+                {m.titulo.map((linha) => (
+                  <span class="linha">{linha}</span>
+                ))}
+              </h3>
+              <p>{m.texto}</p>
+            </div>
+          </li>
+        );
+      })}
     </ul>
   </div>
 </Faixa>
@@ -335,11 +124,7 @@ const ESTRELINHA = {
   /* --------------------------- título --------------------------- */
   .titulo {
     color: var(--coral-escuro);
-    margin-bottom: clamp(
-      1rem,
-      2.5vw,
-      2.5rem
-    );
+    margin-bottom: clamp(1rem, 2.5vw, 2.5rem);
   }
 
   /* O título fica centrado sobre a primeira capa. */
@@ -351,22 +136,14 @@ const ESTRELINHA = {
   }
 
   .sobre {
-    font-size: clamp(
-      1.1rem,
-      1.9vw,
-      1.5rem
-    );
+    font-size: clamp(1.1rem, 1.9vw, 1.5rem);
     font-weight: 800;
     line-height: 1;
     margin-bottom: -0.1em;
   }
 
   h2 {
-    font-size: clamp(
-      2.6rem,
-      6vw,
-      4.4rem
-    );
+    font-size: clamp(2.6rem, 6vw, 4.4rem);
     line-height: 1;
     font-weight: 900;
   }
@@ -418,7 +195,7 @@ const ESTRELINHA = {
     width: 100%;
     aspect-ratio: 275 / 255;
     border-radius: 10px;
-    background: #f0dae2;
+    background: var(--rosa-palido);
     overflow: hidden;
     transition:
       transform var(--transicao),
@@ -434,22 +211,17 @@ const ESTRELINHA = {
   .capa:hover {
     transform: translateY(-4px);
     box-shadow: 0 14px 30px
-      rgba(194, 68, 82, 0.2);
+      color-mix(in srgb, var(--coral-escuro) 20%, transparent);
   }
 
   .capa:focus-visible {
-    outline: 3px solid
-      var(--coral-escuro);
+    outline: 3px solid var(--coral-escuro);
     outline-offset: 4px;
   }
 
   /* --------------------------- chamada -------------------------- */
   h3 {
-    font-size: clamp(
-      1.4rem,
-      2.3vw,
-      2.1rem
-    );
+    font-size: clamp(1.4rem, 2.3vw, 2.1rem);
     font-weight: 800;
     line-height: 1.1;
     color: var(--coral-escuro);
@@ -462,13 +234,9 @@ const ESTRELINHA = {
   }
 
   .chamada p {
-    font-size: clamp(
-      1.05rem,
-      1.5vw,
-      1.3rem
-    );
+    font-size: clamp(1.05rem, 1.5vw, 1.3rem);
     line-height: 1.45;
-    color: #222;
+    color: var(--cor-texto-neutro);
   }
 
   /* ------------------------ telas pequenas ---------------------- */

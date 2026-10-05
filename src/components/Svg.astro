@@ -12,10 +12,9 @@
 // do arquivo. Nenhum import manual, nenhuma lista para manter.
 // =========================================================================
 
-
-const ARQUIVOS = import.meta.glob('../assets/**/*.svg', {
-  query: '?raw',
-  import: 'default',
+const ARQUIVOS = import.meta.glob("../assets/**/*.svg", {
+  query: "?raw",
+  import: "default",
   eager: true,
 });
 
@@ -34,7 +33,9 @@ const chave = Object.keys(ARQUIVOS).find((k) => k.endsWith(`/${nome}.svg`));
 if (!chave) {
   throw new Error(
     `SVG "${nome}" não encontrado. Arquivos disponíveis: ` +
-      Object.keys(ARQUIVOS).map((k) => k.split('/').pop()).join(', ')
+      Object.keys(ARQUIVOS)
+        .map((k) => k.split("/").pop())
+        .join(", "),
   );
 }
 
@@ -45,7 +46,7 @@ let svg = ARQUIVOS[chave];
 // A substituição é feita só na primeira tag: um <rect> lá dentro
 // precisa das medidas dele para existir.
 svg = svg.replace(/<svg[^>]*>/, (tag) =>
-  tag.replace(/\s(width|height)="[^"]*"/g, '')
+  tag.replace(/\s(width|height)="[^"]*"/g, ""),
 );
 
 // Troca as cores por currentColor, preservando fill="none".
@@ -54,11 +55,11 @@ if (recolorir) {
 }
 
 if (ancora) {
-  svg = svg.replace('<svg', `<svg preserveAspectRatio="${ancora}"`);
+  svg = svg.replace("<svg", `<svg preserveAspectRatio="${ancora}"`);
 }
 
 // aria-hidden porque é decoração: leitores de tela devem ignorar.
-svg = svg.replace('<svg', '<svg aria-hidden="true" focusable="false"');
+svg = svg.replace("<svg", '<svg aria-hidden="true" focusable="false"');
 ---
 
 <Fragment set:html={svg} />

@@ -5,172 +5,20 @@
 // =========================================================================
 
 import Faixa from "./Faixa.astro";
-import Enfeite from "./Enfeite.astro";
+import Enfeites from "./Enfeites.astro";
+import { ENFEITES_CITACAO } from "../data/enfeites.js";
 
-const CITACAO = `Serei dona do espaço que deve ser meu. 
-Inteira, indomável, e não passageira, na rua,
-nas redes, no balanço de saber quem sou eu.`;
-
-// Posições e tamanhos copiados de fundos/citacao.png (layout de 1920px):
-// tamanho e distância do topo em vw acompanham a largura da tela, como
-// no design; a esquerda vai em % da faixa. As apagadas usam a cor do
-// arquivo com a opacidade que ele tinha.
-const APAGADA = "#BCA1C9";
-const LILAS_ESCURO = "#8F76A0";
-
-const ENFEITES = [
-  // topo
-  {
-    forma: "asterisco",
-    cor: APAGADA,
-    opacidade: 0.15,
-    tamanho: "19.8vw",
-    topo: "4.1vw",
-    esquerda: "-6.2%",
-  },
-  {
-    forma: "estrela",
-    cor: LILAS_ESCURO,
-    opacidade: 0.58,
-    tamanho: "5vw",
-    topo: "4.8vw",
-    esquerda: "13.6%",
-  },
-  {
-    forma: "asterisco",
-    cor: APAGADA,
-    opacidade: 0.15,
-    tamanho: "15vw",
-    topo: "4.8vw",
-    esquerda: "54.5%",
-    giro: 12,
-  },
-  {
-    forma: "estrela",
-    cor: LILAS_ESCURO,
-    opacidade: 0.58,
-    tamanho: "2.3vw",
-    topo: "5.5vw",
-    esquerda: "30.5%",
-  },
-  {
-    forma: "asterisco",
-    cor: APAGADA,
-    opacidade: 0.15,
-    tamanho: "15vw",
-    topo: "6.1vw",
-    esquerda: "93.9%",
-  },
-  {
-    forma: "estrela-arredondada",
-    cor: "var(--creme)",
-    opacidade: 0.7,
-    tamanho: "6.6vw",
-    topo: "8.5vw",
-    esquerda: "36.4%",
-    giro: 8,
-    papel: true,
-    noCelular: true,
-    tamanhoMobile: "11vw",
-    topoMobile: "22%",
-  },
-  {
-    forma: "trevo",
-    cor: LILAS_ESCURO,
-    opacidade: 0.58,
-    tamanho: "6.6vw",
-    topo: "8.9vw",
-    esquerda: "75.6%",
-  },
-  {
-    forma: "estrela",
-    cor: "var(--creme)",
-    opacidade: 0.92,
-    tamanho: "5vw",
-    topo: "10.5vw",
-    esquerda: "22%",
-    noCelular: true,
-    tamanhoMobile: "8vw",
-    topoMobile: "26%",
-  },
-  {
-    forma: "estrela",
-    cor: LILAS_ESCURO,
-    opacidade: 0.68,
-    tamanho: "2.25vw",
-    topo: "14.4vw",
-    esquerda: "91.2%",
-  },
-  {
-    forma: "estrela",
-    cor: LILAS_ESCURO,
-    opacidade: 0.54,
-    tamanho: "2.25vw",
-    topo: "16.7vw",
-    esquerda: "47.7%",
-  },
-
-  // base: ancoradas por baixo, para não depender da altura da faixa.
-  // Ficam inteiras dentro dela, senão o fim da faixa corta a forma.
-  {
-    forma: "trevo",
-    cor: LILAS_ESCURO,
-    opacidade: 0.58,
-    tamanho: "6.6vw",
-    baixo: "1.5vw",
-    esquerda: "95%",
-  },
-  {
-    forma: "estrela",
-    cor: "#D6CFD3",
-    opacidade: 0.85,
-    tamanho: "2.25vw",
-    baixo: "4.7vw",
-    esquerda: "9.1%",
-  },
-  {
-    forma: "estrela-arredondada",
-    cor: "#CABECD",
-    opacidade: 0.26,
-    tamanho: "9.1vw",
-    baixo: "0.3vw",
-    esquerda: "28.6%",
-    giro: -10,
-    papel: true,
-  },
-  {
-    forma: "trevo",
-    cor: "#9C84AD",
-    opacidade: 0.42,
-    tamanho: "7.5vw",
-    baixo: "0.4vw",
-    esquerda: "3%",
-    noCelular: true,
-    tamanhoMobile: "14vw",
-  },
-  {
-    forma: "estrela",
-    cor: "#E6E3D2",
-    opacidade: 0.85,
-    tamanho: "2.25vw",
-    baixo: "1.8vw",
-    esquerda: "81%",
-  },
-  {
-    forma: "estrela",
-    cor: "#D6CBCB",
-    opacidade: 0.63,
-    tamanho: "5.7vw",
-    baixo: "0.6vw",
-    esquerda: "90.5%",
-    noCelular: true,
-    tamanhoMobile: "9vw",
-  },
+// Cada item é uma linha. A quebra é sempre esta, no desktop e no
+// celular: a fonte encolhe com a largura para a linha mais longa caber.
+const LINHAS = [
+  "Serei dona do espaço que deve ser meu.",
+  "Inteira, indomável, e não passageira, na rua,",
+  "nas redes, no balanço de saber quem sou eu.",
 ];
 ---
 
 <Faixa
-  onda="onda-creme"
+  onda="onda-creme-final"
   cor="var(--roxo)"
   corOnda="var(--creme)"
   id="sobre"
@@ -178,99 +26,48 @@ const ENFEITES = [
   papel
   forcaPapel={0.15}
 >
-  <!-- Formas que escorrem da onda creme, por cima do roxo. Ficam na
-       frente para cobrir as formas do fundo que passam por baixo. -->
-  <Enfeite
-    forma="trevo"
-    cor="var(--creme)"
-    tamanho={130}
-    topo="3%"
-    esquerda="12%"
-    frente
-    papel
-    forcaPapel={0.15}
-    noCelular
-    tamanhoMobile={76}
-    topoMobile="1%"
-    esquerdaMobile="4%"
-  />
+  <Enfeites lista={ENFEITES_CITACAO} />
 
-  <Enfeite
-    forma="estrela-arredondada"
-    cor="var(--creme)"
-    tamanho={300}
-    topo="-19%"
-    direita="4%"
-    giro="35"
-    frente
-    papel
-    forcaPapel={0.15}
-    noCelular
-    tamanhoMobile={140}
-    topoMobile="-8%"
-    direitaMobile="-8%"
-  />
-
-  <!-- Formas do fundo, tiradas de fundos/citacao.png. -->
-  {
-    ENFEITES.map((e) => (
-      <Enfeite {...e} />
-    ))
-  }
-
-  <blockquote
-    class="conteudo frase surge"
-  >
+  <blockquote class="conteudo frase surge">
     <p>
-      {CITACAO}
+      {LINHAS.map((linha, i) => (
+        <span class="linha">
+          {i === 0 && "“"}
+          {linha}
+          {i === LINHAS.length - 1 && "”"}
+        </span>
+      ))}
     </p>
   </blockquote>
 </Faixa>
 
 <style>
-  .faixa {
-    position: relative;
-    z-index: 1;
-  }
-
-  .enfeite {
-    position: absolute;
-    z-index: 0;
-  }
-
-  .conteudo {
-    position: relative;
-    z-index: 2;
-  }
-
+  /* A caixa serve de régua para a fonte (container-type): o tamanho do
+     texto sai da largura dela, não da tela. */
   .frase {
+    container-type: inline-size;
     text-align: center;
-    max-width: 1200px;
-    width: 90%;
-    margin-inline: auto;
-    color: var(--creme);
-    margin: 100px auto 0 auto;
+    width: min(200% - 2rem, 1000px);
+    color: var(--branco);
+    margin: clamp(140px, 18vw, 200px) auto clamp(80px, 16vw, 120px);
   }
 
+  /* A linha mais longa mede 21,2 vezes o tamanho da fonte. Com a fonte
+     em 1/22 da caixa (4.5cqi), ela ocupa quase toda a largura e ainda
+     sobra folga. Para esticar ou encolher a frase, mude o 1000px da
+     largura da caixa acima; a fonte acompanha sozinha. */
   .frase p {
-    white-space: pre-line;
-    font-size: clamp(
-      1.25rem,
-      3.333vw,
-      3rem
-    );
+    font-size: 4.5cqi;
     font-weight: 700;
     font-style: italic;
     line-height: 1.109375;
-    letter-spacing: 0.15px;
+    letter-spacing: 0.5px;
     max-width: none;
   }
 
-  .frase p::before {
-    content: "“";
-  }
-
-  .frase p::after {
-    content: "”";
+  /* Uma linha por bloco, sem quebra dentro dela. */
+  .linha {
+    display: block;
+    white-space: nowrap;
   }
 </style>

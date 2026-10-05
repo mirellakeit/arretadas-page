@@ -23,14 +23,11 @@ import papelTextura from "../assets/fundos/papel.webp";
 // O mesmo arquivo que o <Svg> injeta inline, agora como URL: a textura é
 // recortada no desenho da onda com mask-image, e máscara em CSS só aceita
 // URL, nunca um SVG que já está inline no HTML.
-const ONDAS_URL = import.meta.glob(
-  "../assets/ondas/*.svg",
-  {
-    query: "?url",
-    import: "default",
-    eager: true,
-  },
-);
+const ONDAS_URL = import.meta.glob("../assets/ondas/*.svg", {
+  query: "?url",
+  import: "default",
+  eager: true,
+});
 
 const {
   onda = null,
@@ -47,10 +44,7 @@ const {
 } = Astro.props;
 
 const chaveOnda =
-  onda &&
-  Object.keys(ONDAS_URL).find((k) =>
-    k.endsWith(`/${onda}.svg`),
-  );
+  onda && Object.keys(ONDAS_URL).find((k) => k.endsWith(`/${onda}.svg`));
 
 if (onda && papel && !chaveOnda) {
   throw new Error(
@@ -62,46 +56,27 @@ if (onda && papel && !chaveOnda) {
   );
 }
 
-const usaPapel = Boolean(
-  onda && papel && chaveOnda,
-);
+const usaPapel = Boolean(onda && papel && chaveOnda);
 
 const estilo = [
   `--cor-faixa:${cor}`,
   `--cor-onda:${corOnda}`,
   `--altura-onda:${alturaOnda}`,
-  usaPapel
-    ? `--onda-forma:url("${ONDAS_URL[chaveOnda]}")`
-    : null,
-  usaPapel
-    ? `--papel:url("${papelTextura.src}")`
-    : null,
-  usaPapel
-    ? `--forca-papel:${forcaPapel}`
-    : null,
+  usaPapel ? `--onda-forma:url("${ONDAS_URL[chaveOnda]}")` : null,
+  usaPapel ? `--papel:url("${papelTextura.src}")` : null,
+  usaPapel ? `--forca-papel:${forcaPapel}` : null,
 ]
   .filter(Boolean)
   .join("; ");
 ---
 
-<section
-  class:list={["faixa", classe]}
-  id={id}
-  style={estilo}
->
-  {
-    onda && (
-      <div class="onda">
-        <Svg
-          nome={onda}
-          ancora="xMidYMax slice"
-        />
-        {usaPapel && (
-          <span class="papel" />
-        )}
-      </div>
-    )
-  }
+<section class:list={["faixa", classe]} id={id} style={estilo}>
+  {onda && (
+    <div class="onda">
+      <Svg nome={onda} ancora="xMidYMax slice" />
+      {usaPapel && <span class="papel" />}
+    </div>
+  )}
 
   <slot />
 </section>
@@ -112,11 +87,7 @@ const estilo = [
     z-index: 2;
     overflow: hidden; /* corta o que escapar e evita rolagem lateral */
     background: var(--cor-faixa);
-    padding-block: calc(
-        var(--altura-onda) +
-          var(--esp-4)
-      )
-      var(--esp-5);
+    padding-block: calc(var(--altura-onda) + var(--esp-4)) var(--esp-5);
   }
 
   .onda {
@@ -159,9 +130,7 @@ const estilo = [
     opacity: var(--forca-papel, 0.15);
     mix-blend-mode: multiply;
 
-    -webkit-mask-image: var(
-      --onda-forma
-    );
+    -webkit-mask-image: var(--onda-forma);
     mask-image: var(--onda-forma);
     -webkit-mask-size: cover;
     mask-size: cover;
@@ -173,11 +142,7 @@ const estilo = [
 
   @media (max-width: 860px) {
     .faixa {
-      padding-block: calc(
-          var(--altura-onda) +
-            var(--esp-3)
-        )
-        var(--esp-4);
+      padding-block: calc(var(--altura-onda) + var(--esp-3)) var(--esp-4);
     }
   }
 </style>

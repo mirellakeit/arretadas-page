@@ -1,0 +1,16 @@
+---
+// =========================================================================
+// ENFEITES
+//
+// Desenha uma lista de enfeites de uma vez. As listas de cada seção
+// ficam em src/data/enfeites.js.
+//
+// Uso:  <Enfeites lista={ENFEITES_HERO} />
+// =========================================================================
+
+import Enfeite from "./Enfeite.astro";
+
+const { lista = [] } = Astro.props;
+---
+
+{lista.map((enfeite) => <Enfeite {...enfeite} />)}

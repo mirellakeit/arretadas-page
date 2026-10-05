@@ -13,32 +13,27 @@ export const PERGUNTAS = [
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
   },
   {
-    pergunta:
-      "Quem pode participar das formações?",
+    pergunta: "Quem pode participar das formações?",
     resposta:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
   },
   {
-    pergunta:
-      "Como funciona a certificação?",
+    pergunta: "Como funciona a certificação?",
     resposta:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
   },
   {
-    pergunta:
-      "Qual a carga horária total?",
+    pergunta: "Qual a carga horária total?",
     resposta:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
   },
   {
-    pergunta:
-      "Recebo certificado ao final?",
+    pergunta: "Recebo certificado ao final?",
     resposta:
       "Sim, mediante conclusão das atividades de todos os módulos e frequência mínima registrada na plataforma.",
   },
   {
-    pergunta:
-      "Como faço minha inscrição?",
+    pergunta: "Como faço minha inscrição?",
     resposta:
       "Pelo botão Inscreva-se já, no topo desta página. Ele abre o formulário oficial em uma nova aba.",
   },

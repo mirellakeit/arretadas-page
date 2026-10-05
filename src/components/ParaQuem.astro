@@ -1,79 +1,57 @@
 ---
 // =========================================================================
-// PARA QUEM
+// QUEM JÁ FEZ O CURSO
 //
-// Ilustração do computador à esquerda, sobre um fundo de formas lilases
-// (quem-fez.png). As formas não são mais <Enfeite> soltos: vêm prontas
-// numa imagem só, e o computador é posicionado em cima dela em
-// porcentagens, então os dois crescem e encolhem juntos.
+// Ilustração do computador à esquerda, sobre formas lilases, e a lista
+// de quem já fez o curso à direita.
+//
+// As formas são enfeites como nas outras seções (ENFEITES_PARA_QUEM em
+// src/data/enfeites.js), mas medidos em % da caixa da ilustração e não
+// da seção: assim crescem e encolhem junto com o computador.
 // =========================================================================
 
 import Faixa from "./Faixa.astro";
+import Enfeites from "./Enfeites.astro";
 import Svg from "./Svg.astro";
-import papel from "../assets/fundos/papel.webp";
-import formas from "../assets/fundos/quem-fez.png";
+import TexturaPapel from "./TexturaPapel.astro";
+import { ENFEITES_PARA_QUEM } from "../data/enfeites.js";
 
-const CONTEMPLADAS = [
-  "Acessoras",
-  "Líderes",
-  "Empresárias",
-  "Universitárias",
-];
+const CONTEMPLADAS = ["Assessoras", "Líderes", "Empresárias", "Universitárias"];
 ---
 
 <Faixa
-  onda="onda-branca"
+  onda="onda-branca-final"
   cor="var(--branco)"
   corOnda="var(--branco)"
   alturaOnda="clamp(60px, 9vw, 140px)"
 >
-  <div
-    class="textura-papel"
-    aria-hidden="true"
-    style={`background-image: url("${papel.src}")`}
-  >
-  </div>
+  <TexturaPapel porCima />
 
   <div class="conteudo grade">
-    <div
-      class="midia surge esquerda"
-      style={`--formas: url("${formas.src}")`}
-    >
+    <div class="midia surge esquerda">
+      <Enfeites lista={ENFEITES_PARA_QUEM} />
+
       <div
         class="computador"
         role="img"
         aria-label="Punhos erguidos segurando bandeiras com o símbolo feminino saindo de um notebook"
       >
-        <Svg
-          nome="computador"
-          recolorir={false}
-        />
+        <Svg nome="computador" recolorir={false} />
       </div>
     </div>
 
     <div class="coluna">
       <h2 class="titulo surge direita">
-        <span class="titulo-fino"
-          >Quem já fez o</span
-        >
-        <span class="titulo-forte"
-          >curso?</span
-        >
+        <span class="titulo-fino">Quem já fez o</span>
+        <span class="titulo-forte">curso?</span>
       </h2>
 
       <ul class="contempladas">
-        {
-          CONTEMPLADAS.map(
-            (item, i) => (
-              <li
-                class="surge direita"
-                style={`--atraso: ${150 + i * 100}ms`}
-              >
-                {item}
-              </li>
-            ),
-          )
-        }
+        {CONTEMPLADAS.map((item, i) => (
+          <li class="surge direita" style={`--atraso: ${150 + i * 100}ms`}>
+            {item}
+          </li>
+        ))}
       </ul>
     </div>
   </div>
@@ -82,29 +60,24 @@ const CONTEMPLADAS = [
 <style>
   .grade {
     display: grid;
-    grid-template-columns:
-      minmax(0, 1.4fr)
-      minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
     gap: var(--esp-4);
     align-items: center;
   }
 
-  /* ----------------------- ilustração + fundo ----------------------
-     A caixa tem a proporção exata do quem-fez.png (970 x 786), e o
-     PNG cobre a caixa inteira. O computador entra por cima com
-     medidas relativas a essa caixa, tiradas do layout. */
+  /* --------------------- ilustração + formas ----------------------
+     A caixa tem a proporção do layout original (970 x 786). As formas
+     e o computador são posicionados em % dela. */
   .midia {
     position: relative;
     width: min(100%, 640px);
     aspect-ratio: 970 / 786;
     justify-self: start;
-    background-image: var(--formas);
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
   }
 
   .computador {
     position: absolute;
+    z-index: 1; /* na frente das formas */
     left: 18%;
     top: 4.5%;
     width: 71%;
@@ -116,7 +89,7 @@ const CONTEMPLADAS = [
     height: auto;
   }
 
-  /* ------------------------------ texto ----------------------------- */
+  /* ---------------------------- texto ----------------------------- */
   .coluna {
     justify-self: center;
     display: grid;
@@ -127,15 +100,11 @@ const CONTEMPLADAS = [
     display: grid;
     justify-items: center;
     line-height: 0.95;
-    color: #dd6a75;
+    color: var(--rosa);
   }
 
   .titulo-fino {
-    font-size: clamp(
-      1.1rem,
-      2.1vw,
-      1.8rem
-    );
+    font-size: clamp(1.1rem, 2.1vw, 1.8rem);
     font-weight: 800;
   }
 
@@ -150,11 +119,7 @@ const CONTEMPLADAS = [
     padding: 0;
     display: grid;
     gap: 0.9em;
-    font-size: clamp(
-      1.05rem,
-      1.6vw,
-      1.45rem
-    );
+    font-size: clamp(1.05rem, 1.6vw, 1.45rem);
     color: var(--roxo);
   }
 
@@ -166,6 +131,7 @@ const CONTEMPLADAS = [
     line-height: 1.2;
   }
 
+  /* Quadradinho roxo antes de cada item. */
   li::before {
     content: "";
     flex: 0 0 1.25em;
@@ -175,22 +141,14 @@ const CONTEMPLADAS = [
     background: var(--roxo);
   }
 
-  .textura-papel {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    background-size: cover;
-    background-position: center;
-    opacity: 0.15;
-    mix-blend-mode: multiply;
-  }
-
-  /* ------------------------- telas pequenas ------------------------- */
+  /* ------------------------ telas pequenas ------------------------ */
   @media (max-width: 860px) {
     .grade {
       grid-template-columns: 1fr;
       gap: var(--esp-3);
+      /* A margem negativa do .conteudo (global.css) é maior que o
+         respiro da faixa no celular e cortava a última linha. */
+      margin-bottom: 0;
     }
 
     .midia {

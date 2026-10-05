@@ -1,0 +1,57 @@
+---
+// =========================================================================
+// FUNDO DE FORMAS
+//
+// As formas claras de fundos/formas-fundo.svg, bem apagadas, dando
+// textura ao fundo da seção. Coloque logo no começo da seção.
+//
+// Props:
+//   opacidade  de 0 a 1 (padrão 0.15)
+//   cobrir     true: estica o desenho para cobrir a seção inteira,
+//              cortando o que sobrar. false: ocupa a largura toda e só
+//              a altura proporcional, a partir do topo.
+// =========================================================================
+
+import Svg from "./Svg.astro";
+
+const { opacidade = 0.15, cobrir = false } = Astro.props;
+---
+
+<div
+  class:list={["fundo-formas", { cobrir }]}
+  aria-hidden="true"
+  style={`opacity: ${opacidade}`}
+>
+  <Svg
+    nome="formas-fundo"
+    recolorir={false}
+    ancora={cobrir ? "xMidYMid slice" : null}
+  />
+</div>
+
+<style>
+  .fundo-formas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 0;
+    pointer-events: none;
+    line-height: 0;
+  }
+
+  .fundo-formas :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .cobrir {
+    bottom: 0;
+  }
+
+  .cobrir :global(svg) {
+    height: 100%;
+    max-width: none;
+  }
+</style>

@@ -1,21 +1,20 @@
 ---
 // =========================================================================
-// REALIZAÇÃO + PERGUNTAS FREQUENTES
+// PERGUNTAS FREQUENTES
 //
 // Última faixa da página: fundo branco com textura de papel e as formas
-// bege apagadas de fundos/formas-fundo.svg. No topo, a régua de marcas
-// (Realizacao.astro); embaixo, as perguntas em sanfona, separadas por
-// uma linha roxa grossa.
+// bege apagadas de fundos/formas-fundo.svg. As perguntas abrem em
+// sanfona e são separadas por uma linha roxa grossa.
 //
 // Os textos das perguntas ficam em src/data/faq.js.
 // =========================================================================
 
 import Faixa from "./Faixa.astro";
-import Enfeite from "./Enfeite.astro";
-import Svg from "./Svg.astro";
-import Realizacao from "./Realizacao.astro";
-import papel from "../assets/fundos/papel.webp";
+import Enfeites from "./Enfeites.astro";
+import FundoFormas from "./FundoFormas.astro";
+import TexturaPapel from "./TexturaPapel.astro";
 import { PERGUNTAS } from "../data/faq.js";
+import { ENFEITES_FAQ } from "../data/enfeites.js";
 
 interface Pergunta {
   pergunta: string;
@@ -27,248 +26,55 @@ const perguntas: Pergunta[] = PERGUNTAS;
 // Quantas perguntas já começam abertas. O layout mostra todas abertas;
 // 1 deixa só a primeira, 0 fecha todas, perguntas.length abre todas.
 const ABERTAS = 1;
-
-// Enfeites medidos no layout (1920px): tamanho e topo em vw, esquerda
-// em % da faixa. Os de baixo se ancoram pela base, para não depender
-// de quantas perguntas houver.
-const LILAS_CLARO = "#CDBDEA";
-const LILAS_MEDIO = "#B9A2D8";
-const ROXO_MEDIO = "#9A7FBF";
-const PESSEGO_FORTE = "#FFE1C0";
-
-const ENFEITES = [
-  // Topo, à esquerda.
-  {
-    forma: "asterisco",
-    cor: LILAS_CLARO,
-    tamanho: "16vw",
-    topo: "-8vw",
-    esquerda: "-7%",
-    giro: 12,
-    noCelular: true,
-    tamanhoMobile: "24vw",
-  },
-  {
-    forma: "trevo-cinco-lados",
-    cor: LILAS_MEDIO,
-    tamanho: "7.7vw",
-    topo: "3.5vw",
-    esquerda: "12%",
-    noCelular: true,
-    tamanhoMobile: "12vw",
-    esquerdaMobile: "16%",
-  },
-  {
-    forma: "estrela",
-    cor: PESSEGO_FORTE,
-    tamanho: "3.7vw",
-    topo: "12vw",
-    esquerda: "5.2%",
-  },
-
-  // Topo, à direita.
-  {
-    forma: "estrela",
-    cor: LILAS_CLARO,
-    tamanho: "4.2vw",
-    topo: "3.1vw",
-    esquerda: "74%",
-  },
-  {
-    forma: "trevo-cinco-lados",
-    cor: LILAS_MEDIO,
-    tamanho: "7.7vw",
-    topo: "-2vw",
-    esquerda: "84%",
-  },
-  {
-    forma: "estrela-cinco-lados",
-    cor: PESSEGO_FORTE,
-    tamanho: "5.2vw",
-    topo: "8vw",
-    esquerda: "82.6%",
-    giro: -8,
-  },
-  {
-    forma: "estrela-arredondada",
-    cor: ROXO_MEDIO,
-    tamanho: "14.4vw",
-    topo: "3vw",
-    esquerda: "91.5%",
-    giro: 10,
-    noCelular: true,
-    tamanhoMobile: "20vw",
-    esquerdaMobile: "88%",
-  },
-
-  // Base.
-  {
-    forma: "trevo-cinco-lados",
-    cor: LILAS_MEDIO,
-    tamanho: "4.6vw",
-    baixo: "4vw",
-    esquerda: "0.5%",
-    noCelular: true,
-    tamanhoMobile: "10vw",
-  },
-  {
-    forma: "estrela",
-    cor: LILAS_MEDIO,
-    tamanho: "2.3vw",
-    baixo: "1.5vw",
-    esquerda: "4.5%",
-  },
-  {
-    forma: "estrela",
-    cor: LILAS_MEDIO,
-    tamanho: "2.3vw",
-    baixo: "5vw",
-    esquerda: "95.5%",
-  },
-  {
-    forma: "estrela",
-    cor: LILAS_MEDIO,
-    tamanho: "4.4vw",
-    baixo: "0.5vw",
-    esquerda: "92%",
-    noCelular: true,
-    tamanhoMobile: "8vw",
-  },
-];
 ---
 
-<Faixa
-  onda="onda-pessego"
-  cor="var(--branco)"
-  id="faq"
-  classe="faq"
->
-  <div
-    class="textura-papel"
-    aria-hidden="true"
-    style={`background-image: url("${papel.src}")`}
-  >
-  </div>
-  <!-- Formas bege apagadas, desenhadas para a largura de 1920px. -->
-  <!-- <div
-    class="fundo-formas"
-    aria-hidden="true"
-  >
-    <Svg
-      nome="formas-fundo"
-      recolorir={false}
-    />
-  </div>
-
-  <div
-    class="textura-papel"
-    aria-hidden="true"
-    style={`background-image: url("${papel.src}")`}
-  >
-  </div>
-
-  {
-    ENFEITES.map((e) => (
-      <Enfeite {...e} />
-    ))
-  } -->
+<Faixa onda="onda-pessego-final" corOnda="var(--pessego)" id="faq" classe="faq">
+  <FundoFormas opacidade={0.55} />
+  <TexturaPapel />
+  <Enfeites lista={ENFEITES_FAQ} />
 
   <div class="conteudo">
-    <Realizacao />
-
     <header class="titulo surge">
-      <span class="sobre"
-        >Perguntas</span
-      >
+      <span class="sobre">Perguntas</span>
 
       <h2>Frequentes</h2>
     </header>
 
     <div class="lista">
-      {
-        perguntas.map((item, i) => (
-          <details
-            class="item surge"
-            style={`--atraso: ${i * 80}ms`}
-            open={i < ABERTAS}
-          >
-            <summary>
-              <span class="pergunta">
-                {item.pergunta}
-              </span>
-              <svg
-                class="seta"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  d="M6 9l6 6 6-6"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </summary>
-            <div class="resposta">
-              <p>{item.resposta}</p>
-            </div>
-          </details>
-        ))
-      }
+      {perguntas.map((item, i) => (
+        <details
+          class="item surge"
+          style={`--atraso: ${i * 80}ms`}
+          open={i < ABERTAS}
+        >
+          <summary>
+            <span class="pergunta">{item.pergunta}</span>
+            <svg class="seta" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M6 9l6 6 6-6"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </summary>
+          <div class="resposta">
+            <p>{item.resposta}</p>
+          </div>
+        </details>
+      ))}
     </div>
   </div>
 </Faixa>
 
 <style>
-  /* O multiply da textura não pode vazar para fora da faixa. */
-  .faq {
-    isolation: isolate;
-  }
-
-  /* ------------------------ fundo e textura --------------------- */
-  .fundo-formas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 0;
-    pointer-events: none;
-    line-height: 0;
-    opacity: 0.55; /* no layout as formas quase somem no papel */
-  }
-
-  .fundo-formas :global(svg) {
-    width: 100%;
-    height: auto;
-  }
-
-  /* Mesma receita da faixa "Sobre o Projeto". */
-  .textura-papel {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background-size: cover;
-    background-position: center;
-    opacity: 0.15;
-    mix-blend-mode: multiply;
-  }
-
   /* No layout a lista é mais larga que o resto da página (87% da tela
      em 1920px), então esta faixa tem a própria largura de conteúdo. */
   .conteudo {
-    width: min(
-      100% - 2.5rem,
-      87vw,
-      1666px
-    );
-    margin-bottom: clamp(
-      2rem,
-      6vw,
-      6rem
-    );
+    width: min(100% - 2.5rem, 87vw, 1666px);
+    margin-bottom: clamp(2rem, 6vw, 6rem);
   }
 
   /* --------------------------- título --------------------------- */
@@ -277,19 +83,11 @@ const ENFEITES = [
     flex-direction: column;
     align-items: center;
     margin-top: clamp(3rem, 9vw, 11rem);
-    margin-bottom: clamp(
-      1.5rem,
-      5vw,
-      6rem
-    );
+    margin-bottom: clamp(1.5rem, 5vw, 6rem);
   }
 
   .sobre {
-    font-size: clamp(
-      1.1rem,
-      1.9vw,
-      1.6rem
-    );
+    font-size: clamp(1.1rem, 1.9vw, 1.6rem);
     font-weight: 800;
     line-height: 1;
     color: var(--roxo);
@@ -297,11 +95,7 @@ const ENFEITES = [
   }
 
   h2 {
-    font-size: clamp(
-      2.4rem,
-      5.4vw,
-      4.4rem
-    );
+    font-size: clamp(2.4rem, 5.4vw, 4.4rem);
     font-weight: 900;
     line-height: 1;
     color: var(--roxo-escuro);
@@ -322,10 +116,8 @@ const ENFEITES = [
     align-items: center;
     justify-content: space-between;
     gap: var(--esp-2);
-    padding: clamp(1.1rem, 2vw, 2rem)
-      clamp(0.5rem, 5vw, 5.5rem)
-      clamp(1.1rem, 2vw, 2rem)
-      clamp(0.5rem, 1.2vw, 1.25rem);
+    padding: clamp(1.1rem, 2vw, 2rem) clamp(0.5rem, 5vw, 5.5rem)
+      clamp(1.1rem, 2vw, 2rem) clamp(0.5rem, 1.2vw, 1.25rem);
     cursor: pointer;
     list-style: none;
     color: var(--roxo-escuro);
@@ -351,31 +143,15 @@ const ENFEITES = [
   }
 
   .pergunta {
-    font-size: clamp(
-      1.15rem,
-      2vw,
-      1.75rem
-    );
+    font-size: clamp(1.15rem, 2vw, 1.75rem);
     font-weight: 800;
     line-height: 1.25;
-  }
-
-  .textura-papel {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background-size: cover;
-    background-position: center;
-    opacity: 0.15;
-    mix-blend-mode: multiply;
   }
 
   .seta {
     flex: none;
     width: clamp(20px, 1.8vw, 28px);
-    transition: transform
-      var(--transicao);
+    transition: transform var(--transicao);
   }
 
   /* Seta para cima quando aberta, como no layout. */
@@ -385,31 +161,22 @@ const ENFEITES = [
 
   /* O texto alinha com a pergunta e para antes da coluna da seta. */
   .resposta p {
-    padding: 0
-      clamp(0.5rem, 5vw, 5.5rem)
-      clamp(1.25rem, 2.2vw, 2.25rem)
+    padding: 0 clamp(0.5rem, 5vw, 5.5rem) clamp(1.25rem, 2.2vw, 2.25rem)
       clamp(0.5rem, 1.2vw, 1.25rem);
-    font-size: clamp(
-      1rem,
-      1.35vw,
-      1.2rem
-    );
+    font-size: clamp(1rem, 1.35vw, 1.2rem);
     line-height: 1.5;
-    color: #222;
+    color: var(--cor-texto-neutro);
   }
 
   /* Abre e fecha deslizando, nos navegadores que já entendem
      ::details-content. Nos outros a sanfona só abre, sem animação. */
-  @supports selector(
-    ::details-content
-  ) {
+  @supports selector(::details-content) {
     .item::details-content {
       block-size: 0;
       overflow: hidden;
       transition:
         block-size var(--transicao),
-        content-visibility
-          var(--transicao);
+        content-visibility var(--transicao);
       transition-behavior: allow-discrete;
     }
 
