@@ -1,0 +1,424 @@
+---
+// =========================================================================
+// SOBRE O PROJETO
+//
+// Faixa branca com a onda roxa escorrendo da citação. Grade 2 x 2:
+//
+//     título    | logo
+//     carrossel | texto
+//
+// Assim o título fica na altura do logo e o texto começa na altura do
+// topo do carrossel. No celular vira uma coluna só.
+//
+// O carrossel mostra as fotos de src/assets/carrossel, uma por vez, na
+// ordem do número no começo do nome (1fotoArretadas, 2fotoArretadas...).
+// Para acrescentar uma foto, basta salvar na pasta com o próximo número.
+// =========================================================================
+
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+import Faixa from "./Faixa.astro";
+import Enfeite from "./Enfeite.astro";
+import Enfeites from "./Enfeites.astro";
+import TexturaPapel from "./TexturaPapel.astro";
+import logoArretadas from "../assets/logo-arretadas.svg";
+import { ENFEITES_SOBRE_PROJETO, BRILHO_VIDEO } from "../data/enfeites.js";
+
+// Fotos ordenadas pelo número do nome. Sem isso o "10" viria antes do
+// "2", porque a ordem alfabética compara letra por letra.
+const FOTOS = Object.entries(
+  import.meta.glob<{ default: ImageMetadata }>(
+    "../assets/carrossel/*.{png,jpg,jpeg,webp}",
+    { eager: true },
+  ),
+)
+  .sort(
+    ([a], [b]) => parseInt(a.split("/").pop()!) - parseInt(b.split("/").pop()!),
+  )
+  .map(([, modulo]) => modulo.default);
+
+const TEXTO =
+  "\nO projeto acadêmico “Arretadas em Rede: Livres de Misoginia”, da Universidade Federal do Ceará (UFC) em parceria com a Universidade de Brasília (UnB), fortalece mulheres e redes de proteção para identificar e enfrentar a misoginia digital e a violência política de gênero. Por meio de formação, comunicação e conteúdos educativos acessíveis, produz e difunde conhecimento para tornar o ambiente digital mais seguro, democrático e inclusivo.";
+---
+
+<Faixa
+  onda="onda-roxa-final"
+  cor="var(--branco)"
+  corOnda="var(--roxo)"
+  id="extra"
+>
+  <TexturaPapel />
+  <Enfeites lista={ENFEITES_SOBRE_PROJETO} />
+
+  <div class="conteudo">
+    <div class="grade">
+      <h2 class="titulo surge esquerda">
+        <span class="titulo-fino">Sobre o</span>
+        <span class="titulo-forte">projeto</span>
+      </h2>
+
+      <div class="logo surge direita" style="--atraso: 150ms">
+        <Image
+          src={logoArretadas}
+          alt="Logo Arretadas em Rede: Livres de Misoginia"
+        />
+      </div>
+
+      <div class="midia surge esquerda">
+        <!-- A moldura segura a foto e a estrelinha do canto juntas, para
+             a estrelinha continuar no canto da foto e não embaixo das
+             bolinhas. -->
+        <div class="moldura">
+          <div
+            class="carrossel"
+            role="region"
+            aria-roledescription="carrossel"
+            aria-label="Fotos do projeto Arretadas em Rede"
+            data-carrossel-fotos
+          >
+            <div class="trilho" aria-live="polite">
+              {
+                FOTOS.map((foto, i) => (
+                  <div
+                    class="slide"
+                    role="group"
+                    aria-roledescription="slide"
+                    aria-label={`Foto ${i + 1} de ${FOTOS.length}`}
+                    aria-hidden={i === 0 ? undefined : "true"}
+                  >
+                    <Image
+                      src={foto}
+                      alt=""
+                      widths={[480, 800]}
+                      sizes="(max-width: 860px) 100vw, 55vw"
+                      loading={i === 0 ? "eager" : "lazy"}
+                    />
+                  </div>
+                ))
+              }
+            </div>
+
+            <button
+              type="button"
+              class="seta anterior"
+              data-passo="-1"
+              aria-label="Foto anterior"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M15 5l-7 7 7 7"></path>
+              </svg>
+            </button>
+            <button
+              type="button"
+              class="seta proxima"
+              data-passo="1"
+              aria-label="Próxima foto"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M9 5l7 7-7 7"></path>
+              </svg>
+            </button>
+          </div>
+          <Enfeite {...BRILHO_VIDEO} />
+        </div>
+
+        <!-- Uma bolinha por foto. A da foto atual fica cheia. -->
+        <div class="bolinhas">
+          {
+            FOTOS.map((_, i) => (
+              <button
+                type="button"
+                class="bolinha"
+                data-bolinha={i}
+                aria-label={`Ir para a foto ${i + 1}`}
+                aria-current={i === 0 ? "true" : undefined}
+              />
+            ))
+          }
+        </div>
+      </div>
+
+      <p class="texto surge direita" style="--atraso: 250ms">
+        {TEXTO}
+      </p>
+    </div>
+  </div>
+</Faixa>
+
+<script>
+  // Passa as fotos do carrossel. O trilho com todas as fotos lado a lado
+  // desliza uma largura inteira por vez. A fila é circular: da última
+  // volta para a primeira.
+  document
+    .querySelectorAll<HTMLElement>("[data-carrossel-fotos]")
+    .forEach((carrossel) => {
+      const trilho = carrossel.querySelector<HTMLElement>(".trilho")!;
+      const slides = [...carrossel.querySelectorAll<HTMLElement>(".slide")];
+      const bolinhas = [
+        ...(
+          carrossel.closest(".midia") ?? carrossel
+        ).querySelectorAll<HTMLButtonElement>("[data-bolinha]"),
+      ];
+      let atual = 0;
+
+      const ir = (indice: number) => {
+        atual = (indice + slides.length) % slides.length;
+        trilho.style.translate = `${-atual * 100}% 0`;
+        slides.forEach((s, i) =>
+          i === atual
+            ? s.removeAttribute("aria-hidden")
+            : s.setAttribute("aria-hidden", "true"),
+        );
+        bolinhas.forEach((b, i) =>
+          i === atual
+            ? b.setAttribute("aria-current", "true")
+            : b.removeAttribute("aria-current"),
+        );
+      };
+
+      window.setInterval(() => ir(atual + 1), 3000);
+
+      bolinhas.forEach((b, i) => b.addEventListener("click", () => ir(i)));
+
+      carrossel
+        .querySelectorAll<HTMLButtonElement>("[data-passo]")
+        .forEach((seta) =>
+          seta.addEventListener("click", () =>
+            ir(atual + Number(seta.dataset.passo)),
+          ),
+        );
+
+      // Setas do teclado quando o foco está no carrossel.
+      carrossel.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowLeft") ir(atual - 1);
+        if (e.key === "ArrowRight") ir(atual + 1);
+      });
+
+      // No celular, arrastar o dedo para o lado também passa a foto.
+      let inicioX: number | null = null;
+      carrossel.addEventListener(
+        "touchstart",
+        (e) => (inicioX = e.touches[0].clientX),
+        { passive: true },
+      );
+      carrossel.addEventListener("touchend", (e) => {
+        if (inicioX === null) return;
+        const dx = e.changedTouches[0].clientX - inicioX;
+        if (Math.abs(dx) > 40) ir(atual + (dx < 0 ? 1 : -1));
+        inicioX = null;
+      });
+    });
+</script>
+
+<style>
+  /* O global.css puxa a próxima seção 3rem para cima, o que cortava o
+     brilho do canto do vídeo. Aqui puxamos menos, sobrando 3rem embaixo.
+     Se ainda cortar, aproxime de 0; se sobrar espaço, volte para -2rem. */
+  .conteudo {
+    margin-bottom: -1rem;
+  }
+
+  /* ---------------------------- grade ----------------------------- */
+  .grade {
+    container-type: inline-size; /* régua para o tamanho do texto */
+    display: grid;
+    grid-template-columns: 1.2fr 1fr; /* vídeo | texto */
+    grid-template-areas:
+      "titulo logo"
+      "video  texto";
+    column-gap: var(--esp-6); /* entre as duas colunas */
+    row-gap: var(--esp-4); /* entre o título e o vídeo */
+    align-items: start;
+  }
+
+  /* --------------------------- título ----------------------------- */
+  .titulo {
+    grid-area: titulo;
+    align-self: end; /* encosta no vídeo */
+    display: grid;
+    justify-items: center;
+    line-height: 0.95;
+    color: var(--roxo);
+  }
+
+  .titulo-fino {
+    font-size: clamp(1.1rem, 2.1vw, 1.8rem);
+    font-weight: 800;
+  }
+
+  .titulo-forte {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 900;
+    letter-spacing: -0.01em;
+  }
+
+  /* ---------------------------- logo ------------------------------ */
+  .logo {
+    grid-area: logo;
+    align-self: center;
+    justify-self: center;
+  }
+
+  .logo :global(img) {
+    display: block;
+    width: min(100%, 880px);
+    height: auto;
+    margin-top: 20px;
+    transform: scale(1.33);
+    transform-origin: center;
+  }
+
+  /* ---------------------------- vídeo ----------------------------- */
+  .midia {
+    grid-area: video;
+    position: relative; /* referência para o brilho do canto */
+  }
+
+  /* -------------------------- carrossel --------------------------- */
+  /* A janela tem a proporção das fotos (799 x 501) e esconde as que
+     estão fora dela. */
+  .carrossel {
+    position: relative;
+    aspect-ratio: 799 / 501;
+    overflow: hidden;
+    border-radius: var(--raio);
+    background: var(--roxo-palido);
+  }
+
+  .trilho {
+    display: flex;
+    height: 100%;
+    transition: translate 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .slide {
+    flex: 0 0 100%;
+  }
+
+  .slide :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Setas redondas por cima da foto, uma de cada lado. */
+  .seta {
+    position: absolute;
+    top: 50%;
+    translate: 0 -50%;
+    display: grid;
+    place-items: center;
+    width: clamp(2.25rem, 3.4vw, 3rem);
+    aspect-ratio: 1;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.85);
+    color: var(--roxo);
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgb(51 36 92 / 0.25);
+    transition:
+      background-color var(--transicao),
+      scale var(--transicao);
+  }
+
+  .seta.anterior {
+    left: 0.75rem;
+  }
+
+  .seta.proxima {
+    right: 0.75rem;
+  }
+
+  .seta:hover {
+    background: var(--branco);
+    scale: 1.08;
+  }
+
+  .seta:focus-visible {
+    outline: 3px solid var(--roxo);
+    outline-offset: 2px;
+  }
+
+  .seta svg {
+    width: 55%;
+    height: 55%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .moldura {
+    position: relative; /* referência para a estrelinha do canto */
+  }
+
+  /* --------------------------- bolinhas --------------------------- */
+  .bolinhas {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.9rem;
+  }
+
+  .bolinha {
+    width: 0.7rem;
+    height: 0.7rem;
+    padding: 0;
+    border: 2px solid var(--roxo);
+    border-radius: 999px;
+    background: transparent;
+    cursor: pointer;
+    transition:
+      width var(--transicao),
+      background-color var(--transicao);
+  }
+
+  .bolinha:hover {
+    background: var(--lilas);
+  }
+
+  /* A da foto atual fica cheia e um pouco mais comprida. */
+  .bolinha[aria-current="true"] {
+    width: 1.6rem;
+    background: var(--roxo);
+  }
+
+  .bolinha:focus-visible {
+    outline: 3px solid var(--roxo);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .trilho {
+      transition: none;
+    }
+  }
+
+  /* ---------------------------- texto ----------------------------- */
+  /* cqi = 1% da largura da .grade (não da tela). Com 1.95cqi o texto
+     ocupa mais ou menos a altura do vídeo em qualquer monitor. */
+  .texto {
+    grid-area: texto;
+    margin: 0;
+    font-size: clamp(1rem, 1.95cqi, 1.4rem);
+    line-height: 1.35;
+    color: var(--roxo-escuro);
+  }
+
+  /* ------------------------ telas pequenas ------------------------ */
+  @media (max-width: 860px) {
+    .grade {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "titulo"
+        "video"
+        "logo"
+        "texto";
+      row-gap: var(--esp-3);
+    }
+  }
+</style>

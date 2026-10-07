@@ -13,4 +13,4 @@ import Enfeite from "./Enfeite.astro";
 const { lista = [] } = Astro.props;
 ---
 
-{lista.map((enfeite) => <Enfeite {...enfeite} />)}
+{lista.map((enfeite: any) => <Enfeite {...enfeite} />)}

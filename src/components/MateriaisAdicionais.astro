@@ -44,7 +44,7 @@ const MATERIAIS = [
 <Faixa
   onda="onda-lilas-final"
   corOnda="var(--lilas)"
-  id="materiais"
+  id="materiaisadicionais"
   cor="var(--pessego)"
 >
   <Enfeites lista={ENFEITES_MATERIAIS} />
@@ -56,46 +56,48 @@ const MATERIAIS = [
     </header>
 
     <ul class="materiais">
-      {MATERIAIS.map((m, i) => {
-        const invertido = i % 2 === 1;
-        return (
-          <li class:list={["item", { invertido }]}>
-            <div
-              class:list={[
-                "moldura",
-                "surge",
-                invertido ? "direita" : "esquerda",
-              ]}
-            >
-              <a
-                class="capa"
-                href={m.link}
-                download
-                aria-label={`Baixar: ${m.titulo.join(" ")}`}
+      {
+        MATERIAIS.map((m, i) => {
+          const invertido = i % 2 === 1;
+          return (
+            <li class:list={["item", { invertido }]}>
+              <div
+                class:list={[
+                  "moldura",
+                  "surge",
+                  invertido ? "direita" : "esquerda",
+                ]}
               >
-                {m.capa && <img src={m.capa.src} alt="" loading="lazy" />}
-              </a>
-              <Enfeite {...estrelinhaCapa(invertido)} />
-            </div>
+                <a
+                  class="capa"
+                  href={m.link}
+                  download
+                  aria-label={`Baixar: ${m.titulo.join(" ")}`}
+                >
+                  {m.capa && <img src={m.capa} alt="" loading="lazy" />}
+                </a>
+                <Enfeite {...estrelinhaCapa(invertido)} />
+              </div>
 
-            <div
-              class:list={[
-                "chamada",
-                "surge",
-                invertido ? "esquerda" : "direita",
-              ]}
-              style="--atraso: 150ms"
-            >
-              <h3>
-                {m.titulo.map((linha) => (
-                  <span class="linha">{linha}</span>
-                ))}
-              </h3>
-              <p>{m.texto}</p>
-            </div>
-          </li>
-        );
-      })}
+              <div
+                class:list={[
+                  "chamada",
+                  "surge",
+                  invertido ? "esquerda" : "direita",
+                ]}
+                style="--atraso: 150ms"
+              >
+                <h3>
+                  {m.titulo.map((linha) => (
+                    <span class="linha">{linha}</span>
+                  ))}
+                </h3>
+                <p>{m.texto}</p>
+              </div>
+            </li>
+          );
+        })
+      }
     </ul>
   </div>
 </Faixa>

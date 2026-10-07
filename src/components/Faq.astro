@@ -41,30 +41,32 @@ const ABERTAS = 1;
     </header>
 
     <div class="lista">
-      {perguntas.map((item, i) => (
-        <details
-          class="item surge"
-          style={`--atraso: ${i * 80}ms`}
-          open={i < ABERTAS}
-        >
-          <summary>
-            <span class="pergunta">{item.pergunta}</span>
-            <svg class="seta" viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="M6 9l6 6 6-6"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </summary>
-          <div class="resposta">
-            <p>{item.resposta}</p>
-          </div>
-        </details>
-      ))}
+      {
+        perguntas.map((item, i) => (
+          <details
+            class="item surge"
+            style={`--atraso: ${i * 80}ms`}
+            open={i < ABERTAS}
+          >
+            <summary>
+              <span class="pergunta">{item.pergunta}</span>
+              <svg class="seta" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M6 9l6 6 6-6"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </summary>
+            <div class="resposta">
+              <p>{item.resposta}</p>
+            </div>
+          </details>
+        ))
+      }
     </div>
   </div>
 </Faixa>
@@ -75,6 +77,7 @@ const ABERTAS = 1;
   .conteudo {
     width: min(100% - 2.5rem, 87vw, 1666px);
     margin-bottom: clamp(2rem, 6vw, 6rem);
+    margin-top: -8rem;
   }
 
   /* --------------------------- título --------------------------- */
@@ -104,11 +107,11 @@ const ABERTAS = 1;
   /* ---------------------------- lista --------------------------- */
   .lista {
     display: grid;
-    border-bottom: 3px solid var(--roxo);
+    border-bottom: 2px solid var(--roxo);
   }
 
   .item {
-    border-top: 3px solid var(--roxo);
+    border-top: 2px solid var(--roxo);
   }
 
   summary {

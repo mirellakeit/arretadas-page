@@ -16,18 +16,18 @@ const LINKS = [
     destino: "#extra",
   },
   {
-    texto: "Módulos",
+    texto: "Sobre o Curso",
     destino: "#modulos",
+  },
+  {
+    texto: "Materiais Adicionais",
+    destino: "#materiaisadicionais",
   },
   {
     texto: "Professoras",
     destino: "#professoras",
   },
   { texto: "FAQ", destino: "#faq" },
-  {
-    texto: "Realização",
-    destino: "#realizacao",
-  },
 ];
 
 // Link externo do formulário de inscrição. Troque pelo endereço real.
@@ -41,9 +41,7 @@ const LINK_INSCRICAO = "https://forms.gle/exemplo";
     </a>
 
     <nav class="menu" aria-label="Navegação Principal">
-      {LINKS.map((link) => (
-        <a href={link.destino}>{link.texto}</a>
-      ))}
+      {LINKS.map((link) => <a href={link.destino}>{link.texto}</a>)}
     </nav>
 
     <a

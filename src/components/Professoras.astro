@@ -33,59 +33,59 @@ const LOREM =
 
 const PROFESSORAS = [
   {
-    foto: "Ellipse 144.png",
-    nome: "Nome da Professora",
-    bio: LOREM,
+    foto: "priscila_aquino.png",
+    nome: "Priscila Aquino",
+    bio: "Enfermeira obstetra. Mestre, doutora e pós-doutora em Enfermagem pela UFC, onde é professora associada da graduação e pós-graduação. Bolsista de produtividade do CNPq e líder do Gessare. Uma das coordenadoras do Arretadas em Rede.",
   },
   {
-    foto: "Ellipse 145.png",
-    nome: "Nome da Professora",
-    bio: LOREM,
+    foto: "eulalia_camurca.png",
+    nome: "Eulália Camurça",
+    bio: "Doutora e mestre em Direito Constitucional pela Universidade Federal do Ceará. Graduada em Comunicação Social pela Universidade Federal do Ceará e em Direito pela UNIFOR. Professora da Universidade Federal do Ceará.",
   },
   {
-    foto: "Ellipse 146.png",
-    nome: "Nome da Professora",
-    bio: LOREM,
+    foto: "glicia_maria.png",
+    nome: "Glícia Maria Pontes Bezerra",
+    bio: "Professora Associada da UFC. Graduada em Comunicação Social pela UFC, mestre em Ciências Sociais pela UFRN, doutora em Sociologia pela UFPE e pós-doutora em Sociologia pela USP. Pró-Reitora Adjunta de Cultura da UFC e coordenadora do Arretadas em Rede – Livres de Misoginia.",
   },
   {
-    foto: "Ellipse 147.png",
-    nome: "Nome da Professora",
-    bio: LOREM,
+    foto: "uly_reis.png",
+    nome: "Uly Reis Ferreira",
+    bio: "Enfermeira obstetra pela Universidade Federal do Ceará (UFC)/Maternidade Escola Assis Chateaubriand (MEAC). Mestre e doutoranda em Enfermagem pela UFC.",
   },
   {
-    foto: "Ellipse 148.png",
-    nome: "Nome da Professora",
-    bio: LOREM,
+    foto: "priscilla_maia.png",
+    nome: "Priscilla Maia de Andrade",
+    bio: "Assistente social. Mestre e doutora em Política Social pela Universidade de Brasília (UnB), onde é professora adjunta. Pesquisa políticas públicas, assistência social, família, violência intrafamiliar, gênero e direitos humanos.",
   },
   {
-    foto: "Ellipse 149.png",
-    nome: "Nome da Professora",
-    bio: LOREM,
+    foto: "hillary_bastos.png",
+    nome: "Hillary Bastos ",
+    bio: "Enfermeira, Mestre e doutoranda em Enfermagem na Universidade Federal do Ceará.",
   },
   {
-    foto: "Ellipse 150.png",
-    nome: "Nome da Professora",
-    bio: LOREM,
+    foto: "samila_gomes.png",
+    nome: "Samila Gomes Ribeiro",
+    bio: "Enfermeira. Mestre e Doutora em Enfermagem pela UFC. Professora Adjunta da UFC. Lidera iniciativas de pesquisa e extensão voltadas à atenção primária e à saúde de populações em situações de vulnerabilidade.",
   },
   {
-    foto: "Ellipse 151.png",
-    nome: "Nome da Professora",
-    bio: LOREM,
+    foto: "ana_karina.png",
+    nome: "Ana Karina Bezerra Pinheiro",
+    bio: "Enfermeira. Professora titular da Universidade Federal do Ceará e diretora da Faculdade de Farmácia, Odontologia e Enfermagem. Bolsista de produtividade B do CNPq, coordenadora da área de Enfermagem na CAPES e líder do NEVUSPP.",
   },
   {
-    foto: "Ellipse 152.png",
-    nome: "Nome da Professora",
-    bio: LOREM,
+    foto: "maria_elaene.png",
+    nome: "Maria Elaene Rodrigues Alves",
+    bio: "Professora da UnB, graduada em Serviço Social e mestra em Políticas Públicas pela UECE, doutora em Serviço Social pela UERJ e pós-doutora pela UFPE. Coordena grupo de pesquisa em direitos humanos e o projeto Arretadas em Rede.",
   },
   {
-    foto: "Ellipse 154.png",
-    nome: "Nome da Professora",
-    bio: LOREM,
+    foto: "paula_renata.png",
+    nome: "Paula Renata Amorim Lessa",
+    bio: "Mestre e Doutora em Enfermagem pela UFC. Enfermeira e servidora TAE do Departamento de Enfermagem da UFC, professora da pós-graduação. Lidera pesquisas e ações de extensão em atenção primária e populações vulneráveis.",
   },
   {
-    foto: "Ellipse 155.png",
-    nome: "Nome da Professora",
-    bio: LOREM,
+    foto: "marianne_maia.png",
+    nome: "Marianne Maia Dutra Balsells",
+    bio: "Enfermeira obstetra pela UECE; Mestre e Doutora em Enfermagem pela UFC; Pós-doutoranda em Enfermagem pela UFC. Docente da Unichristus e Estácio do Ceará. Desenvolve pesquisas em saúde da mulher.",
   },
 ];
 
@@ -128,25 +128,27 @@ const lista = PROFESSORAS.map((p) => {
       </button>
 
       <ul class="professoras" aria-live="polite">
-        {lista.map((p) => (
-          <li>
-            <article class="cartao" tabindex="0">
-              <div class="foto">
-                <Image
-                  src={p.imagem}
-                  alt=""
-                  width={226}
-                  height={226}
-                  loading="lazy"
-                />
-              </div>
-              <h3 class="nome">{p.nome}</h3>
-              <div class="bio">
-                <p>{p.bio}</p>
-              </div>
-            </article>
-          </li>
-        ))}
+        {
+          lista.map((p) => (
+            <li>
+              <article class="cartao" tabindex="0">
+                <div class="foto">
+                  <Image
+                    src={p.imagem}
+                    alt=""
+                    width={226}
+                    height={226}
+                    loading="lazy"
+                  />
+                </div>
+                <h3 class="nome">{p.nome}</h3>
+                <div class="bio">
+                  <p>{p.bio}</p>
+                </div>
+              </article>
+            </li>
+          ))
+        }
       </ul>
 
       <button
