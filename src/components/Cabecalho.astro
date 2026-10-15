@@ -3,13 +3,22 @@
 // CABEÇALHO FIXO
 // Fica colado no topo enquanto a página rola. Os links levam às seções
 // da própria página usando âncoras (#id), sem recarregar nada.
+//
+// No computador os links ficam em linha, no meio da barra.
+// No celular (até 900px) eles somem da barra e passam a morar numa
+// gaveta lateral, aberta pelo botão de três tracinhos à esquerda.
+// A gaveta é um <dialog>: o navegador já cuida de prender o foco
+// dentro dela, fechar com Esc e esconder o resto da página dos
+// leitores de tela enquanto ela estiver aberta.
 // =========================================================================
 
 import { Image } from "astro:assets";
 import logoArretadas from "../assets/logo-arretadas.svg";
+import Svg from "./Svg.astro";
 
 // Os itens do menu vivem em um array. Para acrescentar uma seção,
-// basta adicionar uma linha aqui, sem mexer no HTML.
+// basta adicionar uma linha aqui, sem mexer no HTML. A mesma lista
+// alimenta a barra do computador e a gaveta do celular.
 const LINKS = [
   {
     texto: "Sobre o projeto",
@@ -30,13 +39,24 @@ const LINKS = [
   { texto: "FAQ", destino: "#faq" },
 ];
 
-// Link externo do formulário de inscrição. Troque pelo endereço real.
+// Links externos. Troque pelos endereços reais.
 const LINK_INSCRICAO = "https://forms.gle/exemplo";
+const LINK_PLATAFORMA = "https://arretadas.virtual.ufc.br";
 ---
 
 <header class="cabecalho">
   <div class="conteudo barra">
-    <a href="#topo" aria-label="Voltar ao início">
+    <button
+      class="abrir-menu"
+      type="button"
+      aria-label="Abrir menu"
+      aria-controls="gaveta"
+      aria-expanded="false"
+    >
+      <span aria-hidden="true"></span>
+    </button>
+
+    <a class="logo" href="#topo" aria-label="Voltar ao início">
       <Image src={logoArretadas} alt="Logo Arretadas" />
     </a>
 
@@ -45,17 +65,115 @@ const LINK_INSCRICAO = "https://forms.gle/exemplo";
     </nav>
 
     <a
-      class="botao"
+      class="botao inscricao"
       href={LINK_INSCRICAO}
       target="_blank"
       rel="noopener noreferrer"
     >
-      Inscreva-se já!
+      Inscreva-se
     </a>
   </div>
 </header>
 
+<!-- ------------------------------------------------------------------
+     GAVETA LATERAL (só aparece no celular)
+     ------------------------------------------------------------------ -->
+<dialog class="gaveta" id="gaveta" aria-label="Menu">
+  <div class="gaveta-corpo">
+    <div class="gaveta-topo">
+      <a class="gaveta-logo" href="#topo" aria-label="Voltar ao início">
+        <span class="brilho"><Svg nome="estrela" /></span>
+        <Image src={logoArretadas} alt="" />
+      </a>
+
+      <button class="fechar-menu" type="button" aria-label="Fechar menu">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M6 6l12 12M18 6L6 18"></path>
+        </svg>
+      </button>
+    </div>
+
+    <nav class="gaveta-menu" aria-label="Navegação Principal">
+      <ul>
+        {
+          LINKS.map((link) => (
+            <li>
+              <a href={link.destino}>
+                {link.texto}
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="gaveta-acoes">
+      <a
+        class="acao acao-cheia"
+        href={LINK_INSCRICAO}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Inscreva-se já!
+      </a>
+      <a
+        class="acao acao-contorno"
+        href={LINK_PLATAFORMA}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Acesse nossa plataforma
+      </a>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  // Abre e fecha a gaveta. O <dialog> com showModal() já resolve o
+  // foco, o Esc e o fundo inerte; aqui só ligamos os botões.
+  const gaveta = document.querySelector<HTMLDialogElement>(".gaveta");
+  const abrir = document.querySelector<HTMLButtonElement>(".abrir-menu");
+  const fechar = document.querySelector<HTMLButtonElement>(".fechar-menu");
+
+  if (gaveta && abrir && fechar) {
+    abrir.addEventListener("click", () => {
+      gaveta.showModal();
+      abrir.setAttribute("aria-expanded", "true");
+    });
+
+    fechar.addEventListener("click", () => gaveta.close());
+
+    // Clicar fora do painel (no fundo escurecido) também fecha.
+    gaveta.addEventListener("click", (evento) => {
+      if (evento.target === gaveta) gaveta.close();
+    });
+
+    // Escolher um link fecha a gaveta antes de a página rolar até a seção.
+    gaveta
+      .querySelectorAll("a")
+      .forEach((link) => link.addEventListener("click", () => gaveta.close()));
+
+    // Vale para qualquer forma de fechar, inclusive a tecla Esc.
+    gaveta.addEventListener("close", () => {
+      abrir.setAttribute("aria-expanded", "false");
+    });
+
+    // Se a tela crescer com a gaveta aberta (celular virado, janela
+    // redimensionada), fecha: no computador o menu já está na barra.
+    matchMedia("(min-width: 901px)").addEventListener("change", (m) => {
+      if (m.matches && gaveta.open) gaveta.close();
+    });
+  }
+</script>
+
 <style>
+  .botao {
+    border-radius: 12px;
+  }
+
   .cabecalho {
     position: sticky;
     top: 0;
@@ -92,8 +210,285 @@ const LINK_INSCRICAO = "https://forms.gle/exemplo";
     border-bottom-color: var(--coral);
   }
 
+  /* O botão de três tracinhos só existe no celular. */
+  .abrir-menu {
+    display: none;
+  }
+
+  /* ------------------------- telas pequenas --------------------- */
   @media (max-width: 900px) {
+    .barra {
+      gap: var(--esp-2);
+      padding-block: 0.6rem;
+    }
+
     .menu {
+      display: none;
+    }
+
+    .abrir-menu {
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      width: 2.5rem;
+      height: 2.5rem;
+      margin-inline-start: -0.5rem; /* alinha os tracinhos com a margem */
+      padding: 0;
+      border: 0;
+      border-radius: 8px;
+      background: none;
+      color: var(--roxo-escuro);
+      cursor: pointer;
+    }
+
+    /* Três tracinhos desenhados com uma barra e duas sombras. */
+    .abrir-menu span {
+      width: 1.1rem;
+      height: 2px;
+      border-radius: 2px;
+      background: currentColor;
+      box-shadow:
+        0 -6px 0 currentColor,
+        0 6px 0 currentColor;
+    }
+
+    .abrir-menu:focus-visible {
+      outline: 3px solid var(--roxo);
+      outline-offset: 2px;
+    }
+
+    .logo {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .logo :global(img) {
+      width: auto;
+      height: 2.25rem;
+    }
+
+    .inscricao {
+      flex-shrink: 0;
+      padding: 0.2rem 1rem;
+      font-size: 0.85rem;
+      white-space: nowrap;
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     GAVETA
+     ------------------------------------------------------------------ */
+  .gaveta {
+    /* O <dialog> vem centralizado por padrão; aqui ele vira um painel
+       preso à esquerda, da altura da tela. */
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(88vw, 380px);
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0 var(--raio) var(--raio) 0;
+    background-image: linear-gradient(
+      to bottom,
+      rgb(88, 64, 128, 0.15),
+      rgb(251, 252, 253)
+    );
+    backdrop-filter: blur(12px);
+    color: var(--roxo-escuro);
+    box-shadow: 8px 0 32px
+      color-mix(in srgb, var(--roxo-escuro) 18%, transparent);
+
+    /* Desliza da esquerda ao abrir e volta ao fechar. */
+    translate: -100% 0;
+    transition:
+      translate 320ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      overlay 320ms allow-discrete,
+      display 320ms allow-discrete;
+  }
+
+  .gaveta[open] {
+    translate: 0 0;
+  }
+
+  @starting-style {
+    .gaveta[open] {
+      translate: -100% 0;
+    }
+  }
+
+  /* Fundo por trás da gaveta: a página fica clara e desfocada. */
+  .gaveta::backdrop {
+    background: color-mix(in srgb, var(--creme) 55%, transparent);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    transition:
+      opacity 320ms ease,
+      overlay 320ms allow-discrete,
+      display 320ms allow-discrete;
+  }
+
+  .gaveta[open]::backdrop {
+    opacity: 1;
+  }
+
+  @starting-style {
+    .gaveta[open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  /* Com a gaveta aberta a página de trás não rola. */
+  :global(html:has(.gaveta[open])) {
+    overflow: hidden;
+  }
+
+  .gaveta-corpo {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 1.25rem 1.25rem max(1.5rem, env(safe-area-inset-bottom));
+    overflow-y: auto;
+  }
+
+  .gaveta-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--esp-2);
+    padding-bottom: var(--esp-4);
+  }
+
+  .gaveta-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .gaveta-logo :global(img) {
+    width: auto;
+    height: 2.25rem;
+  }
+
+  .brilho {
+    display: block;
+    width: 1rem;
+    color: var(--lilas-medio);
+  }
+
+  .brilho :global(svg) {
+    width: 100%;
+    height: auto;
+  }
+
+  .fechar-menu {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-inline-end: -0.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: var(--roxo-escuro);
+    cursor: pointer;
+  }
+
+  .fechar-menu svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.6;
+    stroke-linecap: round;
+  }
+
+  .gaveta-menu ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .gaveta-menu a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: color var(--transicao);
+  }
+
+  .gaveta-menu a svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: translate var(--transicao);
+  }
+
+  .gaveta-menu a:hover,
+  .gaveta-menu a:focus-visible {
+    color: var(--coral);
+  }
+
+  .gaveta-menu a:hover svg {
+    translate: 3px 0;
+  }
+
+  /* Os dois botões ficam presos ao pé da gaveta. */
+  .gaveta-acoes {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: auto;
+    padding-top: var(--esp-4);
+  }
+
+  .acao {
+    display: block;
+    padding: 0.8rem 1rem;
+    border-radius: 4px;
+    font-weight: 400;
+    text-align: center;
+    text-decoration: none;
+    transition:
+      background var(--transicao),
+      color var(--transicao);
+  }
+
+  .acao-cheia {
+    background: var(--cor-destaque);
+    color: var(--branco);
+  }
+
+  .acao-cheia:hover {
+    background: var(--coral-escuro);
+  }
+
+  .acao-contorno {
+    border: 2px solid var(--roxo);
+    color: var(--roxo);
+  }
+
+  .acao-contorno:hover {
+    background: var(--roxo-palido);
+  }
+
+  .gaveta :focus-visible {
+    outline: 3px solid var(--roxo);
+    outline-offset: 2px;
+  }
+
+  /* No computador a gaveta nunca aparece. */
+  @media (min-width: 901px) {
+    .gaveta {
       display: none;
     }
   }

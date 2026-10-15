@@ -1,5 +1,6 @@
 ---
 import Svg from "./Svg.astro";
+import { Image } from "astro:assets";
 ---
 
 <footer class="rodape">
@@ -14,10 +15,19 @@ import Svg from "./Svg.astro";
     align-items: center;
     justify-content: center;
     margin: 0;
-    padding: 150px 0 50px 0;
+    padding: 120px 0 90px 0;
     background-color: var(--roxo);
   }
   .regua {
     width: 60%;
+  }
+
+  @media (max-width: 720px) {
+    .rodape {
+      padding: 30px 0 30px 0;
+    }
+    .regua {
+      width: 85%;
+    }
   }
 </style>

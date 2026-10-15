@@ -38,7 +38,7 @@ const FOTOS = Object.entries(
   .map(([, modulo]) => modulo.default);
 
 const TEXTO =
-  "\nO projeto acadêmico “Arretadas em Rede: Livres de Misoginia”, da Universidade Federal do Ceará (UFC) em parceria com a Universidade de Brasília (UnB), fortalece mulheres e redes de proteção para identificar e enfrentar a misoginia digital e a violência política de gênero. Por meio de formação, comunicação e conteúdos educativos acessíveis, produz e difunde conhecimento para tornar o ambiente digital mais seguro, democrático e inclusivo.";
+  "\nO projeto Acadêmico “Arretadas em Rede — Livres de Misoginia” visa fortalecer mulheres e suas redes de proteção para compreender, identificar e responder à misoginia digital; potencializar capacidades institucionais, comunitárias e individuais por meio de processos formativos, estratégias de comunicação e produção de conteúdos educativos acessíveis; difundir conhecimentos estruturados e boas práticas que ampliem o enfrentamento da violência de gênero nas redes sociais, promovendo ambientes digitais mais seguros, democráticos e inclusivos.";
 ---
 
 <Faixa
@@ -415,10 +415,22 @@ const TEXTO =
       grid-template-columns: 1fr;
       grid-template-areas:
         "titulo"
-        "video"
         "logo"
-        "texto";
+        "texto"
+        "video";
       row-gap: var(--esp-3);
+    }
+
+    .titulo {
+      margin-top: 1rem;
+    }
+
+    .logo {
+      margin-top: 1rem;
+    }
+
+    .texto {
+      text-align: center;
     }
   }
 </style>

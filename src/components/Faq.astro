@@ -76,7 +76,7 @@ const ABERTAS = 1;
      em 1920px), então esta faixa tem a própria largura de conteúdo. */
   .conteudo {
     width: min(100% - 2.5rem, 87vw, 1666px);
-    margin-bottom: clamp(2rem, 6vw, 6rem);
+    margin-bottom: 10rem;
     margin-top: -8rem;
   }
 
@@ -185,6 +185,14 @@ const ABERTAS = 1;
 
     .item[open]::details-content {
       block-size: auto;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .conteudo {
+      width: min(100% - 2.5rem, 87vw, 1666px);
+      margin-bottom: clamp(2rem, 6vw, 6rem);
+      margin-top: -1rem;
     }
   }
 </style>

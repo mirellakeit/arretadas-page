@@ -14,6 +14,8 @@ import Enfeite from "./Enfeite.astro";
 import Enfeites from "./Enfeites.astro";
 import { ENFEITES_MATERIAIS, estrelinhaCapa } from "../data/enfeites.js";
 
+import CAPA_RADIO from "../assets/materiais-adicionais/radio-debate.jpeg";
+
 // Troque "link" pelo endereço real de cada PDF e, quando houver, "capa"
 // por uma imagem importada de src/assets (ex.: import capaCartilha
 // from "../assets/capas/cartilha.png").
@@ -26,17 +28,10 @@ const MATERIAIS = [
     capa: null,
   },
   {
-    titulo: ["Livro de Formação"],
-    texto: "Clique na imagem ao lado para baixar o Livro de Formação!",
-    link: "#",
-    capa: null,
-  },
-  {
-    titulo: ["PDF do Curso", "‘Fortalecendo Mulheres’"],
-    texto:
-      "Clique na imagem ao lado para baixar o PDF do Curso ‘Fortalecendo Mulheres’!",
-    link: "#",
-    capa: null,
+    titulo: ["Episódio de Podcast"],
+    texto: 'Misoginia Digital e o Projeto \"Arretadas em Rede!\"',
+    link: "https://open.spotify.com/episode/6ZJShGzowqhAYpNLIRcqRY",
+    capa: CAPA_RADIO,
   },
 ];
 ---
@@ -69,12 +64,13 @@ const MATERIAIS = [
                 ]}
               >
                 <a
+                  target="_blank"
+                  rel="noopener noreferrer"
                   class="capa"
                   href={m.link}
-                  download
                   aria-label={`Baixar: ${m.titulo.join(" ")}`}
                 >
-                  {m.capa && <img src={m.capa} alt="" loading="lazy" />}
+                  {m.capa && <img src={m.capa.src} alt="" loading="lazy" />}
                 </a>
                 <Enfeite {...estrelinhaCapa(invertido)} />
               </div>
@@ -101,6 +97,29 @@ const MATERIAIS = [
     </ul>
   </div>
 </Faixa>
+
+<script>
+  document
+    .querySelectorAll<HTMLAnchorElement>(".materiais a.capa[target='_blank']")
+    .forEach((link) => {
+      link.addEventListener("click", (event) => {
+        if (
+          event.button !== 0 ||
+          event.metaKey ||
+          event.ctrlKey ||
+          event.shiftKey ||
+          event.altKey
+        ) {
+          return;
+        }
+
+        if (new URL(link.href).origin === window.location.origin) return;
+
+        event.preventDefault();
+        window.open(link.href, "_blank", "noopener,noreferrer");
+      });
+    });
+</script>
 
 <style>
   /* Duas colunas iguais com um vão largo no meio. A coluna da esquerda

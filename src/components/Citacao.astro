@@ -7,8 +7,8 @@
 import Faixa from "./Faixa.astro";
 import Enfeite from "./Enfeite.astro";
 
-// Cada item é uma linha. A quebra é sempre esta, no desktop e no
-// celular: a fonte encolhe com a largura para a linha mais longa caber.
+// Cada item é uma linha fixa no desktop; no celular, as três linhas
+// fluem como uma frase e quebram conforme a largura disponível.
 const LINHAS = [
   "Serei dona do espaço que deve ser meu.",
   "Inteira, indomável, e não passageira, na rua,",
@@ -31,6 +31,7 @@ const ENFEITES = [
     tamanho: "19.8vw",
     topo: "4.1vw",
     esquerda: "-6.2%",
+    noCelular: true,
   },
   {
     forma: "estrela",
@@ -48,6 +49,7 @@ const ENFEITES = [
     topo: "4.8vw",
     esquerda: "54.5%",
     giro: 12,
+    noCelular: true,
   },
   {
     forma: "estrela",
@@ -85,6 +87,7 @@ const ENFEITES = [
     tamanho: "6.6vw",
     topo: "8.9vw",
     esquerda: "75.6%",
+    noCelular: true,
   },
   {
     forma: "estrela",
@@ -123,6 +126,7 @@ const ENFEITES = [
     tamanho: "6.6vw",
     baixo: "1.5vw",
     esquerda: "95%",
+    noCelular: true,
   },
   {
     forma: "estrela",
@@ -131,6 +135,7 @@ const ENFEITES = [
     tamanho: "2.25vw",
     baixo: "4.7vw",
     esquerda: "9.1%",
+    noCelular: true,
   },
   {
     forma: "estrela-arredondada",
@@ -141,6 +146,7 @@ const ENFEITES = [
     esquerda: "28.6%",
     giro: -10,
     papel: true,
+    noCelular: true,
   },
   {
     forma: "trevo",
@@ -159,6 +165,7 @@ const ENFEITES = [
     tamanho: "2.25vw",
     baixo: "1.8vw",
     esquerda: "81%",
+    noCelular: true,
   },
   {
     forma: "estrela",
@@ -180,7 +187,7 @@ const ENFEITES = [
   id="sobre"
   classe="citacao"
   papel
-  forcaPapel={0.15}
+  forcaPapel={0}
 >
   <!-- Formas que escorrem da onda creme, por cima do roxo. Ficam na
        frente para cobrir as formas do fundo que passam por baixo. -->
@@ -226,6 +233,7 @@ const ENFEITES = [
             {i === 0 && "“"}
             {linha}
             {i === LINHAS.length - 1 && "”"}
+            {i < LINHAS.length - 1 && " "}
           </span>
         ))
       }
@@ -259,10 +267,8 @@ const ENFEITES = [
     margin: clamp(140px, 18vw, 140px) auto clamp(80px, 16vw, 120px);
   }
 
-  /* A linha mais longa mede 21,2 vezes o tamanho da fonte. Com a fonte
-     em 1/22 da caixa (4.5cqi), ela ocupa quase toda a largura e ainda
-     sobra folga. Para esticar ou encolher a frase, mude o 1250px da
-     largura da caixa acima; a fonte acompanha sozinha. */
+  /* No desktop, mantém cada linha inteira e dimensiona a fonte pela
+     largura da caixa para a frase acompanhar telas maiores e menores. */
   .frase p {
     font-size: 4.5cqi;
     font-weight: 700;
@@ -272,9 +278,26 @@ const ENFEITES = [
     max-width: none;
   }
 
-  /* Uma linha por bloco, sem quebra dentro dela. */
+  /* No desktop, uma linha por bloco e sem quebra interna. */
   .linha {
     display: block;
     white-space: nowrap;
+  }
+
+  @media (max-width: 720px) {
+    .frase {
+      width: min(calc(100% - 2rem), 482px);
+      margin: 3rem auto 2.5rem;
+    }
+
+    .frase p {
+      font-size: clamp(1rem, 5cqi, 1.6rem);
+      line-height: 1.35;
+    }
+
+    .linha {
+      display: inline;
+      white-space: normal;
+    }
   }
 </style>

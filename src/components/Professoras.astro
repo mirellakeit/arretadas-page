@@ -232,7 +232,7 @@ const lista = PROFESSORAS.map((p) => {
      própria onda: no celular ela é baixa e o título ficava cortado. */
   .grade {
     margin-top: max(-6rem, calc(1rem - var(--altura-onda)));
-    margin-bottom: -4rem;
+    margin-bottom: 0.75rem;
   }
 
   /* ---------------------------- título ---------------------------- */
@@ -371,7 +371,7 @@ const lista = PROFESSORAS.map((p) => {
   .professoras li {
     flex: 1 1 0;
     min-width: 0;
-    transition: flex-grow 380ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    /* transition: flex-grow 380ms cubic-bezier(0.2, 0.7, 0.2, 1); */
   }
 
   /* ----------------------------- cartão ----------------------------- */
@@ -441,7 +441,7 @@ const lista = PROFESSORAS.map((p) => {
      vale a que recebeu foco pelo teclado ou pelo toque. */
   .professoras li:has(.cartao:hover),
   .professoras:not(:hover) li:has(.cartao:focus-visible) {
-    flex-grow: 1.9;
+    /* flex-grow: 1.9; */
   }
 
   .professoras li:has(.cartao:hover) .cartao,
@@ -506,6 +506,10 @@ const lista = PROFESSORAS.map((p) => {
 
   /* No celular o cartão aberto precisa de mais espaço para o texto. */
   @media (max-width: 600px) {
+    .conteudo {
+      margin-bottom: 0.8rem;
+    }
+
     .professoras li:has(.cartao:hover),
     .professoras:not(:hover) li:has(.cartao:focus-visible) {
       flex-grow: 3;
@@ -517,10 +521,10 @@ const lista = PROFESSORAS.map((p) => {
     .professoras:not(:hover) .cartao:focus-visible {
       padding-inline: 0.6rem;
     }
-    /* No celular o cartão aberto é mais comprido que o espaço da onda
-       seguinte, então aqui ainda reservamos uma parte da altura. */
+    /* Deixa a faixa acompanhar a altura do cartão conforme a minibio
+       abre e fecha, em vez de manter um espaço vazio fixo. */
     .professoras {
-      height: calc(var(--foto) + 14.5rem);
+      height: auto;
     }
   }
 </style>

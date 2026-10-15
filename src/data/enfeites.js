@@ -658,8 +658,8 @@ export const ENFEITES_MATERIAIS = [
     cor: "var(--lilas-forte)",
     opacidade: 0.6,
     tamanho: "4vw",
-    topo: "7.9vw",
-    esquerda: "79.4%",
+    topo: "12.9vw",
+    esquerda: "73.4%",
   },
   {
     forma: "estrela-arredondada",

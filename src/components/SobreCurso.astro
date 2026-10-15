@@ -23,38 +23,49 @@ import autodefesa from "../assets/personagens/autodefesa.svg";
 const LOREM =
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.";
 
+const MOD1 =
+  "No módulo 1, vamos resgatar a história do movimento feminista e as conquistas dos direitos das mulheres, como o direito ao voto e marcos legais importantes no Brasil. Também vamos discutir a influência do patriarcado na ocorrência da misoginia e das demais violências contra a mulher, entendendo como essa estrutura histórica ainda se manifesta nos dias de hoje.";
+const MOD2 =
+  "No módulo 2, vamos conhecer como a violência política de gênero, em uma perspectiva interseccional, utiliza o silenciamento e o preconceito para afastar as mulheres dos espaços de decisão. Além disso, vamos aprender a identificar essas práticas no dia a dia e a acionar os canais eficazes de denúncia disponíveis para enfrentá-las.";
+const MOD3 =
+  "No módulo 3, vamos entender como a misoginia digital usa algoritmos para espalhar ataques coordenados e desinformação, além de práticas como o racismo algorítmico e o vazamento de fotos. Também vamos estudar leis como a Lei Carolina Dieckmann e a Lei Lola, que são ferramentas essenciais para punir crimes virtuais e nos proteger no ambiente digital.";
+const MOD4 =
+  "No módulo 4, vamos explorar o poder da comunicação para o feminismo e mostrar como se comunicar de forma eficaz em diferentes meios, adaptando a mensagem a cada contexto e público. Também vamos aprender a detectar a desinformação, reconhecendo os sinais de conteúdos falsos ou manipulados que circulam nas redes e em outros meios de comunicação.";
+const MOD5 =
+  "Por fim, no módulo 5, vamos estudar como a vida digital exige higiene de dados, senhas fortes e a ativação da verificação em duas etapas nas redes sociais. Navegar com segurança também significa identificar links maliciosos e gerenciar as permissões de aplicativos, evitando o rastreio de metadados e protegendo nossas informações pessoais.";
+
 const MODULOS = [
   {
     titulo: "Feminismos e Direitos das Mulheres",
-    descricao: LOREM,
+    descricao: MOD1,
     personagem: feministas,
     cor: "var(--modulo-feministas)",
     sombra: "var(--modulo-feministas-sombra)",
   },
   {
     titulo: "Violência Política de Gênero e Raça",
-    descricao: LOREM,
+    descricao: MOD2,
     personagem: violencia,
     cor: "var(--modulo-violencia)",
     sombra: "var(--modulo-violencia-sombra)",
   },
   {
     titulo: "Misoginia Digital Interseccional",
-    descricao: LOREM,
+    descricao: MOD3,
     personagem: misoginia,
     cor: "var(--modulo-misoginia)",
     sombra: "var(--modulo-misoginia-sombra)",
   },
   {
     titulo: "Comunicação Feminista",
-    descricao: LOREM,
+    descricao: MOD4,
     personagem: comunicacao,
     cor: "var(--modulo-comunicacao)",
     sombra: "var(--modulo-comunicacao-sombra)",
   },
   {
     titulo: "Autodefesa Digital Feminista",
-    descricao: LOREM,
+    descricao: MOD5,
     personagem: autodefesa,
     cor: "var(--modulo-autodefesa)",
     sombra: "var(--modulo-autodefesa-sombra)",
@@ -83,32 +94,34 @@ const MODULOS = [
          mostra o texto ao lado da personagem; os outros viram faixas
          de cor. O script no fim do arquivo só troca as classes. -->
     <ul class="modulos" data-modulos>
-      {MODULOS.map((m, i) => (
-        <li
-          class="modulo surge"
-          tabindex="0"
-          style={`--cor-modulo: ${m.cor}; --sombra: ${m.sombra}; --atraso: ${i * 110}ms`}
-        >
-          <div class="arte">
-            <img
-              src={m.personagem.src}
-              alt=""
-              loading="lazy"
-              decoding="async"
-            />
-            <span class="nome" aria-hidden="true">
-              {m.titulo}
-            </span>
-          </div>
-
-          <div class="detalhe">
-            <div class="detalhe-texto">
-              <h3>{m.titulo}</h3>
-              <p>{m.descricao}</p>
+      {
+        MODULOS.map((m, i) => (
+          <li
+            class="modulo surge"
+            tabindex="0"
+            style={`--cor-modulo: ${m.cor}; --sombra: ${m.sombra}; --atraso: ${i * 110}ms`}
+          >
+            <div class="arte">
+              <img
+                src={m.personagem.src}
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
+              <span class="nome" aria-hidden="true">
+                {m.titulo}
+              </span>
             </div>
-          </div>
-        </li>
-      ))}
+
+            <div class="detalhe">
+              <div class="detalhe-texto">
+                <h3>{m.titulo}</h3>
+                <p>{m.descricao}</p>
+              </div>
+            </div>
+          </li>
+        ))
+      }
     </ul>
   </div>
 </Faixa>
@@ -265,15 +278,10 @@ const MODULOS = [
   .arte {
     position: relative;
     flex: none;
-    width: 100%;
+    width: var(--cartao);
     height: 100%;
     background: var(--cor-modulo);
     overflow: hidden;
-    transition: width 750ms cubic-bezier(0.42, 0, 0.58, 1);
-  }
-
-  .modulo.ativo .arte {
-    width: var(--cartao);
   }
 
   .arte img {
