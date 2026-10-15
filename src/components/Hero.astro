@@ -17,6 +17,11 @@ import { ENFEITES_HERO } from "../data/enfeites.js";
 
 // const imagensHero = ["imagem-hero1", "imagem-hero2", "hero"];
 const imagensHero = ["imagem-hero3", "imagem-hero2", "imagem-hero1"];
+
+const CHAMADA1 =
+  "Um curso de aperfeiçoamento gratuito e a distância sobre mobilização de redes, enfrentamento à violência política de gênero e ocupação dos espaços de decisão.";
+const CHAMADA2 =
+  "O curso Fortalecendo Mulheres - Direitos, Defesa Digital e Participação Política une história, liderança e proteção online. Em 5 módulos, você dominará direitos fundamentais, combate à violência política de gênero e enfrentamento à misoginia digital, além de estratégias de comunicação e práticas essenciais de cibersegurança. Vamos ocupar as redes com poder e segurança!";
 ---
 
 <section class="hero" id="topo">
@@ -44,11 +49,8 @@ const imagensHero = ["imagem-hero3", "imagem-hero2", "imagem-hero1"];
         </span>
       </h1>
 
-      <p class="chamada">
-        Um curso de aperfeiçoamento gratuito e a distância sobre mobilização de
-        redes, enfrentamento à violência política de gênero e ocupação dos
-        espaços de decisão.
-      </p>
+      <p class="chamada chamada-desktop">{CHAMADA2}</p>
+      <p class="chamada chamada-mobile">{CHAMADA1}</p>
 
       <button type="button" id="btn-my-toggle" aria-pressed="false"
         >mudar imagem</button
@@ -134,7 +136,7 @@ const imagensHero = ["imagem-hero3", "imagem-hero2", "imagem-hero1"];
   /* Todo o bloco de título é derivado de uma medida só: mexer em --t
      redimensiona "Fortalecendo", "Mulheres" e o subtítulo juntos. */
   .texto {
-    margin-top: 2rem;
+    margin-top: 6.5rem;
     --t: clamp(2rem, 8.6vw, 8rem);
 
     /* Contorno creme em volta das letras do título. */
@@ -172,10 +174,14 @@ const imagensHero = ["imagem-hero3", "imagem-hero2", "imagem-hero1"];
     color: var(--coral);
   }
 
-  .chamada {
+  .chamada-desktop {
     font-size: 1.2rem;
     margin-top: clamp(0.8rem, 2vw, 1.6rem);
     max-width: 58ch; /* 50 a 75 caracteres é a faixa confortável de leitura */
+  }
+
+  .chamada-mobile {
+    display: none;
   }
 
   /* ------------------------- telas pequenas --------------------- */
@@ -196,6 +202,7 @@ const imagensHero = ["imagem-hero3", "imagem-hero2", "imagem-hero1"];
     }
 
     .texto {
+      margin-top: -2rem;
       text-align: center;
       --t: clamp(2.5rem, 13vw, 5rem);
     }
@@ -203,6 +210,16 @@ const imagensHero = ["imagem-hero3", "imagem-hero2", "imagem-hero1"];
     .subtitulo {
       margin: auto;
       max-width: 28ch;
+    }
+
+    .chamada-mobile {
+      display: block;
+      margin-top: 1.25rem;
+      text-align: left;
+    }
+
+    .chamada-desktop {
+      display: none;
     }
   }
 </style>
