@@ -4,7 +4,9 @@
 //
 // Faixa lilás com os cinco módulos em sanfona: passando o mouse num
 // cartão, ele abre e mostra o texto; os outros viram faixas de cor.
-// Abaixo de 1025px os módulos aparecem abertos, um embaixo do outro.
+// Abaixo de 1025px os módulos ficam um embaixo do outro, fechados
+// (um pedaço da personagem, o título e o começo do texto); tocando
+// num cartão, ele se expande e mostra o texto inteiro.
 // =========================================================================
 
 import Faixa from "./Faixa.astro";
@@ -113,6 +115,23 @@ const MODULOS = [
               </span>
             </div>
 
+            <!-- Seta de abrir/fechar: só aparece nas telas estreitas. -->
+            <svg
+              class="seta"
+              viewBox="0 0 24 16"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M3 4l9 9 9-9"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+
             <div class="detalhe">
               <div class="detalhe-texto">
                 <h3>{m.titulo}</h3>
@@ -127,14 +146,44 @@ const MODULOS = [
 </Faixa>
 
 <script>
-  // Liga a sanfona de cada lista de módulos. Só vale nas telas largas:
-  // abaixo de 1025px todos os módulos já aparecem abertos, um embaixo
-  // do outro, e o script não faz nada.
+  // Liga a sanfona de cada lista de módulos. Nas telas largas, os
+  // cartões abrem lado a lado (classe "ativo"). Abaixo de 1025px eles
+  // ficam um embaixo do outro e cada toque expande ou recolhe o cartão
+  // (classe "aberto").
   const larga = matchMedia("(min-width: 1025px)");
 
   document.querySelectorAll<HTMLElement>("[data-modulos]").forEach((lista) => {
     const itens = [...lista.querySelectorAll<HTMLElement>(".modulo")];
     let ultimoPonteiro = "mouse";
+
+    // ---------- telas estreitas: expandir e recolher ----------
+    // A altura aberta é medida no texto e passada ao CSS, para a
+    // transição de altura funcionar.
+    const medir = (item: HTMLElement) => {
+      const texto = item.querySelector<HTMLElement>(".detalhe-texto");
+      if (texto) item.style.setProperty("--aberto", `${texto.offsetHeight}px`);
+    };
+
+    const marcar = (item: HTMLElement, aberto: boolean) => {
+      item.classList.toggle("aberto", aberto);
+      if (larga.matches) item.removeAttribute("aria-expanded");
+      else item.setAttribute("aria-expanded", String(aberto));
+    };
+
+    const alternar = (item: HTMLElement) => {
+      const abrir = !item.classList.contains("aberto");
+      if (abrir) medir(item);
+      marcar(item, abrir);
+    };
+
+    const recolherTodos = () => itens.forEach((item) => marcar(item, false));
+    recolherTodos();
+
+    // Girando o celular, o texto muda de altura: mede de novo.
+    addEventListener("resize", () => {
+      if (larga.matches) return;
+      itens.filter((i) => i.classList.contains("aberto")).forEach(medir);
+    });
 
     const ativar = (alvo: HTMLElement | null) => {
       for (const item of itens) {
@@ -154,9 +203,18 @@ const MODULOS = [
       });
 
       // Toque: abre no primeiro toque, fecha no segundo.
+      // Telas estreitas: cada toque expande ou recolhe o cartão.
       item.addEventListener("click", () => {
-        if (!larga.matches || ultimoPonteiro === "mouse") return;
+        if (!larga.matches) return alternar(item);
+        if (ultimoPonteiro === "mouse") return;
         ativar(item.classList.contains("ativo") ? null : item);
+      });
+
+      // Telas estreitas pelo teclado: Enter ou espaço.
+      item.addEventListener("keydown", (e) => {
+        if (larga.matches || (e.key !== "Enter" && e.key !== " ")) return;
+        e.preventDefault();
+        alternar(item);
       });
 
       // Teclado: o cartão com foco fica aberto.
@@ -174,7 +232,10 @@ const MODULOS = [
       if (!lista.contains(e.relatedTarget as Node)) ativar(null);
     });
 
-    larga.addEventListener("change", () => ativar(null));
+    larga.addEventListener("change", () => {
+      ativar(null);
+      recolherTodos();
+    });
   });
 </script>
 
@@ -373,9 +434,18 @@ const MODULOS = [
     color: var(--cor-texto-neutro);
   }
 
+  /* A seta de abrir/fechar só existe nas telas estreitas. */
+  .seta {
+    display: none;
+  }
+
   /* ------------------ telas médias e pequenas ------------------- */
-  /* Cinco cartões lado a lado não cabem: cada módulo aparece aberto,
-     um embaixo do outro, com a personagem à esquerda do texto. */
+  /* Cinco cartões lado a lado não cabem: os módulos ficam um embaixo
+     do outro. Fechados, mostram um pedaço da personagem, o título e o
+     começo do texto, que some num degradê. Um toque expande o cartão
+     e mostra o texto inteiro; outro toque recolhe.
+     Sem JavaScript, os cartões aparecem abertos (sem seta e sem
+     degradê), para o texto nunca ficar escondido. */
   @media (max-width: 1024px) {
     .conteudo {
       width: min(100% - 2.5rem, 760px);
@@ -389,54 +459,125 @@ const MODULOS = [
 
     .modulo,
     .modulos.tem-ativo .modulo {
+      /* Altura do cartão fechado. */
+      --fechado: clamp(11.5rem, 48vw, 15rem);
+      /* Quanto a personagem é ampliada dentro da coluna da imagem. */
+      --zoom-arte: 1.55;
+
+      position: relative;
       flex: none;
       height: auto;
-      min-height: 20rem;
+      min-height: var(--fechado);
       background: var(--branco);
       cursor: default;
     }
 
+    :global(.js) .modulo,
+    :global(.js) .modulos.tem-ativo .modulo {
+      height: var(--fechado);
+      min-height: 0;
+      cursor: pointer;
+      transition: height 600ms cubic-bezier(0.42, 0, 0.58, 1);
+    }
+
+    :global(.js) .modulo.aberto {
+      height: max(var(--fechado), var(--aberto, var(--fechado)));
+    }
+
+    /* Coluna da personagem: só um pedaço dela, ampliado. */
     .arte,
     .modulo.ativo .arte {
-      width: min(38%, 15rem);
+      width: min(32%, 13rem);
       height: auto;
       align-self: stretch;
     }
 
+    /* A imagem segue a largura da coluna (e não a altura do cartão),
+       para o recorte não mudar quando o cartão se expande. */
     .arte img {
       position: absolute;
-      inset: 0;
+      inset: 0 0 auto 0;
+      height: auto;
+      transform: scale(var(--zoom-arte));
+      transform-origin: 25% 0;
     }
 
-    .modulos.tem-ativo .modulo:not(.ativo) .arte img,
-    .modulos.tem-ativo .modulo:not(.ativo) .arte::after,
-    .modulos.tem-ativo .modulo:not(.ativo) .nome {
+    /* O nome sobre a imagem sai: o título já está ao lado. */
+    .arte::after,
+    .nome {
+      display: none;
+    }
+
+    .modulos.tem-ativo .modulo:not(.ativo) .arte img {
       opacity: 1;
+    }
+
+    /* Degradê na base do cartão fechado, sobre a imagem e o texto. */
+    :global(.js) .modulo::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 50%;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        color-mix(in srgb, var(--sombra) 12%, transparent) 40%,
+        color-mix(in srgb, var(--sombra) 55%, transparent) 75%,
+        var(--sombra) 100%
+      );
+      pointer-events: none;
+      transition: opacity 450ms ease-in-out;
+    }
+
+    :global(.js) .modulo.aberto::after {
+      opacity: 0;
+    }
+
+    :global(.js) .seta {
+      display: block;
+      position: absolute;
+      z-index: 1;
+      top: clamp(0.85rem, 3vw, 1.25rem);
+      right: clamp(0.9rem, 3.5vw, 1.4rem);
+      width: clamp(1.4rem, 5vw, 1.8rem);
+      height: auto;
+      color: var(--coral-escuro);
+      transition: transform 450ms ease-in-out;
+    }
+
+    :global(.js) .modulo.aberto .seta {
+      transform: rotate(180deg);
+    }
+
+    /* O texto começa no alto (e não centralizado), para o cartão
+       fechado mostrar o título e as primeiras linhas. */
+    .detalhe {
+      align-items: flex-start;
     }
 
     .detalhe-texto {
       width: 100%;
       flex: 1 1 auto;
       opacity: 1;
-    }
-  }
-
-  @media (max-width: 520px) {
-    .modulo,
-    .modulos.tem-ativo .modulo {
-      min-height: 17rem;
-    }
-
-    .nome {
-      font-size: 0.85rem;
+      padding: clamp(2.6rem, 9vw, 3.5rem) clamp(1rem, 4vw, 1.75rem)
+        var(--esp-3) clamp(0.9rem, 3.5vw, 1.5rem);
     }
 
     h3 {
-      margin-bottom: var(--esp-1);
+      font-size: clamp(1.25rem, 4.8vw, 1.75rem);
+      margin-bottom: clamp(0.6rem, 2.4vw, 1rem);
     }
 
     .detalhe p {
-      font-size: 0.95rem;
+      font-size: clamp(0.95rem, 3.6vw, 1.1rem);
+    }
+  }
+
+  @media (max-width: 1024px) and (prefers-reduced-motion: reduce) {
+    :global(.js) .modulo,
+    :global(.js) .modulo::after,
+    :global(.js) .seta {
+      transition: none;
     }
   }
 </style>

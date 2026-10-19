@@ -639,6 +639,19 @@ export const ENFEITES_MATERIAIS = [
     esquerdaMobile: "-12%",
   },
   {
+    forma: "estrela-arredondada",
+    cor: "var(--salmao-forte)",
+    tamanho: "7.5vw",
+    topo: "30%",
+    esquerda: "78.1%",
+    topoMobile: "8%",
+    esquerdaMobile: "82.1%",
+    giro: 14,
+    frente: true,
+    noCelular: true,
+    tamanhoMobile: "11vw",
+  },
+  {
     forma: "trevo-cinco-lados",
     cor: "var(--lilas-forte)",
     tamanho: "9.7vw",
@@ -661,17 +674,7 @@ export const ENFEITES_MATERIAIS = [
     topo: "12.9vw",
     esquerda: "73.4%",
   },
-  {
-    forma: "estrela-arredondada",
-    cor: "var(--salmao)",
-    tamanho: "7.5vw",
-    topo: "2.4vw",
-    esquerda: "86.1%",
-    giro: 14,
-    frente: true,
-    noCelular: true,
-    tamanhoMobile: "11vw",
-  },
+
   {
     forma: "asterisco",
     cor: "var(--lilas)",

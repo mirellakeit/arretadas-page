@@ -129,6 +129,7 @@ const MATERIAIS = [
   .conteudo {
     --vao: clamp(2rem, 9vw, 12rem);
     --largura-capa: min(100%, 28rem);
+    padding: 0;
     margin-top: clamp(1rem, 4vw, 4rem);
     margin-bottom: 0;
   }
@@ -275,6 +276,11 @@ const MATERIAIS = [
       grid-column: 1;
       grid-row: auto;
       justify-self: center;
+    }
+
+    .conteudo {
+      --largura-capa: min(80%, 20rem);
+      padding: 0 60;
     }
 
     .moldura {

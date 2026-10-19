@@ -13,7 +13,8 @@
 // =========================================================================
 
 import { Image } from "astro:assets";
-import logoArretadas from "../assets/logo-arretadas.svg";
+import logoDesktop from "../assets/logo-arretadas.svg";
+import logoMobile from "../assets/logo-arretadas-simples.svg";
 import Svg from "./Svg.astro";
 
 // Os itens do menu vivem em um array. Para acrescentar uma seção,
@@ -56,8 +57,11 @@ const LINK_PLATAFORMA = "https://arretadas.virtual.ufc.br";
       <span aria-hidden="true"></span>
     </button>
 
-    <a class="logo" href="#topo" aria-label="Voltar ao início">
-      <Image src={logoArretadas} alt="Logo Arretadas" />
+    <a class="logo-desktop" href="#topo" aria-label="Voltar ao início">
+      <Image src={logoDesktop} alt="Logo Arretadas" />
+    </a>
+    <a class="logo-mobile" href="#topo" aria-label="Voltar ao início">
+      <Image src={logoMobile} alt="Logo Arretadas" />
     </a>
 
     <nav class="menu" aria-label="Navegação Principal">
@@ -83,7 +87,7 @@ const LINK_PLATAFORMA = "https://arretadas.virtual.ufc.br";
     <div class="gaveta-topo">
       <a class="gaveta-logo" href="#topo" aria-label="Voltar ao início">
         <span class="brilho"><Svg nome="estrela" /></span>
-        <Image src={logoArretadas} alt="" />
+        <Image src={logoMobile} alt="" />
       </a>
 
       <button class="fechar-menu" type="button" aria-label="Fechar menu">
@@ -191,12 +195,28 @@ const LINK_PLATAFORMA = "https://arretadas.virtual.ufc.br";
 
   .menu {
     display: flex;
+    flex: 1;
+    justify-content: center;
     gap: var(--esp-3);
   }
 
-  .logo :global(img) {
+  .logo-desktop {
+    display: block;
+    flex: 0 0 auto;
+  }
+
+  .logo-desktop :global(img) {
     width: auto;
     height: 4rem;
+  }
+
+  .logo-mobile {
+    display: none;
+  }
+
+  .logo-mobile :global(img) {
+    width: auto;
+    height: 2rem;
   }
 
   .menu a {
@@ -260,16 +280,6 @@ const LINK_PLATAFORMA = "https://arretadas.virtual.ufc.br";
     .abrir-menu:focus-visible {
       outline: 3px solid var(--roxo);
       outline-offset: 2px;
-    }
-
-    .logo {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .logo :global(img) {
-      width: auto;
-      height: 4rem;
     }
 
     .inscricao {
@@ -492,9 +502,21 @@ const LINK_PLATAFORMA = "https://arretadas.virtual.ufc.br";
   }
 
   /* No computador a gaveta nunca aparece. */
-  @media (min-width: 901px) {
+  @media (min-width: 900px) {
     .gaveta {
       display: none;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .logo-desktop {
+      display: none;
+    }
+
+    .logo-mobile {
+      display: block;
+      flex: 1;
+      min-width: 0;
     }
   }
 </style>

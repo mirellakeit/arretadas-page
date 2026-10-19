@@ -2,8 +2,8 @@
 // =========================================================================
 // EQUIPE ELABORADORA
 //
-// Carrossel com as fotos das professoras. Mostra algumas por vez (4 no
-// computador, 3 no tablet, 2 no celular) e as setas giram a fila, que é
+// Carrossel com as fotos das professoras. Mostra algumas por vez (3 no
+// computador e tablet, 2 no celular) e as setas giram a fila, que é
 // circular: depois da última volta a primeira.
 //
 // Ao passar o mouse (ou tocar, ou chegar pelo Tab) numa professora, ela
@@ -60,7 +60,7 @@ const PROFESSORAS = [
   {
     foto: "hillary_bastos.png",
     nome: "Hillary Bastos ",
-    bio: "Enfermeira, Mestre e doutoranda em Enfermagem na Universidade Federal do Ceará.",
+    bio: "Enfermeira, Mestre em Enfermagem pela Universidade Federal do Ceará (UFC) e doutoranda em Enfermagem na UFC com bolsa da Fundação Cearense de Apoio ao Desenvolvimento Científico e Tecnológico - (Funcap), membro do Grupo de Estudos Enfermagem em Saúde Sexual e Reprodutiva (GESSARE - UFC)n",
   },
   {
     foto: "samila_gomes.png",
@@ -182,7 +182,7 @@ const lista = PROFESSORAS.map((p) => {
       // mudar junto com as media queries, sem repetir breakpoint aqui.
       const visiveis = () =>
         parseInt(getComputedStyle(carrossel).getPropertyValue("--visiveis")) ||
-        4;
+        3;
 
       const desenhar = () => {
         const n = Math.min(visiveis(), itens.length);
@@ -273,7 +273,7 @@ const lista = PROFESSORAS.map((p) => {
 
   /* --------------------------- carrossel --------------------------- */
   .carrossel {
-    --visiveis: 4;
+    --visiveis: 3;
     --foto: clamp(90px, 13vw, 190px);
     --cartao: var(--pessego-cartao);
 
@@ -363,9 +363,15 @@ const lista = PROFESSORAS.map((p) => {
 
   /* Antes do script rodar, já esconde quem não cabe, para a fila
      inteira não piscar na tela. */
-  .js .carrossel:not(.pronto) li:nth-child(n + 5),
+  .js .carrossel:not(.pronto) li:nth-child(n + 4),
   .professoras li.fora {
     display: none;
+  }
+
+  @media (max-width: 600px) {
+    .js .carrossel:not(.pronto) li:nth-child(n + 3) {
+      display: none;
+    }
   }
 
   .professoras li {
