@@ -2,13 +2,12 @@
 // =========================================================================
 // SOBRE O PROJETO
 //
-// Faixa branca com a onda roxa escorrendo da citação. Grade 2 x 2:
+// Faixa branca com a onda roxa escorrendo da citação. Grade:
 //
-//     título    | logo
+//     título (centralizado)
 //     carrossel | texto
 //
-// Assim o título fica na altura do logo e o texto começa na altura do
-// topo do carrossel. No celular vira uma coluna só.
+// No celular vira uma coluna só.
 //
 // O carrossel mostra as fotos de src/assets/carrossel, uma por vez, na
 // ordem do número no começo do nome (1fotoArretadas, 2fotoArretadas...).
@@ -21,7 +20,6 @@ import Faixa from "./Faixa.astro";
 import Enfeite from "./Enfeite.astro";
 import Enfeites from "./Enfeites.astro";
 import TexturaPapel from "./TexturaPapel.astro";
-import logoArretadas from "../assets/logo-arretadas.svg";
 import { ENFEITES_SOBRE_PROJETO, BRILHO_VIDEO } from "../data/enfeites.js";
 
 // Fotos ordenadas pelo número do nome. Sem isso o "10" viria antes do
@@ -56,13 +54,6 @@ const TEXTO =
         <span class="titulo-fino">Sobre o</span>
         <span class="titulo-forte">projeto</span>
       </h2>
-
-      <div class="logo surge direita" style="--atraso: 150ms">
-        <Image
-          src={logoArretadas}
-          alt="Logo Arretadas em Rede: Livres de Misoginia"
-        />
-      </div>
 
       <div class="midia surge esquerda">
         <!-- A moldura segura a foto e a estrelinha do canto juntas, para
@@ -224,7 +215,7 @@ const TEXTO =
     display: grid;
     grid-template-columns: 1.2fr 1fr; /* vídeo | texto */
     grid-template-areas:
-      "titulo logo"
+      "titulo titulo"
       "video  texto";
     column-gap: var(--esp-6); /* entre as duas colunas */
     row-gap: var(--esp-4); /* entre o título e o vídeo */
@@ -250,22 +241,6 @@ const TEXTO =
     font-size: clamp(2.5rem, 6vw, 5rem);
     font-weight: 900;
     letter-spacing: -0.01em;
-  }
-
-  /* ---------------------------- logo ------------------------------ */
-  .logo {
-    grid-area: logo;
-    align-self: center;
-    justify-self: center;
-  }
-
-  .logo :global(img) {
-    display: block;
-    width: min(100%, 880px);
-    height: auto;
-    margin-top: 20px;
-    transform: scale(1.33);
-    transform-origin: center;
   }
 
   /* ---------------------------- vídeo ----------------------------- */
@@ -415,7 +390,6 @@ const TEXTO =
       grid-template-columns: 1fr;
       grid-template-areas:
         "titulo"
-        "logo"
         "texto"
         "video";
       row-gap: var(--esp-3);
@@ -423,14 +397,6 @@ const TEXTO =
 
     .titulo {
       margin-top: 1rem;
-    }
-
-    .logo {
-    }
-
-    .logo :global(img) {
-      width: auto;
-      height: 3.75rem;
     }
 
     .texto {

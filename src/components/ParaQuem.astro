@@ -2,8 +2,8 @@
 // =========================================================================
 // QUEM JÁ FEZ O CURSO
 //
-// Ilustração do computador à esquerda, sobre formas lilases, e a lista
-// de quem já fez o curso à direita.
+// Ilustração do computador à esquerda, sobre formas lilases, e o público
+// do curso descrito em texto à direita.
 //
 // As formas são enfeites como nas outras seções (ENFEITES_PARA_QUEM em
 // src/data/enfeites.js), mas medidos em % da caixa da ilustração e não
@@ -16,7 +16,8 @@ import Svg from "./Svg.astro";
 import TexturaPapel from "./TexturaPapel.astro";
 import { ENFEITES_PARA_QUEM } from "../data/enfeites.js";
 
-const CONTEMPLADAS = ["Assessoras", "Líderes", "Empresárias", "Universitárias"];
+const TEXTO =
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
 ---
 
 <Faixa
@@ -41,18 +42,15 @@ const CONTEMPLADAS = ["Assessoras", "Líderes", "Empresárias", "Universitárias
     </div>
 
     <div class="coluna">
-      <h2 class="titulo surge direita">
-        <span class="titulo-fino">Quem já fez o</span>
-        <span class="titulo-forte">curso?</span>
-      </h2>
+      <div class="linha">
+        <h2 class="titulo surge direita">
+          <span class="titulo-fino">Para quem é o</span>
+          <span class="titulo-forte">curso?</span>
+        </h2>
+        <Svg nome="para_quem" recolorir={false} />
+      </div>
 
-      <ul class="contempladas">
-        {CONTEMPLADAS.map((item, i) => (
-          <li class="surge direita" style={`--atraso: ${150 + i * 100}ms`}>
-            {item}
-          </li>
-        ))}
-      </ul>
+      <p class="texto surge direita" style="--atraso: 150ms">{TEXTO}</p>
     </div>
   </div>
 </Faixa>
@@ -93,66 +91,91 @@ const CONTEMPLADAS = ["Assessoras", "Líderes", "Empresárias", "Universitárias
   .coluna {
     justify-self: center;
     display: grid;
-    gap: var(--esp-3);
+    gap: var(--esp-1);
+  }
+
+  .linha {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .titulo {
-    display: grid;
-    justify-items: center;
-    line-height: 0.95;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 0.8;
     color: var(--rosa);
   }
 
   .titulo-fino {
-    font-size: clamp(1.1rem, 2.1vw, 1.8rem);
+    font-size: clamp(1.2rem, 1.9vw, 1.6rem);
     font-weight: 800;
   }
 
   .titulo-forte {
-    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-size: clamp(2.2rem, 4.7vw, 3.9rem);
     font-weight: 900;
     letter-spacing: -0.01em;
   }
 
-  .contempladas {
-    list-style: none;
-    padding: 0;
-    display: grid;
-    gap: 0.9em;
-    font-size: clamp(1.05rem, 1.6vw, 1.45rem);
-    color: var(--roxo);
+  .texto {
+    margin: 0;
+    font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+    line-height: 1.45;
+    color: var(--roxo-escuro);
   }
 
-  li {
-    display: flex;
-    align-items: center;
-    gap: 0.8em;
-    font-weight: 700;
-    line-height: 1.2;
-  }
-
-  /* Quadradinho roxo antes de cada item. */
-  li::before {
-    content: "";
-    flex: 0 0 1.25em;
-    width: 1.25em;
-    height: 1.25em;
-    border-radius: 0.4em;
-    background: var(--roxo);
+  .linha > :global(svg) {
+    width: clamp(6rem, 15vw, 10rem);
+    height: auto;
+    flex: 0 0 auto;
   }
 
   /* ------------------------ telas pequenas ------------------------ */
   @media (max-width: 860px) {
     .grade {
+      margin-top: -4rem;
       grid-template-columns: 1fr;
-      gap: var(--esp-3);
+      grid-template-areas:
+        "coluna"
+        "midia";
+      row-gap: var(--esp-4);
       /* A margem negativa do .conteudo (global.css) é maior que o
          respiro da faixa no celular e cortava a última linha. */
       margin-bottom: 0;
     }
 
+    .coluna {
+      grid-area: coluna;
+      width: 100%;
+      gap: var(--esp-2);
+    }
+
+    .linha {
+      gap: 0.25rem;
+    }
+
+    .titulo-fino {
+      font-size: clamp(1rem, 4.5vw, 1.15rem);
+    }
+
+    .titulo-forte {
+      font-size: clamp(1.7rem, 8vw, 1.9rem);
+    }
+
+    .linha > :global(svg) {
+      width: clamp(3rem, 14vw, 3.5rem);
+    }
+
+    .texto {
+      font-size: clamp(0.875rem, 4vw, 0.95rem);
+      line-height: 1.6;
+    }
+
     .midia {
-      width: min(100%, 460px);
+      grid-area: midia;
+      width: min(100%, 300px);
       justify-self: center;
     }
   }

@@ -270,6 +270,22 @@ export const ENFEITES_SOBRE_PROJETO = [
     noCelular: true,
     tamanhoMobile: "16vw",
   },
+
+  {
+    forma: "celular1",
+    recolorir: false,
+    espelhar: false,
+    espelharMobile: true,
+    tamanho: "4vw",
+    topo: "30%",
+    esquerda: "7%",
+    frente: true,
+    noCelular: true,
+    tamanhoMobile: "10vw",
+    topoMobile: "10%",
+    esquerdaMobile: "86%",
+  },
+
   {
     forma: "estrela",
     cor: "var(--bege)",
@@ -331,8 +347,8 @@ export const ENFEITES_SOBRE_PROJETO = [
     forma: "estrela",
     cor: "var(--roxo)",
     opacidade: 0.8,
-    tamanho: "2.25vw",
-    topo: "15.4vw",
+    tamanho: "2vw",
+    topo: "27.5%",
     esquerda: "4.8%",
   },
 ];
@@ -411,6 +427,19 @@ export const ENFEITES_PARA_QUEM = [
   },
 ];
 
+// Flor lilás apagada que atravessa a emenda entre o "Sobre o Curso" e os
+// Materiais Adicionais. Cada seção desenha a sua metade; a altura da
+// caixa é 27vw × 326/343 = 25.66vw, então 19vw ficam acima da emenda e
+// 6.66vw abaixo.
+const FLOR_ONDA_MATERIAIS = {
+  forma: "trevo-cinco-lados",
+  cor: "var(--lilas-medio)",
+  opacidade: 0.15,
+  tamanho: "27vw",
+  esquerda: "29.8%",
+  giro: 36,
+};
+
 // -------------------------------------------------------- SOBRE O CURSO
 // Referência: fundos/sobre-curso.png. As formas grandes usam o lilás
 // médio em opacidade baixa sobre o lilás do fundo.
@@ -461,13 +490,12 @@ export const ENFEITES_SOBRE_CURSO = [
     esquerda: "-17%",
     giro: -10,
   },
+  // Metade de cima da flor lilás que continua por cima da onda dos
+  // Materiais Adicionais (FLOR_ONDA_MATERIAIS). Mesma forma, tamanho e
+  // giro dos dois lados, para a emenda entre as seções não aparecer.
   {
-    forma: "trevo-cinco-lados",
-    cor: "var(--lilas-medio)",
-    opacidade: 0.3,
-    tamanho: "22vw",
-    baixo: "0.5vw",
-    esquerda: "31%",
+    ...FLOR_ONDA_MATERIAIS,
+    baixo: "-6.66vw",
   },
 
   // Destaques em roxo claro e branco.
@@ -533,52 +561,54 @@ export const ENFEITES_SOBRE_CURSO = [
 ];
 
 // ------------------------------------------------- MATERIAIS ADICIONAIS
-// Os enfeites mais para baixo usam topo em %, porque a altura da seção
-// muda com a largura da tela e com o texto.
+// Referência: layout do Figma (print enviado em out/2026), medido a 1475px.
+// Os enfeites do topo usam vw, para acompanhar a onda e o título; os mais
+// para baixo usam topo em %, porque a altura da seção muda com a largura
+// da tela e com o texto.
 const APAGADA_MATERIAIS = {
   cor: "var(--pessego-apagado)",
-  opacidade: 0.5,
+  opacidade: 0.25,
 };
 
 export const ENFEITES_MATERIAIS = [
-  // Grandes e apagadas, no fundo.
+  // Grandes e bem apagadas, no fundo.
   {
     ...APAGADA_MATERIAIS,
     forma: "estrela-cinco-lados",
-    tamanho: "30.7vw",
-    topo: "7vw",
-    esquerda: "7.7%",
+    tamanho: "22vw",
+    topo: "33%",
+    esquerda: "-10%",
     giro: -15,
   },
   {
     ...APAGADA_MATERIAIS,
-    forma: "estrela",
-    tamanho: "8.8vw",
-    topo: "30%",
-    esquerda: "54.2%",
-  },
-  {
-    ...APAGADA_MATERIAIS,
     forma: "trevo-cinco-lados",
-    tamanho: "17.5vw",
-    topo: "20%",
-    esquerda: "82.2%",
+    tamanho: "19vw",
+    topo: "35%",
+    esquerda: "80.8%",
   },
   {
     ...APAGADA_MATERIAIS,
-    forma: "asterisco",
-    tamanho: "36vw",
-    topo: "38%",
-    esquerda: "40%",
-    giro: 10,
+    forma: "estrela",
+    tamanho: "9vw",
+    topo: "51%",
+    esquerda: "53%",
   },
   {
     ...APAGADA_MATERIAIS,
     forma: "trevo-cinco-lados",
     tamanho: "24vw",
-    topo: "58%",
+    topo: "55%",
     esquerda: "-2%",
     giro: -8,
+  },
+  {
+    ...APAGADA_MATERIAIS,
+    forma: "asterisco",
+    tamanho: "36vw",
+    topo: "66%",
+    esquerda: "36%",
+    giro: 10,
   },
   {
     ...APAGADA_MATERIAIS,
@@ -589,40 +619,56 @@ export const ENFEITES_MATERIAIS = [
     giro: 20,
   },
 
+  // Por cima da onda lilás: a flor lilás apagada no meio e o asterisco
+  // pêssego que sobe da faixa para dentro da onda.
+  {
+    ...FLOR_ONDA_MATERIAIS,
+    topo: "-19vw",
+    frente: true,
+  },
+  {
+    forma: "asterisco",
+    cor: "var(--pessego)",
+    tamanho: "13vw",
+    topo: "-0.5vw",
+    esquerda: "22.4%",
+    frente: true,
+  },
+
   // Penduradas na onda lilás.
   {
     forma: "estrela-arredondada",
     cor: "var(--lilas)",
     tamanho: "16vw",
-    topo: "-7vw",
+    topo: "-6.2vw",
     esquerda: "4%",
     giro: -10,
   },
   {
     forma: "estrela-arredondada",
     cor: "var(--lilas)",
-    tamanho: "19vw",
-    topo: "-6vw",
-    esquerda: "73%",
+    tamanho: "16vw",
+    topo: "-5.3vw",
+    esquerda: "65.9%",
     giro: 6,
     noCelular: true,
     tamanhoMobile: "26vw",
   },
 
-  // Destaques do topo.
+  // Destaques do lado esquerdo, em volta do título.
   {
     forma: "estrela",
     cor: "var(--lilas-forte)",
-    opacidade: 0.6,
-    tamanho: "4vw",
-    topo: "6vw",
-    esquerda: "3.6%",
+    opacidade: 0.65,
+    tamanho: "4.3vw",
+    topo: "8.4vw",
+    esquerda: "1.5%",
   },
   {
     forma: "trevo-cinco-lados",
     cor: "var(--salmao)",
-    tamanho: "7.1vw",
-    topo: "8.9vw",
+    tamanho: "6.7vw",
+    topo: "12.5vw",
     esquerda: "6.2%",
     noCelular: true,
     tamanhoMobile: "11vw",
@@ -631,19 +677,44 @@ export const ENFEITES_MATERIAIS = [
     forma: "asterisco",
     cor: "var(--vermelho)",
     tamanho: "18vw",
-    topo: "17.5vw",
-    esquerda: "-7%",
+    topo: "21vw",
+    esquerda: "-8.2%",
     giro: -6,
     noCelular: true,
     tamanhoMobile: "24vw",
     esquerdaMobile: "-12%",
   },
+
+  // Destaques do lado direito.
+  // {
+  //   forma: "trevo-cinco-lados",
+  //   cor: "var(--lilas-forte)",
+  //   tamanho: "9.7vw",
+  //   topo: "12.6vw",
+  //   esquerda: "58%",
+  // },
+  // {
+  //   forma: "estrela-cinco-lados",
+  //   cor: "var(--salmao-forte)",
+  //   tamanho: "5.4vw",
+  //   topo: "21.8vw",
+  //   esquerda: "66.6%",
+  //   giro: 10,
+  // },
+  {
+    forma: "estrela",
+    cor: "var(--lilas-forte)",
+    opacidade: 0.65,
+    tamanho: "4vw",
+    topo: "11.3vw",
+    esquerda: "79.2%",
+  },
   {
     forma: "estrela-arredondada",
-    cor: "var(--salmao-forte)",
-    tamanho: "7.5vw",
-    topo: "30%",
-    esquerda: "78.1%",
+    cor: "var(--salmao)",
+    tamanho: "7.1vw",
+    topo: "5.6vw",
+    esquerda: "86.2%",
     topoMobile: "8%",
     esquerdaMobile: "82.1%",
     giro: 14,
@@ -652,35 +723,23 @@ export const ENFEITES_MATERIAIS = [
     tamanhoMobile: "11vw",
   },
   {
-    forma: "trevo-cinco-lados",
-    cor: "var(--lilas-forte)",
-    tamanho: "9.7vw",
-    topo: "9.3vw",
-    esquerda: "58%",
+    forma: "celular3",
+    recolorir: false,
+    tamanho: "7.1vw",
+    topo: "14vw",
+    esquerda: "82.4%",
+    frente: true,
+    noCelular: true,
+    tamanhoMobile: "16vw",
+    topoMobile: "30%",
+    esquerdaMobile: "77%",
   },
-  {
-    forma: "estrela-cinco-lados",
-    cor: "var(--salmao-forte)",
-    tamanho: "4.4vw",
-    topo: "19vw",
-    esquerda: "67%",
-    giro: 10,
-  },
-  {
-    forma: "estrela",
-    cor: "var(--lilas-forte)",
-    opacidade: 0.6,
-    tamanho: "4vw",
-    topo: "12.9vw",
-    esquerda: "73.4%",
-  },
-
   {
     forma: "asterisco",
     cor: "var(--lilas)",
     tamanho: "18.8vw",
-    topo: "8.9vw",
-    esquerda: "90%",
+    topo: "11.8vw",
+    esquerda: "89.6%",
     giro: 18,
     noCelular: true,
     tamanhoMobile: "24vw",

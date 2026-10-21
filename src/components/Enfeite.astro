@@ -8,6 +8,7 @@
 // Props:
 //   forma     nome do arquivo em src/assets/formas (sem a extensão)
 //   cor       cor do enfeite (a forma foi convertida para currentColor)
+//   recolorir false preserva as cores originais do SVG
 //   tamanho   largura. Número vira px; texto passa direto ("8vw",
 //             "clamp(...)"), útil para acompanhar a largura da tela
 //   topo, baixo, esquerda, direita   posição dentro da faixa, em % ou px.
@@ -15,6 +16,8 @@
 //   frente    true coloca a forma acima da onda da faixa (mas ainda atrás
 //             do conteúdo). Serve para formas que passam por cima da onda
 //   giro      rotação em graus
+//   espelhar  espelha horizontalmente no desktop
+//   espelharMobile espelha horizontalmente no celular (padrão: igual ao desktop)
 //   opacidade
 //   noCelular manter visível abaixo de 720px
 //   papel      true carimba a textura de papel dentro da forma
@@ -37,12 +40,15 @@ const FORMAS_URL = import.meta.glob("../assets/formas/*.svg", {
 const {
   forma = "estrela",
   cor = "var(--roxo-claro)",
+  recolorir = true,
   tamanho = 48,
   topo = null,
   baixo = null,
   esquerda = null,
   direita = null,
   giro = 0,
+  espelhar = false,
+  espelharMobile = null,
   opacidade = 1,
   noCelular = false,
   tamanhoMobile = null,
@@ -55,7 +61,7 @@ const {
 } = Astro.props;
 
 // Número é px, texto vai como veio (vw, clamp, calc...).
-const medida = (v) => (typeof v === "number" ? `${v}px` : v);
+const medida = (v: any) => (typeof v === "number" ? `${v}px` : v);
 
 const chaveForma = Object.keys(FORMAS_URL).find((k) =>
   k.endsWith(`/${forma}.svg`),
@@ -91,9 +97,13 @@ const estilo = [
   esquerdaMobile ? `--esquerda-mobile:${esquerdaMobile}` : null,
   direitaMobile ? `--direita-mobile:${direitaMobile}` : null,
   tamanhoMobile ? `--tamanho-mobile:${medida(tamanhoMobile)}` : null,
+  `--espelho:${espelhar ? -1 : 1}`,
+  espelharMobile !== null
+    ? `--espelho-mobile:${espelharMobile ? -1 : 1}`
+    : null,
+  `--giro:${giro}deg`,
   `color:${cor}`,
   `opacity:${opacidade}`,
-  `transform:rotate(${giro}deg)`,
   papel ? `--forma:url("${FORMAS_URL[chaveForma!]}")` : null,
   papel ? `--papel:url("${papelTextura.src}")` : null,
   papel ? `--forca-papel:${forcaPapel}` : null,
@@ -110,8 +120,10 @@ const estilo = [
   class:list={["enfeite", "brota", { "no-celular": noCelular, frente }]}
   style={estilo}
 >
-  <Svg nome={forma} />
-  {papel && <span class="papel" />}
+  <span class="desenho">
+    <Svg nome={forma} recolorir={recolorir} />
+    {papel && <span class="papel" />}
+  </span>
 </span>
 
 <style>
@@ -125,6 +137,7 @@ const estilo = [
     pointer-events: none; /* não intercepta cliques de botões e links */
     z-index: 0; /* atrás da onda e do conteúdo da faixa */
     line-height: 0;
+    transform: rotate(var(--giro));
   }
 
   /* Mesma camada da onda, mas vem depois dela no HTML: pinta por cima
@@ -133,7 +146,14 @@ const estilo = [
     z-index: 1;
   }
 
-  .enfeite :global(svg) {
+  .desenho {
+    position: relative;
+    display: block;
+    width: 100%;
+    transform: scaleX(var(--espelho));
+  }
+
+  .desenho :global(svg) {
     position: relative;
     z-index: 0;
     display: block;
@@ -179,6 +199,10 @@ const estilo = [
       left: var(--esquerda-mobile, var(--esquerda, auto));
       right: var(--direita-mobile, var(--direita, auto));
       width: var(--tamanho-mobile, var(--tamanho));
+    }
+
+    .enfeite.no-celular .desenho {
+      transform: scaleX(var(--espelho-mobile, var(--espelho)));
     }
   }
 </style>

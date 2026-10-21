@@ -3,10 +3,8 @@
 // MATERIAIS ADICIONAIS
 //
 // Faixa pêssego logo depois do "Sobre o Curso", com a onda lilás
-// escorrendo do topo. Três materiais em zigue-zague: a capa (que é o
-// link de download) alterna de lado a cada item, e a chamada fica do
-// outro lado. Nos itens pares o texto se alinha à direita, colado na
-// capa, como no layout.
+// escorrendo do topo. Os materiais aparecem em cartões lado a lado,
+// com a capa e a chamada empilhadas.
 // =========================================================================
 
 import Faixa from "./Faixa.astro";
@@ -134,27 +132,11 @@ const MATERIAIS = [
     margin-bottom: 0;
   }
 
-  .titulo,
-  .item {
-    display: grid;
-    grid-template-columns:
-      minmax(0, 1fr)
-      minmax(0, 1fr);
-    column-gap: var(--vao);
-  }
-
   /* --------------------------- título --------------------------- */
   .titulo {
+    text-align: center;
     color: var(--coral-escuro);
     margin-bottom: clamp(1rem, 2.5vw, 2.5rem);
-  }
-
-  /* O título fica centrado sobre a primeira capa. */
-  .titulo > * {
-    grid-column: 1;
-    justify-self: end;
-    width: var(--largura-capa);
-    text-align: center;
   }
 
   .sobre {
@@ -173,42 +155,52 @@ const MATERIAIS = [
   /* --------------------------- itens ---------------------------- */
   .materiais {
     list-style: none;
+    max-width: 52rem;
+    margin-inline: auto;
     padding: 0;
     display: grid;
-    gap: clamp(1.5rem, 3vw, 3rem);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(2rem, 7vw, 5rem);
+    row-gap: var(--esp-5);
   }
 
   .item {
-    align-items: center;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: var(--esp-3);
+    width: min(100%, 18rem);
+    justify-self: center;
   }
 
   .moldura {
     position: relative; /* referência para a estrelinha do canto */
     grid-column: 1;
-    grid-row: 1;
-    justify-self: end;
-    width: var(--largura-capa);
+    grid-row: auto;
+    justify-self: stretch;
+    width: 100%;
   }
 
   .chamada {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: start;
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: stretch;
     display: grid;
     gap: var(--esp-2);
-    max-width: 30rem;
+    max-width: none;
+    text-align: start;
   }
 
-  /* Itens pares: capa à direita, texto à esquerda alinhado à direita. */
+  /* Mantém a mesma ordem e alinhamento nos dois cartões. */
   .invertido .moldura {
-    grid-column: 2;
-    justify-self: start;
+    grid-column: 1;
+    justify-self: stretch;
   }
 
   .invertido .chamada {
     grid-column: 1;
-    justify-self: end;
-    text-align: right;
+    justify-self: stretch;
+    text-align: start;
   }
 
   /* ---------------------------- capa ---------------------------- */
@@ -243,7 +235,7 @@ const MATERIAIS = [
 
   /* --------------------------- chamada -------------------------- */
   h3 {
-    font-size: clamp(1.4rem, 2.3vw, 2.1rem);
+    font-size: clamp(1.1rem, 1.8vw, 1.55rem);
     font-weight: 800;
     line-height: 1.1;
     color: var(--coral-escuro);
@@ -256,48 +248,37 @@ const MATERIAIS = [
   }
 
   .chamada p {
-    font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+    font-size: clamp(0.9rem, 1.1vw, 1rem);
     line-height: 1.45;
     color: var(--cor-texto-neutro);
   }
 
   /* ------------------------ telas pequenas ---------------------- */
-  @media (max-width: 860px) {
-    .titulo,
-    .item {
-      grid-template-columns: 1fr;
-      justify-items: center;
-      text-align: center;
-    }
-
-    .titulo > *,
-    .moldura,
-    .invertido .moldura {
-      grid-column: 1;
-      grid-row: auto;
-      justify-self: center;
-    }
-
+  @media (max-width: 600px) {
     .conteudo {
       --largura-capa: min(80%, 20rem);
       padding: 0 60;
     }
 
+    .materiais {
+      grid-template-columns: 1fr;
+      gap: var(--esp-5);
+    }
+
+    .item {
+      width: min(100%, 22rem);
+    }
+
     .moldura {
       width: min(100%, 22rem);
+      justify-self: center;
     }
 
     .chamada,
     .invertido .chamada {
-      grid-column: 1;
-      grid-row: auto;
       justify-self: center;
       text-align: center;
-      margin-top: var(--esp-3);
-    }
-
-    .materiais {
-      gap: var(--esp-5);
+      margin-top: var(--esp-2);
     }
 
     .linha {

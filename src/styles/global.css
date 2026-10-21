@@ -16,6 +16,7 @@
 :root {
   /* ── Paleta principal (lida dos SVGs do design) ─────────────────── */
   --roxo: #584080; /* onda roxa, títulos */
+  --aer-roxo: var(--roxo);
   --roxo-claro: #7f62a9; /* estrela arredondada, módulo "Violência" */
   --roxo-medio: #9a7fbf; /* enfeite do FAQ */
   --roxo-escuro: #33245c; /* texto principal */

@@ -17,6 +17,7 @@
 import { Image } from "astro:assets";
 import type { ImageMetadata } from "astro";
 import Faixa from "./Faixa.astro";
+import Svg from "./Svg.astro";
 
 const FOTOS = import.meta.glob<{
   default: ImageMetadata;
@@ -60,7 +61,7 @@ const PROFESSORAS = [
   {
     foto: "hillary_bastos.png",
     nome: "Hillary Bastos ",
-    bio: "Enfermeira, Mestre em Enfermagem pela Universidade Federal do Ceará (UFC) e doutoranda em Enfermagem na UFC com bolsa da Fundação Cearense de Apoio ao Desenvolvimento Científico e Tecnológico - (Funcap), membro do Grupo de Estudos Enfermagem em Saúde Sexual e Reprodutiva (GESSARE - UFC)n",
+    bio: "Enfermeira, Mestre em Enfermagem pela Universidade Federal do Ceará (UFC) e doutoranda em Enfermagem na UFC com bolsa da Fundação Cearense de Apoio ao Desenvolvimento Científico e Tecnológico - (Funcap), membro do Grupo de Estudos Enfermagem em Saúde Sexual e Reprodutiva (GESSARE - UFC)",
   },
   {
     foto: "samila_gomes.png",
@@ -129,17 +130,28 @@ const lista = PROFESSORAS.map((p) => {
 
       <ul class="professoras" aria-live="polite">
         {
-          lista.map((p) => (
+          lista.map((p, i) => (
             <li>
               <article class="cartao" tabindex="0">
                 <div class="foto">
-                  <Image
-                    src={p.imagem}
-                    alt=""
-                    width={226}
-                    height={226}
-                    loading="lazy"
-                  />
+                  <div class="retrato">
+                    <Image
+                      src={p.imagem}
+                      alt=""
+                      width={226}
+                      height={226}
+                      loading="lazy"
+                    />
+                    <span
+                      class:list={[
+                        "estrela",
+                        i % 2 === 0 ? "canto-superior" : "canto-inferior",
+                      ]}
+                      aria-hidden="true"
+                    >
+                      <Svg nome="estrela" />
+                    </span>
+                  </div>
                 </div>
                 <h3 class="nome">{p.nome}</h3>
                 <div class="bio">
@@ -178,6 +190,12 @@ const lista = PROFESSORAS.map((p) => {
         carrossel.querySelectorAll<HTMLButtonElement>("[data-seta]");
       let inicio = 0;
 
+      const limparSelecaoMobile = () => {
+        if (window.matchMedia("(min-width: 601px)").matches) {
+          itens.forEach((li) => li.classList.remove("selecionada"));
+        }
+      };
+
       // Quantas cabem na tela vem do CSS (--visiveis), para o número
       // mudar junto com as media queries, sem repetir breakpoint aqui.
       const visiveis = () =>
@@ -213,6 +231,20 @@ const lista = PROFESSORAS.map((p) => {
         }),
       );
 
+      lista.addEventListener("click", (event) => {
+        if (!window.matchMedia("(max-width: 600px)").matches) return;
+        if (!(event.target instanceof Element)) return;
+
+        const cartao = event.target.closest<HTMLElement>(".cartao");
+        const item = cartao?.closest<HTMLElement>("li");
+        if (!item) return;
+
+        const jaSelecionada = item.classList.contains("selecionada");
+        itens.forEach((li) => li.classList.remove("selecionada"));
+        if (!jaSelecionada) item.classList.add("selecionada");
+      });
+
+      addEventListener("resize", limparSelecaoMobile, { passive: true });
       addEventListener("resize", desenhar, { passive: true });
       desenhar();
       carrossel.classList.add("pronto");
@@ -232,7 +264,7 @@ const lista = PROFESSORAS.map((p) => {
      própria onda: no celular ela é baixa e o título ficava cortado. */
   .grade {
     margin-top: max(-6rem, calc(1rem - var(--altura-onda)));
-    margin-bottom: 0.75rem;
+    margin-bottom: 2rem;
   }
 
   /* ---------------------------- título ---------------------------- */
@@ -386,6 +418,7 @@ const lista = PROFESSORAS.map((p) => {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    width: 100%;
     padding: 1rem 0.9rem 1.2rem;
     border-radius: calc(var(--raio) * 1.4);
     background: transparent;
@@ -397,19 +430,60 @@ const lista = PROFESSORAS.map((p) => {
   /* A caixa da foto tem sempre a altura da foto grande. Assim, quando
      a foto encolhe, ela fica centralizada na mesma linha das outras. */
   .foto {
+    position: relative;
     display: grid;
     place-items: center;
     width: 100%;
+    min-width: 0;
     height: var(--foto);
   }
 
-  .foto :global(img) {
+  .retrato {
+    position: relative;
     width: min(100%, var(--foto));
-    height: auto;
     aspect-ratio: 1;
+    flex: 0 1 auto;
+    border: 7px solid var(--aer-roxo);
+    border-radius: 50%;
+    background: var(--aer-roxo);
+    transition: width 380ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .retrato :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
     object-fit: cover;
-    transition: width 380ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .estrela {
+    position: absolute;
+    z-index: 50;
+    width: 26%;
+    color: var(--aer-roxo);
+    line-height: 0;
+    pointer-events: none;
+  }
+
+  .estrela :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .estrela.canto-superior {
+    top: 0;
+    left: 0;
+    translate: 8.7% 8.7%;
+    z-index: 100;
+  }
+
+  .estrela.canto-inferior {
+    right: 0;
+    bottom: 0;
+    translate: -8.7% -8.7%;
+    z-index: 100;
   }
 
   .nome {
@@ -445,42 +519,39 @@ const lista = PROFESSORAS.map((p) => {
   /* ------------------------- estado aberto -------------------------
      Aberta é a professora sob o mouse. Sem mouse em cima da lista,
      vale a que recebeu foco pelo teclado ou pelo toque. */
-  .professoras li:has(.cartao:hover),
-  .professoras:not(:hover) li:has(.cartao:focus-visible) {
-    /* flex-grow: 1.9; */
-  }
+  @media (min-width: 601px) {
+    .professoras li:has(.cartao:hover) .cartao,
+    .professoras:not(:hover) .cartao:focus-visible {
+      background: var(--cartao);
+    }
 
-  .professoras li:has(.cartao:hover) .cartao,
-  .professoras:not(:hover) .cartao:focus-visible {
-    background: var(--cartao);
-  }
+    .professoras li:has(.cartao:hover) .nome,
+    .professoras:not(:hover) .cartao:focus-visible .nome {
+      font-size: clamp(1rem, 1.35vw, 1.3rem);
+      color: var(--roxo);
+    }
 
-  .professoras li:has(.cartao:hover) .nome,
-  .professoras:not(:hover) .cartao:focus-visible .nome {
-    font-size: clamp(1rem, 1.35vw, 1.3rem);
-    color: var(--roxo);
-  }
+    .professoras li:has(.cartao:hover) .bio,
+    .professoras:not(:hover) .cartao:focus-visible .bio {
+      grid-template-rows: 1fr;
+      opacity: 1;
+      transition-delay: 0ms, 120ms;
+    }
 
-  .professoras li:has(.cartao:hover) .bio,
-  .professoras:not(:hover) .cartao:focus-visible .bio {
-    grid-template-rows: 1fr;
-    opacity: 1;
-    transition-delay: 0ms, 120ms;
-  }
+    /* As vizinhas encolhem enquanto uma está aberta. */
+    .professoras:has(.cartao:hover) li:not(:has(.cartao:hover)) .retrato,
+    .professoras:not(:hover):has(.cartao:focus-visible)
+      li:not(:has(.cartao:focus-visible))
+      .retrato {
+      width: min(66%, calc(var(--foto) * 0.66));
+    }
 
-  /* As vizinhas encolhem enquanto uma está aberta. */
-  .professoras:has(.cartao:hover) li:not(:has(.cartao:hover)) img,
-  .professoras:not(:hover):has(.cartao:focus-visible)
-    li:not(:has(.cartao:focus-visible))
-    img {
-    width: min(100%, var(--foto) * 0.66);
-  }
-
-  .professoras:has(.cartao:hover) li:not(:has(.cartao:hover)) .nome,
-  .professoras:not(:hover):has(.cartao:focus-visible)
-    li:not(:has(.cartao:focus-visible))
-    .nome {
-    font-size: clamp(0.7rem, 0.8vw, 0.8rem);
+    .professoras:has(.cartao:hover) li:not(:has(.cartao:hover)) .nome,
+    .professoras:not(:hover):has(.cartao:focus-visible)
+      li:not(:has(.cartao:focus-visible))
+      .nome {
+      font-size: clamp(0.7rem, 0.8vw, 0.8rem);
+    }
   }
 
   /* ------------------ animação ao trocar de página ------------------ */
@@ -516,21 +587,62 @@ const lista = PROFESSORAS.map((p) => {
       margin-bottom: 0.8rem;
     }
 
-    .professoras li:has(.cartao:hover),
+    .professoras li.selecionada,
     .professoras:not(:hover) li:has(.cartao:focus-visible) {
-      flex-grow: 3;
+      flex-grow: 1.6;
     }
+
     .cartao {
       padding-inline: 0.15rem;
     }
-    .professoras li:has(.cartao:hover) .cartao,
+
+    .professoras li.selecionada .cartao,
     .professoras:not(:hover) .cartao:focus-visible {
-      padding-inline: 0.6rem;
+      background: var(--cartao);
     }
-    /* Deixa a faixa acompanhar a altura do cartão conforme a minibio
-       abre e fecha, em vez de manter um espaço vazio fixo. */
+
+    .professoras li.selecionada .nome,
+    .professoras:not(:hover) .cartao:focus-visible .nome {
+      font-size: clamp(1rem, 1.35vw, 1.3rem);
+      color: var(--roxo);
+    }
+
+    .professoras li.selecionada .bio,
+    .professoras:not(:hover) .cartao:focus-visible .bio {
+      grid-template-rows: 1fr;
+      opacity: 1;
+      transition:
+        grid-template-rows 800ms cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 500ms ease 150ms;
+    }
+
+    .professoras:has(li.selecionada) li:not(.selecionada) .retrato,
+    .professoras:not(:hover):has(.cartao:focus-visible)
+      li:not(:has(.cartao:focus-visible))
+      .retrato {
+      width: min(86%, calc(var(--foto) * 0.86));
+    }
+
+    .professoras:has(li.selecionada) li:not(.selecionada) .nome,
+    .professoras:not(:hover):has(.cartao:focus-visible)
+      li:not(:has(.cartao:focus-visible))
+      .nome {
+      font-size: clamp(0.7rem, 0.8vw, 0.8rem);
+    }
+
+    .cartao,
+    .retrato,
+    .nome {
+      transition-duration: 800ms;
+      transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
     .professoras {
       height: auto;
+    }
+
+    .retrato {
+      border-width: 4px;
     }
   }
 </style>
