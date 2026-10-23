@@ -49,9 +49,13 @@ svg = svg.replace(/<svg[^>]*>/, (tag) =>
   tag.replace(/\s(width|height)="[^"]*"/g, ""),
 );
 
-// Troca as cores por currentColor, preservando fill="none".
+// Troca as cores por currentColor, preservando fill="none". Pega os
+// dois jeitos de escrever a cor: fill="#..." e style="fill:rgb(...)".
+// (A onda creme vinha no segundo jeito, escapava da troca e ficava num
+// creme mais escuro que o do Hero, formando uma faixa na emenda.)
 if (recolorir) {
   svg = svg.replace(/fill="(?!none)[^"]*"/g, 'fill="currentColor"');
+  svg = svg.replace(/fill:\s*(?!none)[^;"]+/g, "fill:currentColor");
 }
 
 if (ancora) {

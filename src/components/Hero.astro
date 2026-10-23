@@ -15,13 +15,8 @@ import FundoFormas from "./FundoFormas.astro";
 import TexturaPapel from "./TexturaPapel.astro";
 import { ENFEITES_HERO } from "../data/enfeites.js";
 
-// const imagensHero = ["imagem-hero1", "imagem-hero2", "hero"];
-const imagensHero = [
-  "imagem-hero4",
-  "imagem-hero3",
-  "imagem-hero2",
-  "imagem-hero1",
-];
+// Ilustração do hero (arquivo em src/assets/ilustrações, sem .svg).
+const IMAGEM_HERO = "imagem-hero4";
 
 const CHAMADA1 =
   "Um curso de aperfeiçoamento gratuito e a distância sobre mobilização de redes, enfrentamento à violência política de gênero e ocupação dos espaços de decisão.";
@@ -36,13 +31,7 @@ const CHAMADA2 =
 
   <div class="conteudo grade">
     <div class="ilustracao surge esquerda">
-      {
-        imagensHero.map((nome, index) => (
-          <div class:list={["hero-image", { active: index === 0 }]}>
-            <Svg nome={nome} recolorir={false} />
-          </div>
-        ))
-      }
+      <Svg nome={IMAGEM_HERO} recolorir={false} />
     </div>
 
     <div class="texto surge direita" style="--atraso: 150ms">
@@ -56,35 +45,11 @@ const CHAMADA2 =
 
       <p class="chamada chamada-desktop">{CHAMADA2}</p>
       <p class="chamada chamada-mobile">{CHAMADA1}</p>
-
-      <button type="button" id="btn-my-toggle" aria-pressed="false"
-        >mudar imagem</button
-      >
     </div>
   </div>
 </section>
 
-<script>
-  const imagens = document.querySelectorAll("#topo .ilustracao .hero-image");
-  let indice = 0;
-
-  document.querySelector("#btn-my-toggle")?.addEventListener("click", () => {
-    if (imagens.length === 0) return;
-
-    imagens[indice].classList.remove("active");
-    indice = (indice + 1) % imagens.length;
-    imagens[indice].classList.add("active");
-  });
-</script>
 <style>
-  .hero-image {
-    display: none;
-  }
-
-  .hero-image.active {
-    display: block;
-  }
-
   .hero {
     position: relative; /* referência para o fundo decorativo */
     z-index: 1;
@@ -102,17 +67,6 @@ const CHAMADA2 =
       minmax(0, 1fr);
     align-items: center;
     gap: clamp(1rem, 2.5vw, 2.5rem);
-  }
-
-  button {
-    background-color: #f6f0c5;
-    color: #f6f0c5;
-    border: 0;
-  }
-
-  button:hover {
-    color: var(--roxo);
-    border: 0;
   }
 
   /* A ilustração passa da margem do container e encosta na borda da

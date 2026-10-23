@@ -11,8 +11,15 @@ import Faixa from "./Faixa.astro";
 import Enfeite from "./Enfeite.astro";
 import Enfeites from "./Enfeites.astro";
 import { ENFEITES_MATERIAIS, estrelinhaCapa } from "../data/enfeites.js";
+import { origemDe } from "../data/localizarEnfeites.js";
+
+// Só para o depurador de enfeites (modo dev).
+const ORIGEM_ESTRELINHA = import.meta.env.DEV
+  ? origemDe("src/data/enfeites.js", "estrelinhaCapa")
+  : null;
 
 import CAPA_RADIO from "../assets/materiais-adicionais/radio-debate.jpeg";
+import CAPA_CARTILHA from "../assets/materiais-adicionais/capa-cartilha.png";
 
 // Troque "link" pelo endereço real de cada PDF e, quando houver, "capa"
 // por uma imagem importada de src/assets (ex.: import capaCartilha
@@ -23,7 +30,7 @@ const MATERIAIS = [
     texto:
       "Clique na imagem ao lado para baixar a Cartilha de Prevenção e Proteção nas Redes!",
     link: "#",
-    capa: null,
+    capa: CAPA_CARTILHA,
   },
   {
     titulo: ["Episódio de Podcast"],
@@ -70,7 +77,10 @@ const MATERIAIS = [
                 >
                   {m.capa && <img src={m.capa.src} alt="" loading="lazy" />}
                 </a>
-                <Enfeite {...estrelinhaCapa(invertido)} />
+                <Enfeite
+                  {...estrelinhaCapa(invertido)}
+                  origem={ORIGEM_ESTRELINHA}
+                />
               </div>
 
               <div

@@ -5,7 +5,7 @@
 // =========================================================================
 
 import Faixa from "./Faixa.astro";
-import Enfeite from "./Enfeite.astro";
+import Enfeites from "./Enfeites.astro";
 
 // Cada item é uma linha fixa no desktop; no celular, as três linhas
 // fluem como uma frase e quebram conforme a largura disponível.
@@ -19,102 +19,150 @@ const LINHAS = [
 // tamanho e distância do topo em vw acompanham a largura da tela, como
 // no design; a esquerda vai em % da faixa. As apagadas usam a cor do
 // arquivo com a opacidade que ele tinha.
+//
+// No celular a frase ocupa quase toda a largura, então os enfeites ficam
+// em três faixas: uma fileira curta logo abaixo da onda creme, um de
+// cada lado na altura da frase (meio para fora da tela) e uma fileira
+// na base, ancorada por baixo. Os lados se alternam para não pesar.
 const APAGADA = "#BCA1C9";
 const LILAS_ESCURO = "#8F76A0";
+const CREME = "#FEFBD3";
 
+// Formas creme que escorrem da onda, por cima do roxo.
+const FORMAS_DA_ONDA = [
+  {
+    forma: "trevo",
+    cor: "var(--creme)",
+    tamanho: 130,
+    topo: "3%",
+    esquerda: "12%",
+    frente: true,
+    papel: true,
+    forcaPapel: 0.15,
+    noCelular: true,
+    tamanhoMobile: 76,
+    topoMobile: "1%",
+    esquerdaMobile: "4%",
+  },
+  {
+    forma: "estrela-arredondada",
+    cor: "var(--creme)",
+    tamanho: 300,
+    topo: "-9%",
+    direita: "4%",
+    giro: 35,
+    frente: true,
+    papel: true,
+    forcaPapel: 0.15,
+    noCelular: false,
+    tamanhoMobile: 140,
+    topoMobile: "-13.8%",
+    direitaMobile: "-9.1%",
+  },
+];
+
+// Formas do fundo, tiradas de fundos/citacao.png.
 const ENFEITES = [
   // topo
   {
     forma: "asterisco",
     cor: APAGADA,
-    opacidade: 0.2,
-    tamanho: "19.8vw",
-    topo: "4.1vw",
-    esquerda: "-6.2%",
+    opacidade: 0.05,
+    tamanho: "14.8vw",
+    topo: "3.5vw",
+    esquerda: "-7.4%",
     noCelular: true,
+    tamanhoMobile: "16vw",
+    topoMobile: "44%",
+    esquerdaMobile: "-9%",
   },
   {
     forma: "estrela",
     cor: APAGADA,
-    opacidade: 0.2,
-    tamanho: "5vw",
-    topo: "4.8vw",
-    esquerda: "13.6%",
+    opacidade: 0.05,
+    tamanho: "2.6vw",
+    topo: "29.7%",
+    esquerda: "8.4%",
   },
   {
     forma: "asterisco",
     cor: APAGADA,
-    opacidade: 0.2,
-    tamanho: "15vw",
-    topo: "4.8vw",
-    esquerda: "54.5%",
-    giro: 12,
+    opacidade: 0.05,
+    tamanho: "10vw",
+    topo: "3.9vw",
+    esquerda: "56.3%",
+    giro: 6,
     noCelular: true,
+    tamanhoMobile: "10vw",
+    baixoMobile: "2vw",
+    esquerdaMobile: "56%",
   },
   {
     forma: "estrela",
     cor: APAGADA,
     opacidade: 0.2,
     tamanho: "2.3vw",
-    topo: "5.5vw",
-    esquerda: "30.5%",
+    topo: "35.9vw",
+    esquerda: "60%",
+    vazar: true,
   },
   {
     forma: "asterisco",
     cor: APAGADA,
-    opacidade: 0.2,
+    opacidade: 0.05,
     tamanho: "15vw",
-    topo: "6.1vw",
-    esquerda: "93.9%",
+    topo: "9.4vw",
+    esquerda: "93.5%",
   },
   {
     forma: "estrela-arredondada",
     cor: APAGADA,
-    opacidade: 0.2,
+    opacidade: 1,
     tamanho: "6.6vw",
-    topo: "8.5vw",
-    esquerda: "36.4%",
+    topo: "8.7vw",
+    esquerda: "32.9%",
     giro: 8,
     papel: true,
     noCelular: true,
-    tamanhoMobile: "11vw",
-    topoMobile: "22%",
+    tamanhoMobile: "10vw",
+    topoMobile: "29.3%",
+    esquerdaMobile: "58.4%",
   },
   {
     forma: "trevo",
     cor: APAGADA,
-    opacidade: 0.2,
+    opacidade: 1,
     tamanho: "6.6vw",
-    topo: "8.9vw",
-    esquerda: "75.6%",
-    noCelular: true,
+    topo: "10.4vw",
+    esquerda: "72.4%",
   },
   {
     forma: "estrela",
-    cor: APAGADA,
-    opacidade: 0.2,
-    tamanho: "5vw",
-    topo: "10.5vw",
-    esquerda: "22%",
+    cor: CREME,
+    opacidade: 0.6,
+    tamanho: "4vw",
+    topo: "37.5%",
+    esquerda: "21.5%",
     noCelular: true,
-    tamanhoMobile: "8vw",
-    topoMobile: "26%",
+    tamanhoMobile: "6vw",
+    topoMobile: "27%",
+    esquerdaMobile: "28%",
   },
   {
     forma: "estrela",
     cor: APAGADA,
     opacidade: 0.2,
     tamanho: "2.25vw",
-    topo: "14.4vw",
-    esquerda: "91.2%",
+    topo: "15.2vw",
+    esquerda: "89.9%",
   },
   {
     forma: "estrela",
     cor: APAGADA,
-    opacidade: 0.2,
+    opacidade: 0.05,
     tamanho: "2.25vw",
-    topo: "16.7vw",
-    esquerda: "47.7%",
+    topo: "13.1vw",
+    esquerda: "45.7%",
   },
 
   // base: ancoradas por baixo, para não depender da altura da faixa.
@@ -122,60 +170,65 @@ const ENFEITES = [
   {
     forma: "trevo",
     cor: APAGADA,
-    opacidade: 0.2,
+    opacidade: 0.05,
     tamanho: "6.6vw",
-    baixo: "1.5vw",
-    esquerda: "95%",
+    baixo: "0vw",
+    esquerda: "89.6%",
     noCelular: true,
+    tamanhoMobile: "13vw",
+    topoMobile: "50%",
+    esquerdaMobile: "91%",
+    vazar: true,
   },
   {
     forma: "estrela",
     cor: APAGADA,
-    opacidade: 0.2,
+    opacidade: 0.65,
     tamanho: "2.25vw",
-    baixo: "4.7vw",
-    esquerda: "9.1%",
+    topo: "74.6%",
+    esquerda: "7.4%",
     noCelular: true,
-  },
-  {
-    forma: "estrela-arredondada",
-    cor: APAGADA,
-    opacidade: 0.2,
-    tamanho: "9.1vw",
-    baixo: "0.3vw",
-    esquerda: "28.6%",
-    giro: -10,
-    papel: true,
-    noCelular: true,
+    tamanhoMobile: "4vw",
+    baixoMobile: "13vw",
+    esquerdaMobile: "24%",
   },
   {
     forma: "trevo",
     cor: APAGADA,
-    opacidade: 0.2,
-    tamanho: "7.5vw",
-    baixo: "0.4vw",
-    esquerda: "3%",
+    opacidade: 0.05,
+    tamanho: "7vw",
+    baixo: "0.6vw",
+    esquerda: "1.6%",
     noCelular: true,
-    tamanhoMobile: "14vw",
+    tamanhoMobile: "13vw",
+    baixoMobile: "2vw",
+    esquerdaMobile: "4%",
+    vazar: true,
   },
   {
     forma: "estrela",
     cor: APAGADA,
-    opacidade: 0.2,
+    opacidade: 1,
     tamanho: "2.25vw",
-    baixo: "1.8vw",
-    esquerda: "81%",
+    baixo: "0.3vw",
+    esquerda: "78.5%",
     noCelular: true,
+    tamanhoMobile: "3.5vw",
+    baixoMobile: "3vw",
+    esquerdaMobile: "77%",
+    vazar: true,
   },
   {
     forma: "estrela",
     cor: APAGADA,
     opacidade: 0.2,
     tamanho: "5.7vw",
-    baixo: "0.6vw",
-    esquerda: "90.5%",
+    topo: "99%",
+    esquerda: "80.5%",
     noCelular: true,
-    tamanhoMobile: "9vw",
+    tamanhoMobile: "8vw",
+    baixoMobile: "8vw",
+    esquerdaMobile: "86%",
   },
 ];
 ---
@@ -187,43 +240,21 @@ const ENFEITES = [
   id="sobre"
   classe="citacao"
   papel
-  forcaPapel={0}
 >
   <!-- Formas que escorrem da onda creme, por cima do roxo. Ficam na
        frente para cobrir as formas do fundo que passam por baixo. -->
-  <Enfeite
-    forma="trevo"
-    cor="var(--creme)"
-    tamanho={130}
-    topo="3%"
-    esquerda="12%"
-    frente
-    papel
-    forcaPapel={0.15}
-    noCelular
-    tamanhoMobile={76}
-    topoMobile="1%"
-    esquerdaMobile="4%"
-  />
-
-  <Enfeite
-    forma="estrela-arredondada"
-    cor="var(--creme)"
-    tamanho={300}
-    topo="-9%"
-    direita="4%"
-    giro="35"
-    frente
-    papel
-    forcaPapel={0.15}
-    noCelular
-    tamanhoMobile={140}
-    topoMobile="-8%"
-    direitaMobile="-8%"
+  <Enfeites
+    lista={FORMAS_DA_ONDA}
+    nome="FORMAS_DA_ONDA"
+    arquivo="src/components/Citacao.astro"
   />
 
   <!-- Formas do fundo, tiradas de fundos/citacao.png. -->
-  {ENFEITES.map((e) => <Enfeite {...e} />)}
+  <Enfeites
+    lista={ENFEITES}
+    nome="ENFEITES"
+    arquivo="src/components/Citacao.astro"
+  />
 
   <blockquote class="conteudo frase surge">
     <p>

@@ -11,14 +11,21 @@
 //   corOnda     cor da seção anterior, para tapar a fresta do antialias
 //   alturaOnda  altura da tira da onda
 //   id, classe
-//   papel       true carimba a textura de papel dentro da onda
-//   forcaPapel  quanto a textura aparece, de 0 a 1 (padrão 0.15). Aqui a
-//               área é grande e os vincos aparecem inteiros, por isso o
-//               valor é bem menor que o padrão do <Enfeite>.
+//   papel       true carimba a textura de papel dentro da onda. Use quando
+//               a seção de cima tem textura (Hero, Sobre o Projeto, Para
+//               Quem, FAQ): a onda tem a cor dela e precisa continuar o
+//               mesmo papel, senão aparece uma emenda/linha fina.
+//               Hoje: Citação (onda do Hero) e Sobre o Curso (onda do
+//               Para Quem).
+//   forcaPapel  quanto a textura aparece, de 0 a 1
+//               (padrão: --opacidade-textura-papel, igual às seções)
+//
+// A textura das seções não mora aqui: cada seção que tem papel coloca o
+// seu <TexturaPapel /> (Hero, SobreProjeto, ParaQuem, Faq).
 // =========================================================================
 
 import Svg from "./Svg.astro";
-import papelTextura from "../assets/fundos/papel.webp";
+import papelTextura from "../assets/fundos/papel-continuo.webp";
 
 // O mesmo arquivo que o <Svg> injeta inline, agora como URL: a textura é
 // recortada no desenho da onda com mask-image, e máscara em CSS só aceita
@@ -40,7 +47,7 @@ const {
   id = null,
   classe = "",
   papel = false,
-  forcaPapel = 0.15,
+  forcaPapel = "var(--opacidade-textura-papel)",
 } = Astro.props;
 
 const chaveOnda =
@@ -58,9 +65,18 @@ if (onda && papel && !chaveOnda) {
 
 const usaPapel = Boolean(onda && papel && chaveOnda);
 
+// Cor do topo da faixa, embaixo da onda: a da seção de cima (corOnda).
+// Sem corOnda, a própria cor da faixa.
+const temCorOnda = Boolean(corOnda && corOnda !== "transparent");
+const corTopo = temCorOnda ? corOnda : cor;
+
 const estilo = [
   `--cor-faixa:${cor}`,
   `--cor-onda:${corOnda}`,
+  `--cor-topo:${corTopo}`,
+  // Faixa sem corOnda: a onda é invisível (mesma cor), então o fundo da
+  // própria faixa vai até o topo, sem a tira transparente.
+  `--topo-livre:${temCorOnda ? "2px" : "0px"}`,
   `--altura-onda:${alturaOnda}`,
   usaPapel ? `--onda-forma:url("${ONDAS_URL[chaveOnda]}")` : null,
   usaPapel ? `--papel:url("${papelTextura.src}")` : null,
@@ -71,28 +87,54 @@ const estilo = [
 ---
 
 <section class:list={["faixa", classe]} id={id} style={estilo}>
-  {onda && (
-    <div class="onda">
-      <Svg nome={onda} ancora="xMidYMax slice" />
-      {usaPapel && <span class="papel" />}
-    </div>
-  )}
+  {
+    onda && (
+      <div class="onda">
+        <Svg nome={onda} ancora="xMidYMax slice" />
+        {usaPapel && <span class="papel-onda" />}
+      </div>
+    )
+  }
 
   <slot />
 </section>
 
+<script>
+  import "../scripts/alinharPapel.js";
+</script>
+
 <style>
+  /* EMENDA ENTRE SEÇÕES
+     A faixa começa 2px acima do fim da seção de cima (margin-top -2px,
+     devolvidos no padding). Nesses 2px, e um pouco abaixo, o fundo é a
+     cor da seção de cima (--cor-topo), e a onda (com papel, quando tem)
+     passa por cima. Assim o pixel da emenda fica coberto pela mesma cor
+     dos dois lados. Antes, em telas com densidade "quebrada" (celulares
+     2.625x, 2.75x; Windows em 125%) o navegador misturava esse pixel com
+     o fundo da página e aparecia uma linha fina de outra cor. */
   .faixa {
     position: relative; /* referência para a onda e para os enfeites */
     z-index: 2;
     overflow: hidden; /* corta o que escapar e evita rolagem lateral */
-    background: var(--cor-faixa);
-    padding-block: calc(var(--altura-onda) + var(--esp-4)) var(--esp-5);
+    margin-top: -2px;
+    /* Nos 2px de cima o fundo é transparente: ali só a onda pinta (ela
+       é um grupo só, cor + papel), então a borda dela se mistura com a
+       seção de cima sem clarear. Logo abaixo, a cor de cima, por baixo
+       da onda; depois, a cor desta faixa. */
+    background: linear-gradient(
+      to bottom,
+      transparent 0 var(--topo-livre, 2px),
+      var(--cor-topo) var(--topo-livre, 2px) 6px,
+      var(--cor-faixa) 6px
+    );
+    padding-block: calc(var(--altura-onda) + var(--esp-4) + 2px) var(--esp-5);
   }
 
   .onda {
     position: absolute;
-    top: -1px; /* 1px de sobreposição mata a linha clara do antialias */
+    /* Começa no topo da caixa, 2px acima do fim da seção de cima (veja a
+       emenda acima). Com papel, a textura cobre a emenda inteira. */
+    top: 0;
     left: 0;
     right: 0;
     height: var(--altura-onda);
@@ -113,21 +155,22 @@ const estilo = [
     height: 100%;
   }
 
-  /* A textura cobre a tira inteira e a máscara deixa aparecer só o que
-     cai dentro da onda; o resto continua sendo o fundo da faixa.
-     cover + center bottom é a tradução exata do preserveAspectRatio
-     "xMidYMax slice" que o <Svg> aplica no desenho, então a borda da
-     textura cai em cima da borda da onda, sem meio pixel de folga. */
-  .papel {
+  /* Papel da onda: mesma imagem, tamanho e origem da textura das
+     seções (TexturaPapel.astro). O script alinharPapel.js diz a que
+     altura da página a onda está (--papel-y), então o papel daqui é a
+     continuação exata do papel da seção de cima. A máscara recorta só o
+     desenho da onda; o resto continua sendo o fundo desta faixa. */
+  .papel-onda {
     position: absolute;
     inset: 0;
     z-index: 1;
 
     background-image: var(--papel);
-    background-size: cover;
-    background-position: center;
+    background-size: var(--papel-largura) auto;
+    background-repeat: repeat-y;
+    background-position: 50% calc(-1 * var(--papel-y, 0px));
 
-    opacity: var(--forca-papel, 0.15);
+    opacity: var(--forca-papel, var(--opacidade-textura-papel));
     mix-blend-mode: multiply;
 
     -webkit-mask-image: var(--onda-forma);
@@ -142,7 +185,7 @@ const estilo = [
 
   @media (max-width: 860px) {
     .faixa {
-      padding-block: calc(var(--altura-onda) + var(--esp-3)) var(--esp-4);
+      padding-block: calc(var(--altura-onda) + var(--esp-3) + 2px) var(--esp-4);
     }
   }
 </style>

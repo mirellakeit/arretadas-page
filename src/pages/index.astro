@@ -76,7 +76,25 @@ import Footer from "../components/Footer.astro";
               threshold: 0.1,
             },
           );
-          alvos.forEach((el) => observador.observe(el));
+          // Enfeites usam um observador à parte, que dispara assim que
+          // qualquer pedaço deles aparece (threshold 0). Com 10%, uma
+          // forma grande cortada pela borda da seção podia nunca chegar
+          // a mostrar 10% de si e ficava escondida.
+          const observadorEnfeites = new IntersectionObserver(
+            (entradas) => {
+              for (const entrada of entradas) {
+                if (!entrada.isIntersecting) continue;
+                entrada.target.classList.add("visivel");
+                observadorEnfeites.unobserve(entrada.target);
+              }
+            },
+            { rootMargin: "0px 0px -8% 0px", threshold: 0 },
+          );
+          alvos.forEach((el) =>
+            el.classList.contains("brota")
+              ? observadorEnfeites.observe(el)
+              : observador.observe(el),
+          );
 
           // No fim da página a rolagem acaba antes de o último item subir
           // além da margem acima. Chegando ao fundo, revela o que sobrou.

@@ -4,25 +4,38 @@
 //
 // Papel amassado por cima do fundo da seção, em multiply: suja a cor de
 // fundo sem escurecer a leitura. Coloque logo no começo da seção.
+// Hoje usada no Hero, Sobre o Projeto, Para Quem e FAQ.
 //
 // Props:
-//   forca    quanto o papel aparece, de 0 a 1 (padrão 0.15)
+//   forca    quanto o papel aparece, de 0 a 1
+//            (padrão: --opacidade-textura-papel, em global.css)
 //   porCima  true: passa também por cima dos enfeites da seção
 //
-// A imagem é um .webp de ~50 kB. O paper.svg original é um PNG de 4 MB
-// embrulhado em SVG e não deve ser usado.
+// O papel é "colado" na página, não na seção (veja
+// src/scripts/alinharPapel.js): assim ele continua sem emenda na onda da
+// seção de baixo, que usa a mesma imagem (Faixa.astro, prop papel).
+//
+// A imagem papel-continuo.webp é o papel.webp com uma cópia espelhada
+// embaixo: repetida na vertical, não forma linha de emenda. O paper.svg
+// original é um PNG de 4 MB embrulhado em SVG e não deve ser usado.
 // =========================================================================
 
-import papel from "../assets/fundos/papel.webp";
+import papel from "../assets/fundos/papel-continuo.webp";
 
-const { forca = 0.15, porCima = false } = Astro.props;
+const { forca = "var(--opacidade-textura-papel)", porCima = false } =
+  Astro.props;
 ---
 
 <div
   class:list={["textura-papel", { "por-cima": porCima }]}
   aria-hidden="true"
-  style={`background-image: url("${papel.src}"); opacity: ${forca}`}
-></div>
+  style={`--papel:url("${papel.src}"); opacity: ${forca}`}
+>
+</div>
+
+<script>
+  import "../scripts/alinharPapel.js";
+</script>
 
 <style>
   .textura-papel {
@@ -30,9 +43,15 @@ const { forca = 0.15, porCima = false } = Astro.props;
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    background-size: cover;
-    background-position: center;
     mix-blend-mode: multiply;
+
+    /* Mesma imagem, tamanho e origem das ondas com papel (Faixa.astro).
+       A largura acompanha a tela, mas nunca fica menor que 1100px, para
+       os vincos não ficarem miúdos no celular. */
+    background-image: var(--papel);
+    background-size: var(--papel-largura) auto;
+    background-repeat: repeat-y;
+    background-position: 50% calc(-1 * var(--papel-y, 0px));
   }
 
   .por-cima {

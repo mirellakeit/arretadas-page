@@ -14,12 +14,47 @@
 //   topo, baixo, esquerda, direita   posição dentro da faixa, em % ou px.
 //             Com baixo e sem topo, a forma se ancora pela base da faixa
 //   frente    true coloca a forma acima da onda da faixa (mas ainda atrás
-//             do conteúdo). Serve para formas que passam por cima da onda
+//             do conteúdo). Serve para formas que passam por cima da onda.
+//             É um atalho para camada 1
+//   camada    z-index do enfeite, para escolher um a um quem fica na
+//             frente de quem. Vale só dentro da própria seção:
+//               0  atrás da onda (padrão)
+//               1  na frente da onda, atrás do conteúdo (igual a frente)
+//               2  mesmo nível do conteúdo; empata e o que vem depois
+//                  no HTML (o conteúdo) fica por cima
+//               3+ na frente do texto e dos botões (cuidado: cobre leitura)
+//             Entre enfeites da mesma camada, o que vem depois na lista
+//             fica por cima. Negativo vai para trás de tudo, menos da
+//             cor de fundo da seção (no hero, fica atrás das formas e da
+//             textura de papel). Quando informado, ignora o frente
+//   camadaMobile z-index só no celular (precisa de noCelular). Sem ele,
+//             o celular usa a mesma camada do desktop
+//   vazar     true deixa o enfeite atravessar a borda de cima ou de baixo
+//             da seção e continuar na seção vizinha, em vez de ser
+//             cortado numa linha reta. Só para enfeites específicos: os
+//             outros da mesma seção continuam cortados. Na vizinha, o
+//             pedaço respeita a mesma camada: com camada 0 fica atrás da
+//             onda e do texto dela, com 3 fica na frente. Nas laterais
+//             continua cortado pela tela. Precisa de JavaScript: sem ele,
+//             o enfeite só é cortado, como os outros
+//   vazarMobile o mesmo, só no celular (padrão: igual ao vazar)
+//   recortar  preenchido pelo <Enfeites>: true para enfeites que ficam
+//             soltos na seção e por isso são cortados na borda dela
+//   origem    preenchido sozinho pelo <Enfeites>: diz em que arquivo e
+//             linha o enfeite foi escrito. Só aparece no modo dev, para o
+//             depurador (tecla E, ou ?enfeites na URL)
 //   giro      rotação em graus
+//   giroMobile rotação só no celular (precisa de noCelular)
 //   espelhar  espelha horizontalmente no desktop
 //   espelharMobile espelha horizontalmente no celular (padrão: igual ao desktop)
 //   opacidade
+//   opacidadeMobile opacidade só no celular (precisa de noCelular)
 //   noCelular manter visível abaixo de 720px
+//   tamanhoMobile, topoMobile, baixoMobile, esquerdaMobile, direitaMobile
+//             posição e tamanho só no celular (precisam de noCelular).
+//             Cada eixo segue a âncora que o celular pedir: com baixoMobile
+//             o topo do desktop é ignorado, com direitaMobile a esquerda
+//             do desktop é ignorada, e vice-versa
 //   papel      true carimba a textura de papel dentro da forma
 //   forcaPapel quanto a textura aparece, de 0 a 1 (padrão 0.3). Acima de
 //              0.45 o creme começa a amarelar.
@@ -47,21 +82,58 @@ const {
   esquerda = null,
   direita = null,
   giro = 0,
+  giroMobile = null,
   espelhar = false,
   espelharMobile = null,
   opacidade = 1,
+  opacidadeMobile = null,
   noCelular = false,
   tamanhoMobile = null,
   topoMobile = null,
+  baixoMobile = null,
   esquerdaMobile = null,
   direitaMobile = null,
   papel = false,
   forcaPapel = 0.3,
   frente = false,
+  camada = null,
+  camadaMobile = null,
+  origem = null,
+  vazar = false,
+  vazarMobile = null,
+  recortar = false,
 } = Astro.props;
+
+// O corte na borda da seção é feito por enfeite, numa caixa do tamanho
+// da seção (.recorte). Enfeites dentro de caixas menores (ilustração,
+// vídeo, capa) não são cortados por essa caixa, como antes.
+//
+// Vazar: o enfeite continua cortado na própria seção, e o script no fim
+// deste arquivo desenha uma cópia dele na seção vizinha, deslocada para
+// encaixar exatamente na emenda. Como a cópia mora dentro da vizinha, ela
+// entra na ordem de camadas de lá (onda, texto) igual a um enfeite dela.
+const vazaDesktop = Boolean(vazar);
+const vazaCelular = vazarMobile === null ? vazaDesktop : Boolean(vazarMobile);
+
+// Só no modo dev: dados que o depurador de enfeites mostra na etiqueta.
+// No build de produção nada disso vai para o HTML.
+const depuracao = import.meta.env.DEV
+  ? {
+      "data-origem": origem?.rotulo ?? "enfeite sem origem",
+      "data-arquivo": origem?.arquivo ?? null,
+      "data-caminho": origem?.caminho ?? null,
+      "data-linha": origem?.linha ?? null,
+      "data-props": JSON.stringify(
+        Object.fromEntries(
+          Object.entries(Astro.props).filter(([k]) => k !== "origem"),
+        ),
+      ),
+    }
+  : {};
 
 // Número é px, texto vai como veio (vw, clamp, calc...).
 const medida = (v: any) => (typeof v === "number" ? `${v}px` : v);
+const temValor = (v: any) => v !== null && v !== undefined && v !== "";
 
 const chaveForma = Object.keys(FORMAS_URL).find((k) =>
   k.endsWith(`/${forma}.svg`),
@@ -87,23 +159,53 @@ for (const c of semente) {
 }
 const recorte = `${h % 100}% ${Math.floor(h / 100) % 100}%`;
 
+// camada explícita ganha do frente; sem nenhuma das duas, fica atrás da
+// onda (0).
+const zIndex = temValor(camada) ? camada : frente ? 1 : 0;
+
 const estilo = [
+  `--camada:${zIndex}`,
+  temValor(camadaMobile) ? `--camada-mobile:${camadaMobile}` : null,
   `--topo:${topo ?? (baixo ? "auto" : "10%")}`,
   baixo ? `--baixo:${baixo}` : null,
   esquerda ? `--esquerda:${esquerda}` : null,
   direita ? `--direita:${direita}` : null,
   `--tamanho:${medida(tamanho)}`,
-  topoMobile ? `--topo-mobile:${topoMobile}` : null,
-  esquerdaMobile ? `--esquerda-mobile:${esquerdaMobile}` : null,
-  direitaMobile ? `--direita-mobile:${direitaMobile}` : null,
+  // No celular, cada eixo usa só a âncora que foi pedida para ele. Sem
+  // isso, um enfeite ancorado pela esquerda no desktop e pela direita no
+  // celular ficaria preso nas duas bordas ao mesmo tempo.
+  temValor(topoMobile)
+    ? `--topo-mobile:${topoMobile}`
+    : temValor(baixoMobile)
+      ? `--topo-mobile:auto`
+      : null,
+  temValor(baixoMobile)
+    ? `--baixo-mobile:${baixoMobile}`
+    : temValor(topoMobile)
+      ? `--baixo-mobile:auto`
+      : null,
+  temValor(esquerdaMobile)
+    ? `--esquerda-mobile:${esquerdaMobile}`
+    : temValor(direitaMobile)
+      ? `--esquerda-mobile:auto`
+      : null,
+  temValor(direitaMobile)
+    ? `--direita-mobile:${direitaMobile}`
+    : temValor(esquerdaMobile)
+      ? `--direita-mobile:auto`
+      : null,
   tamanhoMobile ? `--tamanho-mobile:${medida(tamanhoMobile)}` : null,
   `--espelho:${espelhar ? -1 : 1}`,
   espelharMobile !== null
     ? `--espelho-mobile:${espelharMobile ? -1 : 1}`
     : null,
   `--giro:${giro}deg`,
+  temValor(giroMobile) ? `--giro-mobile:${giroMobile}deg` : null,
   `color:${cor}`,
-  `opacity:${opacidade}`,
+  // Opacidade em variável (e não direto em opacity) para o celular poder
+  // ter a sua, e para o modo de edição trocar sem mexer no resto.
+  `--opacidade:${opacidade}`,
+  temValor(opacidadeMobile) ? `--opacidade-mobile:${opacidadeMobile}` : null,
   papel ? `--forma:url("${FORMAS_URL[chaveForma!]}")` : null,
   papel ? `--papel:url("${papelTextura.src}")` : null,
   papel ? `--forca-papel:${forcaPapel}` : null,
@@ -117,16 +219,40 @@ const estilo = [
 ---
 
 <span
-  class:list={["enfeite", "brota", { "no-celular": noCelular, frente }]}
-  style={estilo}
+  class:list={[
+    "recorte",
+    { corta: recortar, vaza: vazaDesktop, "vaza-celular": vazaCelular },
+  ]}
 >
-  <span class="desenho">
-    <Svg nome={forma} recolorir={recolorir} />
-    {papel && <span class="papel" />}
+  <span
+    class:list={["enfeite", "brota", { "no-celular": noCelular, frente }]}
+    style={estilo}
+    data-forma={forma}
+    {...depuracao}
+  >
+    <span class="desenho">
+      <Svg nome={forma} recolorir={recolorir} />
+      {papel && <span class="papel" />}
+    </span>
   </span>
 </span>
 
 <style>
+  /* Caixa do tamanho do bloco onde o enfeite está (em geral, a seção).
+     Sem z-index, para não criar contexto de empilhamento: a camada de
+     cada enfeite continua valendo em relação à onda e ao conteúdo. */
+  .recorte {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  /* Enfeites soltos na seção são cortados na borda dela. Os que vazam
+     também: o pedaço de fora é desenhado pela cópia na seção vizinha. */
+  .recorte.corta {
+    overflow: hidden;
+  }
+
   .enfeite {
     position: absolute; /* sai do fluxo e flutua nas coordenadas dadas */
     top: var(--topo);
@@ -135,15 +261,12 @@ const estilo = [
     right: var(--direita, auto);
     width: var(--tamanho);
     pointer-events: none; /* não intercepta cliques de botões e links */
-    z-index: 0; /* atrás da onda e do conteúdo da faixa */
+    /* Vem da prop camada (ou do frente). 0 = atrás da onda e do
+       conteúdo da faixa; 1 = acima da onda e atrás do conteúdo. */
+    z-index: var(--camada, 0);
     line-height: 0;
     transform: rotate(var(--giro));
-  }
-
-  /* Mesma camada da onda, mas vem depois dela no HTML: pinta por cima
-     da onda e continua atrás do .conteudo (z-index 2). */
-  .enfeite.frente {
-    z-index: 1;
+    opacity: var(--opacidade, 1);
   }
 
   .desenho {
@@ -196,9 +319,13 @@ const estilo = [
 
     .enfeite.no-celular {
       top: var(--topo-mobile, var(--topo));
+      bottom: var(--baixo-mobile, var(--baixo, auto));
       left: var(--esquerda-mobile, var(--esquerda, auto));
       right: var(--direita-mobile, var(--direita, auto));
       width: var(--tamanho-mobile, var(--tamanho));
+      transform: rotate(var(--giro-mobile, var(--giro)));
+      opacity: var(--opacidade-mobile, var(--opacidade, 1));
+      z-index: var(--camada-mobile, var(--camada, 0));
     }
 
     .enfeite.no-celular .desenho {
@@ -206,3 +333,142 @@ const estilo = [
     }
   }
 </style>
+
+<script>
+  // =======================================================================
+  // CONTINUAÇÃO DOS ENFEITES COM VAZAR
+  //
+  // Para cada enfeite com vazar (ou vazarMobile, no celular) que passa da
+  // borda de cima ou de baixo da seção, cria uma cópia dentro da seção
+  // vizinha, na posição exata em que o desenho continuaria. A cópia é
+  // cortada pela vizinha e fica na mesma camada (z-index) do original,
+  // só que em relação à onda e ao texto da vizinha. Refaz tudo quando a
+  // largura da tela ou a altura das seções muda.
+  // =======================================================================
+
+  const CELULAR = matchMedia("(max-width: 720px)");
+  let observadores: MutationObserver[] = [];
+
+  function vizinha(secao: Element, direcao: 1 | -1) {
+    let el =
+      direcao > 0 ? secao.nextElementSibling : secao.previousElementSibling;
+    while (el && !el.matches("section, footer")) {
+      el = direcao > 0 ? el.nextElementSibling : el.previousElementSibling;
+    }
+    return el as HTMLElement | null;
+  }
+
+  function limpar() {
+    observadores.forEach((o) => o.disconnect());
+    observadores = [];
+    document
+      .querySelectorAll(".recorte.copia-vazada")
+      .forEach((c) => c.remove());
+  }
+
+  function copiarPara(
+    recorte: HTMLElement,
+    enfeite: HTMLElement,
+    destino: HTMLElement,
+  ) {
+    const origem = recorte.getBoundingClientRect();
+    const alvo = destino.getBoundingClientRect();
+
+    const copia = recorte.cloneNode(true) as HTMLElement;
+    copia.classList.remove("vaza", "vaza-celular");
+    copia.classList.add("corta", "copia-vazada");
+    copia.setAttribute("aria-hidden", "true");
+
+    const desenho = copia.querySelector(":scope > .enfeite") as HTMLElement;
+    desenho.dataset.continuacao = "";
+    // Mesma caixa do original (antes do giro), em px, deslocada pela
+    // distância entre as duas seções.
+    Object.assign(desenho.style, {
+      top: `${enfeite.offsetTop - (alvo.top - origem.top)}px`,
+      left: `${enfeite.offsetLeft - (alvo.left - origem.left)}px`,
+      width: `${enfeite.offsetWidth}px`,
+      bottom: "auto",
+      right: "auto",
+    });
+
+    // A cópia brota junto com o original, para a emenda não aparecer
+    // durante a animação. Vale para os dois lados: se a pessoa vê primeiro
+    // o pedaço da seção vizinha (a cópia), o original brota junto.
+    if (enfeite.classList.contains("visivel")) {
+      desenho.classList.add("visivel");
+    } else {
+      const obs = new MutationObserver(() => {
+        if (enfeite.classList.contains("visivel")) {
+          desenho.classList.add("visivel");
+          obs.disconnect();
+        }
+      });
+      obs.observe(enfeite, { attributes: true, attributeFilter: ["class"] });
+      observadores.push(obs);
+
+      const io = new IntersectionObserver(
+        (entradas) => {
+          if (!entradas.some((e) => e.isIntersecting)) return;
+          enfeite.classList.add("visivel");
+          desenho.classList.add("visivel");
+          io.disconnect();
+        },
+        { rootMargin: "0px 0px -8% 0px", threshold: 0 },
+      );
+      io.observe(desenho);
+      observadores.push(io as unknown as MutationObserver);
+    }
+
+    destino.appendChild(copia);
+  }
+
+  function montar() {
+    limpar();
+    const classe = CELULAR.matches ? "vaza-celular" : "vaza";
+
+    document
+      .querySelectorAll<HTMLElement>(`.recorte.${classe}:not(.copia-vazada)`)
+      .forEach((recorte) => {
+        const enfeite = recorte.querySelector<HTMLElement>(":scope > .enfeite");
+        const secao = recorte.closest("section, footer");
+        if (!enfeite || !secao || !enfeite.offsetWidth) return; // escondido
+
+        // Raio do desenho girado: metade da diagonal da caixa (medida sem
+        // o giro e sem a animação de brotar).
+        const altura = enfeite.offsetHeight;
+        const raio = Math.hypot(enfeite.offsetWidth, altura) / 2;
+        const centro = enfeite.offsetTop + altura / 2;
+
+        const acima = vizinha(secao, -1);
+        const abaixo = vizinha(secao, 1);
+        if (acima && centro - raio < 0) copiarPara(recorte, enfeite, acima);
+        if (abaixo && centro + raio > recorte.offsetHeight) {
+          copiarPara(recorte, enfeite, abaixo);
+        }
+      });
+  }
+
+  let espera: number | undefined;
+  const remontar = () => {
+    clearTimeout(espera);
+    espera = window.setTimeout(montar, 100);
+  };
+
+  // O modo de edição (npm run dev) avisa com este evento quando liga ou
+  // desliga o vazar, move ou redimensiona um enfeite.
+  document.addEventListener("enfeites:remontar", () => montar());
+
+  if (document.querySelector(".recorte.vaza, .recorte.vaza-celular")) {
+    montar();
+    CELULAR.addEventListener("change", montar);
+    addEventListener("resize", remontar);
+    addEventListener("load", montar);
+    document.fonts?.ready.then(montar);
+    // Seções que mudam de altura (FAQ abrindo, cartões, textos) mexem na
+    // emenda: refaz as cópias.
+    const ro = new ResizeObserver(remontar);
+    document
+      .querySelectorAll("main > section, main > footer")
+      .forEach((s) => ro.observe(s));
+  }
+</script>

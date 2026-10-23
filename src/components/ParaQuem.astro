@@ -2,8 +2,8 @@
 // =========================================================================
 // QUEM JÁ FEZ O CURSO
 //
-// Ilustração do computador à esquerda, sobre formas lilases, e o público
-// do curso descrito em texto à direita.
+// Ilustração do computador à direita, sobre formas lilases, e o público
+// do curso descrito em texto à esquerda.
 //
 // As formas são enfeites como nas outras seções (ENFEITES_PARA_QUEM em
 // src/data/enfeites.js), mas medidos em % da caixa da ilustração e não
@@ -17,7 +17,7 @@ import TexturaPapel from "./TexturaPapel.astro";
 import { ENFEITES_PARA_QUEM } from "../data/enfeites.js";
 
 const TEXTO =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+  "O curso é voltado para todas aquelas pessoas que desejarem participar! Se você quer aprender sobre proteção nas redes, aprofundar seus conhecimentos sobre o mundo da internet ou compreender mais sobre os diferentes meios em que a misoginia está difundida na nossa sociedade, inscreva-se e venha fazer parte das Arretadas em Rede!";
 ---
 
 <Faixa
@@ -25,12 +25,15 @@ const TEXTO =
   cor="var(--branco)"
   corOnda="var(--branco)"
   alturaOnda="clamp(60px, 9vw, 140px)"
+  papel
 >
-  <TexturaPapel porCima />
+  <!-- A onda daqui é branca como o Sobre o Projeto e leva o mesmo papel
+       (prop papel acima): os dois continuam sem emenda. -->
+  <TexturaPapel />
 
   <div class="conteudo grade">
-    <div class="midia surge esquerda">
-      <Enfeites lista={ENFEITES_PARA_QUEM} />
+    <div class="midia surge direita">
+      <Enfeites lista={ENFEITES_PARA_QUEM} recortar={false} />
 
       <div
         class="computador"
@@ -43,14 +46,14 @@ const TEXTO =
 
     <div class="coluna">
       <div class="linha">
-        <h2 class="titulo surge direita">
+        <h2 class="titulo surge esquerda">
           <span class="titulo-fino">Para quem é o</span>
           <span class="titulo-forte">curso?</span>
         </h2>
         <Svg nome="para_quem" recolorir={false} />
       </div>
 
-      <p class="texto surge direita" style="--atraso: 150ms">{TEXTO}</p>
+      <p class="texto surge esquerda" style="--atraso: 150ms">{TEXTO}</p>
     </div>
   </div>
 </Faixa>
@@ -58,9 +61,11 @@ const TEXTO =
 <style>
   .grade {
     display: grid;
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    grid-template-areas: "coluna midia";
     gap: var(--esp-4);
     align-items: center;
+    margin-top: -10rem;
   }
 
   /* --------------------- ilustração + formas ----------------------
@@ -70,7 +75,8 @@ const TEXTO =
     position: relative;
     width: min(100%, 640px);
     aspect-ratio: 970 / 786;
-    justify-self: start;
+    grid-area: midia;
+    justify-self: end;
   }
 
   .computador {
@@ -89,6 +95,7 @@ const TEXTO =
 
   /* ---------------------------- texto ----------------------------- */
   .coluna {
+    grid-area: coluna;
     justify-self: center;
     display: grid;
     gap: var(--esp-1);
@@ -132,22 +139,14 @@ const TEXTO =
     flex: 0 0 auto;
   }
 
-  /* ------------------------ telas pequenas ------------------------ */
+  /* --------------------- telas intermediárias -------------------- */
   @media (max-width: 860px) {
     .grade {
-      margin-top: -4rem;
-      grid-template-columns: 1fr;
-      grid-template-areas:
-        "coluna"
-        "midia";
-      row-gap: var(--esp-4);
-      /* A margem negativa do .conteudo (global.css) é maior que o
-         respiro da faixa no celular e cortava a última linha. */
-      margin-bottom: 0;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+      gap: var(--esp-2);
     }
 
     .coluna {
-      grid-area: coluna;
       width: 100%;
       gap: var(--esp-2);
     }
@@ -174,8 +173,30 @@ const TEXTO =
     }
 
     .midia {
-      grid-area: midia;
       width: min(100%, 300px);
+    }
+  }
+
+  /* ------------------------ telas pequenas ------------------------ */
+  @media (max-width: 560px) {
+    .grade {
+      margin-top: -4rem;
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "coluna"
+        "midia";
+      row-gap: var(--esp-4);
+      /* A margem negativa do .conteudo (global.css) é maior que o
+         respiro da faixa no celular e cortava a última linha. */
+      margin-bottom: 0;
+    }
+
+    .coluna {
+      grid-area: coluna;
+    }
+
+    .midia {
+      grid-area: midia;
       justify-self: center;
     }
   }

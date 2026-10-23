@@ -1,0 +1,691 @@
+---
+// =========================================================================
+// DEPURADOR DE ENFEITES
+//
+// Ferramenta só do modo dev (npm run dev). Não entra no site publicado.
+//
+// Liga e desliga com a tecla E, com o botão "Enfeites" no canto de baixo
+// à esquerda, ou abrindo a página com ?enfeites no fim do endereço.
+//
+// Ligado, cada enfeite visível ganha uma caixa tracejada e uma etiqueta
+// com o nome da lista e a posição dele nela (ex.: ENFEITES_HERO[2]) e a
+// linha do código. Clicando na etiqueta aparece um painel com:
+//   - o arquivo e a linha, com botão para abrir no VS Code e para copiar
+//   - todas as props do enfeite (as do celular marcadas quando valem)
+//   - a posição e o tamanho de agora, em px, dentro da seção
+//   - os enfeites cuja caixa cruza com a dele (contorno vermelho)
+//
+// Funciona também no modo celular do DevTools: as caixas se refazem
+// sozinhas quando a largura da tela muda.
+// =========================================================================
+---
+
+<style is:inline>
+  .dep-botao {
+    position: fixed;
+    left: 12px;
+    bottom: 12px;
+    z-index: 100000;
+    font: 600 12px/1 system-ui, sans-serif;
+    padding: 8px 10px;
+    border-radius: 999px;
+    border: 1px solid #0003;
+    background: #fff;
+    color: #222;
+    box-shadow: 0 2px 8px #0002;
+    cursor: pointer;
+  }
+  .dep-ativo .dep-botao {
+    background: #222;
+    color: #fff;
+  }
+  /* Com o depurador ligado, todo enfeite aparece já no tamanho final,
+     sem a animação de brotar (senão a caixa seria medida no meio dela). */
+  .dep-ativo .brota,
+  .dep-ativo .brota > .desenho {
+    animation: none !important;
+    scale: 1 !important;
+  }
+  .dep-camada {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    z-index: 99990;
+    pointer-events: none;
+  }
+  .dep-caixa {
+    position: absolute;
+    outline: 1.5px dashed var(--dep-cor);
+    outline-offset: -1px;
+  }
+  .dep-caixa.dep-cortada {
+    outline-style: dotted;
+    opacity: 0.55;
+  }
+  .dep-caixa.dep-encosta {
+    outline: 2px solid #e00;
+  }
+  .dep-caixa.dep-selecionada {
+    outline: 3px solid #111;
+    background: #ffff0030;
+    z-index: 2;
+  }
+  .dep-caixa.dep-realce {
+    outline: 3px solid var(--dep-cor);
+    background: color-mix(in srgb, var(--dep-cor) 18%, transparent);
+    z-index: 3;
+  }
+  .dep-etiqueta {
+    position: absolute;
+    pointer-events: auto;
+    cursor: pointer;
+    font: 600 10.5px/1.25 ui-monospace, Consolas, monospace;
+    color: #fff;
+    background: var(--dep-cor);
+    padding: 2px 4px;
+    border-radius: 3px;
+    white-space: nowrap;
+    box-shadow: 0 1px 3px #0005;
+  }
+  .dep-etiqueta:hover,
+  .dep-etiqueta.dep-selecionada {
+    z-index: 5;
+    outline: 2px solid #111;
+  }
+  .dep-encosta-tag {
+    background: #e00 !important;
+  }
+  .dep-so-cruzam .dep-caixa:not(.dep-encosta),
+  .dep-so-cruzam .dep-etiqueta:not(.dep-encosta-tag) {
+    display: none;
+  }
+  .dep-sem-etiquetas .dep-etiqueta:not(.dep-selecionada) {
+    display: none;
+  }
+  .dep-apagar-conteudo .conteudo,
+  .dep-apagar-conteudo .onda {
+    opacity: 0.15 !important;
+  }
+  .dep-painel {
+    position: fixed;
+    right: 12px;
+    top: 12px;
+    z-index: 100000;
+    width: min(340px, calc(100vw - 24px));
+    max-height: calc(100vh - 24px);
+    overflow: auto;
+    font: 12px/1.45 system-ui, sans-serif;
+    color: #222;
+    background: #fff;
+    border: 1px solid #0002;
+    border-radius: 10px;
+    box-shadow: 0 6px 24px #0003;
+    padding: 10px 12px;
+  }
+  /* No celular o painel desce para baixo e ocupa no máximo 45% da
+     altura, para não cobrir as etiquetas. */
+  @media (max-width: 720px) {
+    .dep-painel {
+      top: auto;
+      bottom: 52px;
+      max-height: 45vh;
+    }
+  }
+  .dep-painel.dep-esquerda {
+    right: auto;
+    left: 12px;
+  }
+  .dep-painel.dep-esquerda ~ .dep-botao,
+  .dep-ativo .dep-painel.dep-esquerda {
+    /* o botão "Enfeites" fica embaixo, o painel desce um pouco */
+  }
+  .dep-painel.dep-minimizado > :not(.dep-topo) {
+    display: none;
+  }
+  .dep-painel.dep-minimizado {
+    width: auto;
+  }
+  .dep-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .dep-topo button {
+    padding: 2px 8px !important;
+  }
+  .dep-painel h3 {
+    font: 700 13px/1.3 system-ui, sans-serif;
+    margin: 0 0 6px;
+    color: #222;
+  }
+  .dep-painel label {
+    display: block;
+    cursor: pointer;
+  }
+  .dep-painel code {
+    font: 11.5px ui-monospace, Consolas, monospace;
+    background: #f2f2f2;
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+  .dep-painel table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 6px 0;
+    font: 11.5px/1.4 ui-monospace, Consolas, monospace;
+  }
+  .dep-painel td {
+    padding: 1px 4px;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+  }
+  .dep-painel td:first-child {
+    color: #666;
+    white-space: nowrap;
+  }
+  .dep-painel .dep-vale {
+    background: #fff4c2;
+  }
+  .dep-painel .dep-acoes {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 6px 0;
+  }
+  .dep-painel button,
+  .dep-painel a.dep-link {
+    font: 600 11.5px system-ui, sans-serif;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid #0003;
+    background: #f7f7f7;
+    color: #222;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .dep-painel .dep-aviso {
+    color: #c00;
+  }
+  .dep-painel .dep-lista-cruzam a {
+    color: #c00;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .dep-painel hr {
+    border: 0;
+    border-top: 1px solid #eee;
+    margin: 8px 0;
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const CORES = [
+      "#d6336c", "#1971c2", "#2f9e44", "#e8590c",
+      "#7048e8", "#0c8599", "#c2255c", "#5c940d",
+    ];
+    const LIMITE_CELULAR = 720; // mesmo breakpoint do Enfeite.astro
+
+    // Celular ou desktop pela mesma regra de mídia do CSS. Largura da tela
+    // e 100vw medidos no CSS: no modo celular do DevTools, innerWidth pode
+    // vir maior que a tela quando algo passa da borda.
+    const MIDIA_CELULAR = matchMedia(`(max-width: ${LIMITE_CELULAR}px)`);
+    const ehCelular = () => MIDIA_CELULAR.matches;
+    const larguraTela = () => document.documentElement.clientWidth || innerWidth;
+    const regua = document.createElement("div");
+    regua.style.cssText = "position:fixed;left:0;top:0;width:100vw;height:0;visibility:hidden;pointer-events:none";
+    document.body.appendChild(regua);
+    const VW = () => regua.getBoundingClientRect().width || innerWidth;
+
+    let ativo = false;
+    let selecionado = null;
+    let camada, painel, info;
+    const html = document.documentElement;
+
+    // Ganchos para outra ferramenta se pendurar no depurador (avisos de
+    // quando ele liga/desliga, redesenha as caixas ou muda a seleção).
+    // Hoje nada usa; ficam aqui por serem baratos.
+    const ganchos = { aoAlternar: [], aoDesenhar: [], aoSelecionar: [] };
+    window.__enfeitesDep = {
+      ganchos,
+      get ativo() { return ativo; },
+      get enfeites() { return enfeites; },
+      get selecionado() { return selecionado; },
+      get painel() { return painel; },
+      desenhar: () => desenhar(),
+      selecionar: (e, rolar) => selecionar(e, rolar),
+      alternar: (forcar) => alternar(forcar),
+    };
+
+    // ---------------------------------------------------- botão fixo
+    const botao = document.createElement("button");
+    botao.type = "button";
+    botao.className = "dep-botao";
+    botao.textContent = "Enfeites";
+    botao.title = "Depurador de enfeites (tecla E)";
+    botao.addEventListener("click", () => alternar());
+    document.body.appendChild(botao);
+
+    document.addEventListener("keydown", (ev) => {
+      const alvo = ev.target;
+      const digitando =
+        alvo instanceof HTMLElement &&
+        (alvo.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(alvo.tagName));
+      if (digitando || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+      if (ev.key === "e" || ev.key === "E") alternar();
+      if (ev.key === "Escape" && ativo) selecionar(null);
+    });
+
+    function alternar(forcar) {
+      ativo = forcar ?? !ativo;
+      html.classList.toggle("dep-ativo", ativo);
+      const url = new URL(location.href);
+      if (ativo) url.searchParams.set("enfeites", "");
+      else url.searchParams.delete("enfeites");
+      history.replaceState(null, "", url.toString().replace("enfeites=", "enfeites"));
+
+      if (ativo) {
+        // Faz todos os enfeites brotarem já, sem esperar a rolagem.
+        document.querySelectorAll(".brota").forEach((el) => el.classList.add("visivel"));
+        montarPainel();
+        desenhar();
+        ganchos.aoAlternar.forEach((f) => f(true));
+      } else {
+        ganchos.aoAlternar.forEach((f) => f(false));
+        camada?.remove();
+        painel?.remove();
+        camada = painel = null;
+        selecionado = null;
+        html.classList.remove("dep-so-cruzam", "dep-sem-etiquetas", "dep-apagar-conteudo");
+      }
+    }
+
+    // ------------------------------------------------------- painel
+    function montarPainel() {
+      painel = document.createElement("div");
+      painel.className = "dep-painel";
+      painel.innerHTML = `
+        <div class="dep-topo"><h3>Depurador de enfeites</h3>
+          <span><button type="button" class="dep-lado" title="Levar o painel para o outro lado da tela">⇆</button>
+          <button type="button" class="dep-minimizar" title="Recolher / abrir">–</button></span></div>
+        <div class="dep-resumo"></div>
+        <label><input type="checkbox" data-op="dep-apagar-conteudo"> Apagar texto e ondas</label>
+        <label><input type="checkbox" data-op="dep-so-cruzam"> Só os que se cruzam</label>
+        <label><input type="checkbox" data-op="dep-sem-etiquetas"> Esconder etiquetas</label>
+        <div class="dep-lista-cruzam"></div>
+        <hr>
+        <div class="dep-info">Clique numa etiqueta para ver de onde o enfeite vem.
+          <br><small>Tecla <b>E</b> liga/desliga · <b>Esc</b> limpa a seleção</small></div>`;
+      painel.querySelectorAll("input[data-op]").forEach((cx) =>
+        cx.addEventListener("change", () => html.classList.toggle(cx.dataset.op, cx.checked)),
+      );
+      info = painel.querySelector(".dep-info");
+      // Painel em cima de um enfeite? Leva para o outro lado da tela.
+      try {
+        if (localStorage.getItem("dep-painel-lado") === "esquerda") painel.classList.add("dep-esquerda");
+      } catch {}
+      painel.querySelector(".dep-lado").addEventListener("click", () => {
+        const esquerda = painel.classList.toggle("dep-esquerda");
+        try { localStorage.setItem("dep-painel-lado", esquerda ? "esquerda" : "direita"); } catch {}
+      });
+      const minimizar = painel.querySelector(".dep-minimizar");
+      minimizar.addEventListener("click", () => {
+        const fechado = painel.classList.toggle("dep-minimizado");
+        minimizar.textContent = fechado ? "+" : "–";
+      });
+      document.body.appendChild(painel);
+    }
+
+    // ------------------------------------------------------ desenho
+    let enfeites = [];
+
+    function nomeSecao(secao) {
+      if (!secao) return "?";
+      return secao.id || [...secao.classList].filter((c) => !c.startsWith("astro-")).join(".");
+    }
+
+    function desenhar() {
+      if (!ativo) return;
+      camada?.remove();
+      camada = document.createElement("div");
+      camada.className = "dep-camada";
+
+      const celular = ehCelular();
+      const tela = larguraTela();
+      const secoes = [];
+      enfeites = [];
+
+      document.querySelectorAll(".enfeite").forEach((el) => {
+        if (getComputedStyle(el).display === "none") return;
+        const svg = el.querySelector("svg") || el;
+        const r = svg.getBoundingClientRect();
+        if (!r.width || !r.height) return;
+
+        const secao = el.closest("section, footer, header");
+        const rs = secao ? secao.getBoundingClientRect() : { left: 0, top: 0, right: tela, bottom: r.bottom, width: tela, height: 0 };
+        // Parte que aparece de fato: a seção corta o que passa dela.
+        // vaza: enfeite com vazar ligado na largura atual. continuacao: a
+        // cópia que o Enfeite.astro desenha na seção vizinha.
+        const recorte = el.closest(".recorte");
+        const vaza = recorte?.classList.contains(
+          celular ? "vaza-celular" : "vaza",
+        );
+        const continuacao = "continuacao" in el.dataset;
+        const vis = {
+          l: Math.max(r.left, rs.left, 0),
+          t: Math.max(r.top, rs.top),
+          r: Math.min(r.right, rs.right, tela),
+          b: Math.min(r.bottom, rs.bottom),
+        };
+        const visivel = vis.r > vis.l && vis.b > vis.t;
+        if (!visivel) return; // inteiro fora da seção: não aparece na tela
+
+        let iSecao = secoes.indexOf(secao);
+        if (iSecao === -1) iSecao = secoes.push(secao) - 1;
+
+        enfeites.push({
+          el, secao, iSecao, r, vis, rs, vaza, continuacao,
+          cortado: (vis.r - vis.l) * (vis.b - vis.t) < r.width * r.height * 0.9,
+          cruzaCom: [],
+        });
+      });
+
+      // Caixas que se cruzam (mesma seção). As caixas são retângulos em
+      // volta do desenho já girado, então é uma conta aproximada.
+      for (let a = 0; a < enfeites.length; a++) {
+        for (let b = a + 1; b < enfeites.length; b++) {
+          const A = enfeites[a], B = enfeites[b];
+          if (A.secao !== B.secao) continue;
+          const ix = Math.min(A.vis.r, B.vis.r) - Math.max(A.vis.l, B.vis.l);
+          const iy = Math.min(A.vis.b, B.vis.b) - Math.max(A.vis.t, B.vis.t);
+          if (ix <= 0 || iy <= 0) continue;
+          const areaA = (A.vis.r - A.vis.l) * (A.vis.b - A.vis.t);
+          const areaB = (B.vis.r - B.vis.l) * (B.vis.b - B.vis.t);
+          const parte = (ix * iy) / Math.min(areaA, areaB);
+          if (parte > 0.15) {
+            A.cruzaCom.push({ outro: B, parte });
+            B.cruzaCom.push({ outro: A, parte });
+          }
+        }
+      }
+
+      enfeites.forEach((e) => {
+        const cor = CORES[e.iSecao % CORES.length];
+        const caixa = document.createElement("div");
+        caixa.className = "dep-caixa";
+        caixa.style.setProperty("--dep-cor", cor);
+        Object.assign(caixa.style, {
+          left: `${e.r.left + scrollX}px`,
+          top: `${e.r.top + scrollY}px`,
+          width: `${e.r.width}px`,
+          height: `${e.r.height}px`,
+        });
+        if (e.cortado) caixa.classList.add("dep-cortada");
+        if (e.cruzaCom.length) caixa.classList.add("dep-encosta");
+
+        const etiqueta = document.createElement("div");
+        etiqueta.className = "dep-etiqueta";
+        etiqueta.style.setProperty("--dep-cor", cor);
+        const linha = e.el.dataset.linha ? ` :${e.el.dataset.linha}` : "";
+        const z = getComputedStyle(e.el).zIndex;
+        etiqueta.textContent =
+          `${e.el.dataset.origem}${linha} · ${e.el.dataset.forma}` +
+          (z !== "0" ? ` · z${z}` : "") +
+          (e.vaza ? " · vaza" : "") +
+          (e.continuacao ? " · continuação" : "");
+        if (e.cruzaCom.length) etiqueta.classList.add("dep-encosta-tag");
+        // A etiqueta vai no canto da parte visível, para não sumir fora
+        // da tela quando o enfeite sangra pela borda.
+        Object.assign(etiqueta.style, {
+          left: `${Math.min(e.vis.l, tela - 40) + scrollX}px`,
+          top: `${e.vis.t + scrollY}px`,
+        });
+        // Passar o mouse na etiqueta acende a caixa do enfeite dela.
+        etiqueta.addEventListener("mouseenter", () => caixa.classList.add("dep-realce"));
+        etiqueta.addEventListener("mouseleave", () => caixa.classList.remove("dep-realce"));
+        etiqueta.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          selecionar(e);
+        });
+
+        e.caixa = caixa;
+        e.etiqueta = etiqueta;
+        camada.append(caixa, etiqueta);
+      });
+
+      // A camada das caixas tem a largura da tela e corta o que passa
+      // dela. Sem isso, caixas de enfeites que sangram pela borda
+      // alargavam a página no celular (e o vw deixava de bater).
+      Object.assign(camada.style, {
+        width: `${tela}px`,
+        height: `${document.documentElement.scrollHeight}px`,
+        overflow: "hidden",
+      });
+      document.body.appendChild(camada);
+
+      // Etiqueta saindo da tela pela direita: encosta na borda. Depois,
+      // etiquetas que cairiam umas em cima das outras descem uma linha
+      // até achar lugar livre (enfeites vizinhos ficam legíveis).
+      const ocupadas = [];
+      [...enfeites]
+        .sort((a, b) => a.vis.t - b.vis.t || a.vis.l - b.vis.l)
+        .forEach((e) => {
+          const et = e.etiqueta;
+          const largura = et.offsetWidth;
+          const altura = et.offsetHeight;
+          let esq = parseFloat(et.style.left);
+          if (esq - scrollX + largura > tela - 4) {
+            esq = Math.max(4, tela - largura - 4) + scrollX;
+          }
+          let topo = parseFloat(et.style.top);
+          const cruza = (q) =>
+            esq < q.r && esq + largura > q.l && topo < q.b && topo + altura > q.t;
+          for (let tentativa = 0; tentativa < 12 && ocupadas.some(cruza); tentativa++) {
+            topo += altura + 2;
+          }
+          et.style.left = `${esq}px`;
+          et.style.top = `${topo}px`;
+          ocupadas.push({ l: esq, r: esq + largura, t: topo, b: topo + altura });
+        });
+
+      const cruzam = enfeites.filter((e) => e.cruzaCom.length);
+      painel.querySelector(".dep-resumo").innerHTML =
+        `<b>${enfeites.length}</b> enfeites visíveis · modo <b>${celular ? "celular" : "desktop"}</b> (${Math.round(VW())}px)` +
+        (cruzam.length ? ` · <span class="dep-aviso"><b>${cruzam.length}</b> se cruzam</span>` : " · nenhum se cruza");
+
+      // Lista dos pares que se cruzam, para achar rápido.
+      const pares = [];
+      enfeites.forEach((e) =>
+        e.cruzaCom.forEach(({ outro, parte }) => {
+          if (enfeites.indexOf(e) < enfeites.indexOf(outro)) pares.push([e, outro, parte]);
+        }),
+      );
+      const lista = painel.querySelector(".dep-lista-cruzam");
+      lista.innerHTML = pares.length ? "<hr><b>Caixas que se cruzam:</b><br>" : "";
+      pares.forEach(([a, b, parte]) => {
+        const item = document.createElement("div");
+        item.innerHTML = `<a>${a.el.dataset.origem}</a> × <a>${b.el.dataset.origem}</a> <small>(${Math.round(parte * 100)}%)</small>`;
+        const [la, lb] = item.querySelectorAll("a");
+        la.addEventListener("click", () => selecionar(a, true));
+        lb.addEventListener("click", () => selecionar(b, true));
+        lista.appendChild(item);
+      });
+
+      // Mantém a seleção depois de redesenhar.
+      if (selecionado) {
+        const mesmo = enfeites.find((e) => e.el === selecionado.el);
+        selecionar(mesmo || null);
+      }
+      ganchos.aoDesenhar.forEach((f) => f(enfeites));
+    }
+
+    // ------------------------------------------- explicar a camada
+    // Diz em português o que a camada (z-index) do enfeite está fazendo
+    // agora: na frente ou atrás da onda e do conteúdo, e se ele encosta
+    // em algum texto ou imagem. Se não encosta em nada, trocar a camada
+    // não muda nada visível naquele lugar e naquela largura de tela.
+    function descreverCamada(e, z) {
+      const caixaDe = (el) => el.getBoundingClientRect();
+      const cruza = (a, b) =>
+        Math.min(a.r, b.right) > Math.max(a.l, b.left) &&
+        Math.min(a.b, b.bottom) > Math.max(a.t, b.top);
+
+      const onda = e.secao?.querySelector(":scope > .onda");
+      const conteudo = e.secao?.querySelector(":scope > .conteudo");
+      const zOnda = onda ? Number(getComputedStyle(onda).zIndex) || 0 : null;
+      const zConteudo = conteudo ? Number(getComputedStyle(conteudo).zIndex) || 0 : null;
+
+      // Textos e imagens do conteúdo que a parte visível do enfeite cobre.
+      const pecas = conteudo
+        ? [...conteudo.querySelectorAll("h1,h2,h3,h4,p,li,a,button,img,svg,summary,blockquote,span")]
+            .filter((el) => !el.closest(".enfeite") && el.children.length === 0 || el.tagName === "IMG")
+            .filter((el) => { const r = caixaDe(el); return r.width && r.height && cruza(e.vis, r); })
+        : [];
+      const tocaOnda = onda && cruza(e.vis, caixaDe(onda));
+
+      const partes = [];
+      if (zOnda !== null) {
+        // Empate com a onda: o enfeite vem depois dela no HTML, então pinta por cima.
+        partes.push(z >= zOnda ? "na frente da onda" : "atrás da onda");
+      }
+      if (zConteudo !== null) {
+        partes.push(z > zConteudo ? "<b>na frente do texto</b>" : "atrás do texto e das imagens");
+      }
+      let msg = partes.join(", ") + ".";
+
+      if (z > (zConteudo ?? 2) && !pecas.length) {
+        msg += ` <span class="dep-aviso">Mas agora ele não encosta em nenhum texto ou imagem, então a camada não muda nada visível aqui.</span>`;
+      } else if (pecas.length) {
+        msg += ` Encosta em ${pecas.length} ${pecas.length === 1 ? "pedaço" : "pedaços"} de conteúdo.`;
+      } else if (!tocaOnda) {
+        msg += ` Não encosta em texto, imagem nem onda: trocar a camada não muda nada visível aqui.`;
+      }
+      msg += e.continuacao
+        ? ` <small>Esta é a continuação de um enfeite com vazar da seção vizinha: aqui ele segue a mesma camada, em relação à onda e ao texto desta seção.</small>`
+        : e.vaza
+          ? ` <small>Com vazar, o pedaço que passa da borda continua na seção vizinha, na mesma camada.</small>`
+          : ` <small>A camada vale dentro da própria seção. Para o desenho continuar na seção vizinha em vez de ser cortado, use <code>vazar: true</code>.</small>`;
+      return msg;
+    }
+
+    // --------------------------------------------------- selecionar
+    function selecionar(e, rolar = false) {
+      document.querySelectorAll(".dep-selecionada").forEach((x) => x.classList.remove("dep-selecionada"));
+      selecionado = e;
+      if (!info) return;
+      if (!e) {
+        info.innerHTML = "Clique numa etiqueta para ver de onde o enfeite vem.";
+        ganchos.aoSelecionar.forEach((f) => f(null));
+        return;
+      }
+      e.caixa.classList.add("dep-selecionada");
+      painel.classList.remove("dep-minimizado");
+      painel.querySelector(".dep-minimizar").textContent = "–";
+      e.etiqueta.classList.add("dep-selecionada");
+      // Rola a janela até o enfeite (scrollIntoView não funciona bem com
+      // as caixas, que ficam numa camada de tamanho zero).
+      if (rolar) {
+        const q = e.caixa.getBoundingClientRect();
+        scrollTo({ top: q.top + scrollY - innerHeight / 2 + q.height / 2, behavior: "smooth" });
+      }
+
+      const d = e.el.dataset;
+      const celular = ehCelular();
+      let props = {};
+      try { props = JSON.parse(d.props || "{}"); } catch {}
+
+      const local = d.arquivo ? `${d.arquivo}:${d.linha ?? ""}` : null;
+      const vscode = d.caminho ? `vscode://file/${encodeURI(d.caminho.replace(/^\/+/, ""))}:${d.linha ?? 1}` : null;
+
+      const linhasProps = Object.entries(props)
+        .map(([k, v]) => {
+          const ehMobile = /Mobile$/.test(k);
+          const vale = celular ? props.noCelular && ehMobile : !ehMobile;
+          return `<tr class="${vale && ehMobile ? "dep-vale" : ""}"><td>${k}</td><td>${JSON.stringify(v)}</td></tr>`;
+        })
+        .join("");
+
+      // As props topo/esquerda/tamanho em % valem sobre a caixa onde o
+      // enfeite está posicionado (a seção, ou a ilustração no "Para
+      // quem"), então as medidas usam essa mesma caixa.
+      // A caixa .recorte tem o mesmo tamanho do bloco onde o enfeite
+      // está; para o nome, sobe até esse bloco.
+      let pai = e.el.offsetParent || e.secao;
+      if (pai.classList?.contains("recorte")) pai = pai.offsetParent || e.secao;
+      const rs = pai.getBoundingClientRect();
+      const px = (n) => `${Math.round(n)}px`;
+      const pct = (n, total) => (total ? `${((n / total) * 100).toFixed(1)}%` : "");
+      const vw = (n) => `${((n / VW()) * 100).toFixed(1)}vw`;
+      const esq = e.r.left - rs.left;
+      const topo = e.r.top - rs.top;
+      const estilo = getComputedStyle(e.el);
+      const camadaInfo = descreverCamada(e, Number(estilo.zIndex) || 0);
+
+      info.innerHTML = `
+        <h3>${d.origem} · ${d.forma}</h3>
+        ${local ? `<div><code>${local}</code></div>` : `<div class="dep-aviso">Sem origem: esse enfeite foi escrito direto num componente, fora de uma lista.</div>`}
+        <div class="dep-acoes">
+          ${vscode ? `<a class="dep-link" href="${vscode}">Abrir no VS Code</a>` : ""}
+          ${local ? `<button type="button" data-copiar="${local}">Copiar local</button>` : ""}
+          <button type="button" data-copiar='${JSON.stringify(props).replaceAll("'", "&#39;")}'>Copiar props</button>
+        </div>
+        ${e.cruzaCom.length ? `<div class="dep-aviso">Cruza com: ${e.cruzaCom.map((c) => c.outro.el.dataset.origem).join(", ")}</div>` : ""}
+        ${e.vaza ? `<div><small><b>vazar</b> ligado: o pedaço que passa da borda continua na seção vizinha.</small></div>` : ""}
+        ${e.continuacao ? `<div><small>Esta caixa é a <b>continuação</b> de um enfeite com vazar da seção vizinha. Para mudar, edite o original (mesmo arquivo e linha).</small></div>` : ""}
+        ${e.cortado ? `<div><small>${
+          !e.vaza && !e.continuacao && (e.r.top < e.rs.top - 1 || e.r.bottom > e.rs.bottom + 1)
+            ? "Parte do desenho é cortada na borda da seção. Para não cortar em cima ou embaixo, use <code>vazar: true</code>."
+            : e.vaza || e.continuacao
+              ? "A parte cortada aqui aparece na seção vizinha (vazar)."
+              : "Parte do desenho fica fora da tela, pelas laterais (isso o vazar não muda)."
+        }</small></div>` : ""}
+        <table>
+          <tr><td colspan="2"><b>Agora na tela</b> (dentro de <code>${pai === e.secao ? nomeSecao(pai) : nomeSecao(e.secao) + " › " + (pai.className.split(" ")[0] || pai.tagName.toLowerCase())}</code>)</td></tr>
+          <tr><td>esquerda</td><td>${px(esq)} · ${pct(esq, rs.width)} · ${vw(esq)}</td></tr>
+          <tr><td>topo</td><td>${px(topo)} · ${pct(topo, rs.height)} · ${vw(topo)}</td></tr>
+          <tr><td>tamanho</td><td>${px(e.r.width)} · ${vw(e.r.width)}</td></tr>
+          <tr><td>z-index</td><td>${estilo.zIndex}</td></tr>
+          <tr><td>camada</td><td style="font-family:system-ui">${camadaInfo}</td></tr>
+        </table>
+        <table>
+          <tr><td colspan="2"><b>Props</b> ${celular ? "<small>(amarelo = vale agora no celular)</small>" : ""}</td></tr>
+          ${linhasProps}
+        </table>
+        <small>O tamanho e a posição medem a caixa do desenho já girado, por isso podem passar um pouco do valor da prop.</small>`;
+
+      info.querySelectorAll("[data-copiar]").forEach((b) =>
+        b.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(b.dataset.copiar);
+            const antes = b.textContent;
+            b.textContent = "Copiado!";
+            setTimeout(() => (b.textContent = antes), 1200);
+          } catch {
+            prompt("Copie:", b.dataset.copiar);
+          }
+        }),
+      );
+      ganchos.aoSelecionar.forEach((f) => f(e));
+    }
+
+    // ------------------------------------------- refazer quando muda
+    let espera;
+    const refazer = () => {
+      if (!ativo) return;
+      clearTimeout(espera);
+      espera = setTimeout(desenhar, 150);
+    };
+    addEventListener("resize", refazer);
+    new ResizeObserver(refazer).observe(document.body);
+    document.addEventListener("click", (ev) => {
+      if (ativo && !ev.target.closest(".dep-painel, .dep-etiqueta, .dep-botao")) refazer();
+    });
+
+    if (new URLSearchParams(location.search).has("enfeites")) {
+      addEventListener("load", () => alternar(true));
+    }
+  })();
+</script>

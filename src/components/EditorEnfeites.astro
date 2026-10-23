@@ -1,0 +1,931 @@
+---
+// =========================================================================
+// MODO DE EDIÇÃO DOS ENFEITES
+//
+// Ferramenta só do modo dev (npm run dev), pendurada no depurador de
+// enfeites (DepuradorEnfeites.astro). Não entra no site publicado.
+//
+// Como usar:
+//   1. Tecla E (ou botão "Enfeites") abre o depurador.
+//   2. Marque "Modo edição" no painel.
+//   3. Arraste a caixa de um enfeite para mover. Alt + rodinha do mouse
+//      muda o tamanho. Setas movem 1px (Shift + seta: 10px).
+//   4. No painel ajuste tamanho, giro, opacidade, camada, vazar e se o
+//      enfeite aparece no celular.
+//   5. "Salvar no código" grava tudo nos arquivos. O que não der para
+//      gravar sozinho vai para a "lista de mudanças", para copiar e
+//      fazer à mão.
+//
+// Celular e desktop: o modo segue a largura da tela. Até 720px tudo o que
+// você muda vai para as props do celular (topoMobile, tamanhoMobile,
+// opacidadeMobile...); acima disso, para as do desktop (topo, tamanho,
+// opacidade...). Use o modo celular do DevTools para editar o celular.
+//
+// As mudanças ainda não salvas ficam guardadas nesta aba do navegador:
+// recarregar a página não perde nada até você salvar ou descartar.
+// =========================================================================
+---
+
+<style is:inline>
+  .dep-editando .dep-caixa {
+    pointer-events: auto;
+    cursor: move;
+    touch-action: none;
+  }
+  .dep-editando .dep-etiqueta {
+    cursor: move;
+    touch-action: none;
+  }
+  .dep-ed {
+    margin: 8px 0 2px;
+    padding: 8px;
+    border-radius: 8px;
+    background: #f5f3ff;
+    border: 1px solid #d9d2ff;
+  }
+  .dep-ed-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .dep-ed-modo {
+    font: 700 10.5px/1 system-ui, sans-serif;
+    padding: 3px 6px;
+    border-radius: 99px;
+    background: #222;
+    color: #fff;
+    letter-spacing: 0.04em;
+  }
+  .dep-ed-modo.celular {
+    background: #d6336c;
+  }
+  .dep-ed small {
+    color: #555;
+  }
+  .dep-ed-form {
+    margin-top: 6px;
+  }
+  .dep-ed-form h4 {
+    margin: 4px 0;
+    font: 700 12px/1.3 system-ui, sans-serif;
+  }
+  .dep-ed-campo {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    align-items: center;
+    gap: 6px;
+    margin: 4px 0;
+  }
+  .dep-ed-campo > span:first-child {
+    color: #555;
+    font-size: 11.5px;
+  }
+  .dep-ed-campo code {
+    font-size: 10.5px;
+  }
+  .dep-ed-campo input[type="number"] {
+    width: 72px;
+    font: 12px ui-monospace, Consolas, monospace;
+    padding: 2px 4px;
+  }
+  .dep-ed-campo select {
+    font: 11px system-ui, sans-serif;
+    padding: 1px 2px;
+  }
+  .dep-ed-campo input[type="range"] {
+    width: 110px;
+    vertical-align: middle;
+  }
+  .dep-ed-alterado {
+    background: #fff4c2;
+    border-radius: 4px;
+  }
+  .dep-ed-pendentes {
+    margin-top: 8px;
+    border-top: 1px solid #d9d2ff;
+    padding-top: 6px;
+  }
+  .dep-ed-pendentes a {
+    cursor: pointer;
+    text-decoration: underline;
+    color: #3b2bb5;
+  }
+  .dep-ed-pendentes textarea {
+    width: 100%;
+    height: 140px;
+    font: 11px/1.35 ui-monospace, Consolas, monospace;
+    margin-top: 6px;
+  }
+  .dep-ed-ok {
+    color: #2f7d32;
+  }
+  .dep-ed-erro {
+    color: #c00;
+  }
+  .dep-ed-primario {
+    background: #3b2bb5 !important;
+    color: #fff !important;
+    border-color: #3b2bb5 !important;
+  }
+  .dep-botao .dep-ed-contador {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 99px;
+    background: #d6336c;
+    color: #fff;
+    font-size: 11px;
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const dep = window.__enfeitesDep;
+    if (!dep) return;
+
+    const LIMITE_CELULAR = 720; // mesmo breakpoint do Enfeite.astro
+    const CHAVE_EDITANDO = "enfeites-editando";
+    const CHAVE_PENDENTES = "enfeites-pendentes";
+    const CHAVE_AVISO = "enfeites-aviso"; // recado que sobrevive ao recarregar
+    const html = document.documentElement;
+    // Celular ou desktop: a mesma regra de mídia do CSS (não innerWidth,
+    // que no modo celular do DevTools pode vir maior que a tela).
+    const MIDIA_CELULAR = matchMedia(`(max-width: ${LIMITE_CELULAR}px)`);
+    const celular = () => MIDIA_CELULAR.matches;
+
+    // Quanto vale 100vw e 100vh em px, medido no próprio CSS. innerWidth
+    // não serve: quando algo passa da borda da tela, o navegador do
+    // celular "alarga" a página e innerWidth cresce, mas o vw não.
+    const regua = document.createElement("div");
+    regua.style.cssText =
+      "position:fixed;left:0;top:0;width:100vw;height:100vh;visibility:hidden;pointer-events:none;z-index:-1";
+    document.body.appendChild(regua);
+    const VW = () => regua.getBoundingClientRect().width || innerWidth;
+    const VH = () => regua.getBoundingClientRect().height || innerHeight;
+    const tem = (v) => v !== null && v !== undefined && v !== "";
+    const arred = (n) => Math.round(n * 10) / 10;
+
+    let editando = false;
+    let vaga = null; // div do editor dentro do painel
+    let ultimoRender = null; // elemento mostrado no formulário
+    let recado = ""; // aviso do último salvamento, mostrado uma vez
+
+    // ------------------------------------------------------ estado
+    // Uma entrada por enfeite alterado:
+    //   chave -> { el, base: {estilo, classeEl, classeRecorte}, props: {} }
+    const pendentes = new Map();
+
+    const sessao = {
+      ler(chave) {
+        try { return sessionStorage.getItem(chave); } catch { return null; }
+      },
+      gravar(chave, valor) {
+        try {
+          if (valor === null) sessionStorage.removeItem(chave);
+          else sessionStorage.setItem(chave, valor);
+        } catch {}
+      },
+    };
+
+    // ---------------------------------------------- quem é quem
+    const chaveDe = (el) => `${el.dataset.arquivo || "?"}|${el.dataset.origem}`;
+
+    function originais() {
+      return [...document.querySelectorAll(".enfeite[data-origem]")].filter(
+        (el) => !("continuacao" in el.dataset),
+      );
+    }
+
+    // A caixa de uma "continuação" (cópia do vazar) leva ao enfeite real.
+    function original(el) {
+      if (!el || !("continuacao" in el.dataset)) return el;
+      return originais().find((o) => chaveDe(o) === chaveDe(el)) || null;
+    }
+
+    function infoDe(el) {
+      const m = /^([A-Za-z_$][\w$]*)(?:\[(\d+)\])?$/.exec(el.dataset.origem || "");
+      return {
+        arquivo: el.dataset.arquivo || null,
+        rotulo: el.dataset.origem,
+        linha: el.dataset.linha || null,
+        nome: m ? m[1] : null,
+        indice: m && m[2] !== undefined ? Number(m[2]) : null,
+        repetido: originais().filter((o) => chaveDe(o) === chaveDe(el)).length > 1,
+      };
+    }
+
+    const propsOriginais = (el) => {
+      try { return JSON.parse(el.dataset.props || "{}"); } catch { return {}; }
+    };
+
+    // Props valendo agora: as do código mais as mudanças ainda não salvas.
+    const propsAtuais = (el) => ({
+      ...propsOriginais(el),
+      ...(pendentes.get(chaveDe(el))?.props || {}),
+    });
+
+    // -------------------------------------- props -> visual (prévia)
+    // A prévia usa as mesmas variáveis CSS que o Enfeite.astro escreve.
+    // Assim o próprio CSS decide o que vale no celular e no desktop.
+    const VARIAVEL = {
+      topo: "--topo", baixo: "--baixo", esquerda: "--esquerda", direita: "--direita",
+      tamanho: "--tamanho", camada: "--camada", opacidade: "--opacidade", giro: "--giro",
+      topoMobile: "--topo-mobile", baixoMobile: "--baixo-mobile",
+      esquerdaMobile: "--esquerda-mobile", direitaMobile: "--direita-mobile",
+      tamanhoMobile: "--tamanho-mobile", camadaMobile: "--camada-mobile",
+      opacidadeMobile: "--opacidade-mobile", giroMobile: "--giro-mobile",
+    };
+    const MEDIDA = /^(topo|baixo|esquerda|direita|tamanho)(Mobile)?$/;
+
+    function aplicar(el, chave, valor) {
+      const s = el.style;
+      const recorte = el.closest(".recorte");
+      if (chave === "vazar") {
+        recorte?.classList.toggle("vaza", !!valor);
+        // Sem vazarMobile próprio, o celular segue o desktop.
+        if (!tem(propsAtuais(el).vazarMobile)) recorte?.classList.toggle("vaza-celular", !!valor);
+        return;
+      }
+      if (chave === "vazarMobile") {
+        recorte?.classList.toggle("vaza-celular", !!valor);
+        return;
+      }
+      if (chave === "noCelular") {
+        el.classList.toggle("no-celular", !!valor);
+        return;
+      }
+      const variavel = VARIAVEL[chave];
+      if (!variavel) return;
+      let css = valor;
+      if (MEDIDA.test(chave) && typeof valor === "number") css = `${valor}px`;
+      if (/^giro/.test(chave)) css = `${valor}deg`;
+      s.setProperty(variavel, String(css));
+
+      // A âncora oposta sai do caminho (como o Enfeite.astro faz).
+      if (chave === "baixo") s.setProperty("--topo", "auto");
+      if (chave === "direita") s.removeProperty("--esquerda");
+      if (chave === "topoMobile") s.setProperty("--baixo-mobile", "auto");
+      if (chave === "baixoMobile") s.setProperty("--topo-mobile", "auto");
+      if (chave === "esquerdaMobile") s.setProperty("--direita-mobile", "auto");
+      if (chave === "direitaMobile") s.setProperty("--esquerda-mobile", "auto");
+    }
+
+    const remontarVazados = () =>
+      document.dispatchEvent(new Event("enfeites:remontar"));
+
+    // Guarda as mudanças de um enfeite e mostra na tela.
+    function registrar(el, mudancas, { redesenhar = true } = {}) {
+      const chave = chaveDe(el);
+      let p = pendentes.get(chave);
+      if (!p) {
+        p = {
+          el,
+          base: {
+            estilo: el.getAttribute("style") || "",
+            classeEl: el.className,
+            classeRecorte: el.closest(".recorte")?.className || "",
+          },
+          props: {},
+        };
+        pendentes.set(chave, p);
+      }
+      const orig = propsOriginais(el);
+      for (const [k, v] of Object.entries(mudancas)) {
+        // Voltou ao valor do código: deixa de ser mudança.
+        if (orig[k] === v) delete p.props[k];
+        else p.props[k] = v;
+        aplicar(el, k, v);
+      }
+      if (!Object.keys(p.props).length) desfazer(el, { redesenhar: false });
+      salvarSessao();
+      if (redesenhar) {
+        remontarVazados();
+        dep.desenhar();
+        renderPendentes();
+      }
+    }
+
+    function desfazer(el, { redesenhar = true } = {}) {
+      const p = pendentes.get(chaveDe(el));
+      if (!p) return;
+      el.setAttribute("style", p.base.estilo);
+      el.className = p.base.classeEl;
+      const recorte = el.closest(".recorte");
+      if (recorte) recorte.className = p.base.classeRecorte;
+      pendentes.delete(chaveDe(el));
+      salvarSessao();
+      if (redesenhar) {
+        remontarVazados();
+        dep.desenhar();
+        renderPendentes();
+        ultimoRender = null;
+        renderForm(dep.selecionado);
+      }
+    }
+
+    function salvarSessao() {
+      const lista = [...pendentes.entries()].map(([chave, p]) => ({ chave, props: p.props }));
+      sessao.gravar(CHAVE_PENDENTES, lista.length ? JSON.stringify(lista) : null);
+      atualizarContador();
+    }
+
+    function restaurarSessao() {
+      let lista = [];
+      try { lista = JSON.parse(sessao.ler(CHAVE_PENDENTES) || "[]"); } catch {}
+      const todos = originais();
+      for (const { chave, props } of lista) {
+        const el = todos.find((o) => chaveDe(o) === chave);
+        if (el) registrar(el, props, { redesenhar: false });
+      }
+      if (lista.length) remontarVazados();
+    }
+
+    function atualizarContador() {
+      const botao = document.querySelector(".dep-botao");
+      if (!botao) return;
+      botao.querySelector(".dep-ed-contador")?.remove();
+      if (pendentes.size) {
+        const c = document.createElement("span");
+        c.className = "dep-ed-contador";
+        c.textContent = `${pendentes.size} não salvo${pendentes.size > 1 ? "s" : ""}`;
+        botao.appendChild(c);
+      }
+    }
+
+    // ---------------------------------------------- medidas e âncoras
+    // Qual borda segura o enfeite (topo ou baixo, esquerda ou direita)
+    // e qual prop recebe a mudança no modo atual.
+    function ancoras(p, cel) {
+      const vDesk = tem(p.topo) || !tem(p.baixo) ? "topo" : "baixo";
+      const hDesk = tem(p.esquerda) || !tem(p.direita) ? "esquerda" : "direita";
+      const v = !cel ? vDesk : tem(p.topoMobile) ? "topo" : tem(p.baixoMobile) ? "baixo" : vDesk;
+      const h = !cel ? hDesk : tem(p.esquerdaMobile) ? "esquerda" : tem(p.direitaMobile) ? "direita" : hDesk;
+      const chaveV = cel ? `${v}Mobile` : v;
+      const chaveH = cel ? `${h}Mobile` : h;
+      return {
+        v, h, chaveV, chaveH,
+        valorV: (cel ? p[chaveV] ?? p[v] : p[v]) ?? (v === "topo" ? "10%" : "0px"),
+        valorH: (cel ? p[chaveH] ?? p[h] : p[h]) ?? "0%",
+      };
+    }
+
+    function unidadeDe(v) {
+      if (typeof v === "number") return "num";
+      const s = String(v);
+      const m = /^\s*(-?[\d.]+)\s*(vw|vh|%|px)\s*$/.exec(s);
+      if (m) return m[2];
+      // Expressões (calc, min, clamp): % ganha, porque calc(100% - 1vw)
+      // é sobretudo uma posição relativa à caixa.
+      if (/%/.test(s)) return "%";
+      if (/vw/.test(s)) return "vw";
+      if (/vh/.test(s)) return "vh";
+      return "px";
+    }
+
+    // px -> valor na mesma unidade da prop (vw, % da caixa, px).
+    function converter(px, unidade, base) {
+      if (unidade === "num") return Math.round(px);
+      if (unidade === "px") return `${Math.round(px)}px`;
+      if (unidade === "vw") return `${arred((px / VW()) * 100)}vw`;
+      if (unidade === "vh") return `${arred((px / VH()) * 100)}vh`;
+      return `${arred(base ? (px / base) * 100 : 0)}%`;
+    }
+    const numeroDe = (v) => (typeof v === "number" ? v : parseFloat(v));
+    // px <-> número na unidade (para os campos do formulário).
+    const paraNumero = (px, u, base) =>
+      u === "num" || u === "px" ? Math.round(px)
+      : u === "vw" ? arred((px / VW()) * 100)
+      : u === "vh" ? arred((px / VH()) * 100)
+      : arred(base ? (px / base) * 100 : 0);
+    const paraPx = (n, u, base) =>
+      u === "num" || u === "px" ? n
+      : u === "vw" ? (n / 100) * VW()
+      : u === "vh" ? (n / 100) * VH()
+      : (n / 100) * base;
+
+    function medidas(el) {
+      const caixa = el.offsetParent;
+      return {
+        W: caixa?.offsetWidth || VW(),
+        H: caixa?.offsetHeight || 1,
+        topo: el.offsetTop,
+        esq: el.offsetLeft,
+        w: el.offsetWidth,
+        h: el.offsetHeight,
+      };
+    }
+
+    // Posição (px dentro da caixa) -> props na unidade de cada uma.
+    function propsDePosicao(el, topoPx, esqPx, larguraPx = null, alturaPx = null) {
+      const p = propsAtuais(el);
+      const cel = celular();
+      const a = ancoras(p, cel);
+      const m = medidas(el);
+      const w = larguraPx ?? m.w;
+      const h = alturaPx ?? m.h;
+      const pxV = a.v === "topo" ? topoPx : m.H - topoPx - h;
+      const pxH = a.h === "esquerda" ? esqPx : m.W - esqPx - w;
+      return {
+        [a.chaveV]: converter(pxV, unidadeDe(a.valorV), m.H),
+        [a.chaveH]: converter(pxH, unidadeDe(a.valorH), m.W),
+      };
+    }
+
+    // Prévia durante o arraste: px direto nas variáveis do modo atual.
+    function moverPx(el, topoPx, esqPx) {
+      const p = propsAtuais(el);
+      const a = ancoras(p, celular());
+      const m = medidas(el);
+      aplicar(el, a.chaveV, a.v === "topo" ? topoPx : m.H - topoPx - m.h);
+      aplicar(el, a.chaveH, a.h === "esquerda" ? esqPx : m.W - esqPx - m.w);
+    }
+
+    // Novo tamanho mantendo o centro do desenho no lugar.
+    function redimensionar(el, novaLarguraPx) {
+      const p = propsAtuais(el);
+      const cel = celular();
+      const chaveT = cel ? "tamanhoMobile" : "tamanho";
+      const unidade = unidadeDe((cel ? p.tamanhoMobile ?? p.tamanho : p.tamanho) ?? 48);
+      const m = medidas(el);
+      const cx = m.esq + m.w / 2;
+      const cy = m.topo + m.h / 2;
+      const largura = Math.max(6, novaLarguraPx);
+      aplicar(el, chaveT, `${largura}px`);
+      const h = el.offsetHeight;
+      registrar(el, {
+        [chaveT]: converter(largura, unidade, m.W),
+        ...propsDePosicao(el, cy - h / 2, cx - largura / 2, largura, h),
+      });
+    }
+
+    // --------------------------------------------------- arrastar
+    let arraste = null;
+    let engolirClique = false;
+
+    function entradaDoAlvo(alvo) {
+      const item = alvo.closest(".dep-caixa, .dep-etiqueta");
+      if (!item) return null;
+      return dep.enfeites.find((e) => e.caixa === item || e.etiqueta === item) || null;
+    }
+
+    document.addEventListener(
+      "pointerdown",
+      (ev) => {
+        if (!editando || ev.button !== 0) return;
+        let e = entradaDoAlvo(ev.target);
+        if (!e) return;
+        // Caixas e etiquetas se sobrepõem: se o ponteiro está dentro da
+        // caixa do enfeite já selecionado, é ele que vai ser arrastado.
+        const sel = dep.selecionado;
+        if (sel && sel !== e && sel.caixa?.isConnected) {
+          const q = sel.caixa.getBoundingClientRect();
+          if (ev.clientX >= q.left && ev.clientX <= q.right && ev.clientY >= q.top && ev.clientY <= q.bottom) e = sel;
+        }
+        const el = original(e.el);
+        if (!el || !el.offsetParent) return;
+        ev.preventDefault();
+        arraste = {
+          e, el, x0: ev.clientX, y0: ev.clientY,
+          topo0: el.offsetTop, esq0: el.offsetLeft, moveu: false,
+        };
+        ev.target.setPointerCapture?.(ev.pointerId);
+      },
+      true,
+    );
+
+    document.addEventListener("pointermove", (ev) => {
+      if (!arraste) return;
+      const dx = ev.clientX - arraste.x0;
+      const dy = ev.clientY - arraste.y0;
+      if (!arraste.moveu && Math.hypot(dx, dy) < 3) return;
+      arraste.moveu = true;
+      moverPx(arraste.el, arraste.topo0 + dy, arraste.esq0 + dx);
+      // Caixas acompanham sem redesenhar tudo a cada pixel.
+      for (const q of [arraste.e.caixa, arraste.e.etiqueta]) q.style.translate = `${dx}px ${dy}px`;
+    });
+
+    document.addEventListener("pointerup", (ev) => {
+      if (!arraste) return;
+      const { e, el, moveu, x0, y0, topo0, esq0 } = arraste;
+      arraste = null;
+      if (!moveu) {
+        dep.selecionar(e);
+        return;
+      }
+      engolirClique = true;
+      setTimeout(() => (engolirClique = false), 50);
+      registrar(el, propsDePosicao(el, topo0 + (ev.clientY - y0), esq0 + (ev.clientX - x0)));
+      const nova = dep.enfeites.find((x) => x.el === e.el);
+      if (nova) dep.selecionar(nova);
+    });
+
+    // O clique que encerra um arraste não deve virar "selecionar".
+    document.addEventListener(
+      "click",
+      (ev) => {
+        if (engolirClique && ev.target.closest(".dep-caixa, .dep-etiqueta")) {
+          ev.stopPropagation();
+          ev.preventDefault();
+        }
+      },
+      true,
+    );
+
+    // Alt + rodinha em cima da caixa: tamanho.
+    document.addEventListener(
+      "wheel",
+      (ev) => {
+        if (!editando || !ev.altKey) return;
+        const e = entradaDoAlvo(ev.target);
+        if (!e) return;
+        const el = original(e.el);
+        if (!el) return;
+        ev.preventDefault();
+        const fator = ev.deltaY < 0 ? 1.05 : 1 / 1.05;
+        redimensionar(el, el.offsetWidth * fator);
+      },
+      { passive: false },
+    );
+
+    // Setas: move o selecionado.
+    document.addEventListener("keydown", (ev) => {
+      if (!editando || !dep.selecionado) return;
+      const alvo = ev.target;
+      if (alvo instanceof HTMLElement && /^(INPUT|TEXTAREA|SELECT)$/.test(alvo.tagName)) return;
+      const passo = ev.shiftKey ? 10 : 1;
+      const d = { ArrowUp: [0, -passo], ArrowDown: [0, passo], ArrowLeft: [-passo, 0], ArrowRight: [passo, 0] }[ev.key];
+      if (!d) return;
+      ev.preventDefault();
+      const el = original(dep.selecionado.el);
+      if (!el) return;
+      registrar(el, propsDePosicao(el, el.offsetTop + d[1], el.offsetLeft + d[0]));
+    });
+
+    // ------------------------------------------------------- painel
+    function montarVaga() {
+      const lugar = dep.painel?.querySelector(".dep-editor-vaga");
+      if (!lugar) return;
+      lugar.innerHTML = `
+        <div class="dep-ed">
+          <div class="dep-ed-topo">
+            <label><input type="checkbox" class="dep-ed-liga"> <b>Modo edição</b></label>
+            <span class="dep-ed-modo"></span>
+          </div>
+          <div class="dep-ed-corpo">
+            <small>Arraste a caixa de um enfeite para mover · <b>Alt + rodinha</b> muda o tamanho · <b>setas</b> movem 1px (Shift: 10px)</small>
+            <div class="dep-ed-form"></div>
+            <div class="dep-ed-escondidos"></div>
+            <div class="dep-ed-pendentes"></div>
+          </div>
+        </div>`;
+      vaga = lugar;
+      const liga = lugar.querySelector(".dep-ed-liga");
+      liga.checked = editando;
+      liga.addEventListener("change", () => ligarEdicao(liga.checked));
+      atualizarModo();
+      // Recado do último salvamento (a página recarregou depois dele):
+      // aparece na próxima vez que a lista de mudanças for desenhada.
+      recado = sessao.ler(CHAVE_AVISO) || "";
+      sessao.gravar(CHAVE_AVISO, null);
+      renderPendentes();
+      renderForm(dep.selecionado);
+    }
+
+    function atualizarModo() {
+      if (!vaga) return;
+      const etiqueta = vaga.querySelector(".dep-ed-modo");
+      const cel = celular();
+      const largura = Math.round(VW());
+      etiqueta.textContent = cel ? `CELULAR · ${largura}px` : `DESKTOP · ${largura}px`;
+      etiqueta.classList.toggle("celular", cel);
+      etiqueta.title = cel
+        ? "Até 720px: as mudanças vão para topoMobile, tamanhoMobile, opacidadeMobile..."
+        : "Acima de 720px: as mudanças vão para topo, tamanho, opacidade...";
+      vaga.querySelector(".dep-ed-corpo").style.display = editando ? "" : "none";
+    }
+
+    function ligarEdicao(sim) {
+      editando = sim;
+      html.classList.toggle("dep-editando", sim);
+      sessao.gravar(CHAVE_EDITANDO, sim ? "1" : null);
+      ultimoRender = null;
+      const liga = vaga?.querySelector(".dep-ed-liga");
+      if (liga) liga.checked = sim;
+      atualizarModo();
+      renderForm(dep.selecionado);
+      renderEscondidos();
+      renderPendentes();
+    }
+
+    // Formulário do enfeite selecionado, no modo (celular/desktop) atual.
+    function renderForm(entrada) {
+      if (!vaga || !editando) return;
+      const caixa = vaga.querySelector(".dep-ed-form");
+      const el = entrada ? original(entrada.el) : null;
+      // Não refaz o formulário enquanto você digita nele.
+      if (el && el === ultimoRender && caixa.contains(document.activeElement)) return;
+      ultimoRender = el;
+      if (!el) {
+        caixa.innerHTML = `<small>Clique numa caixa ou etiqueta para editar o enfeite.</small>`;
+        return;
+      }
+
+      const cel = celular();
+      const p = propsAtuais(el);
+      const orig = propsOriginais(el);
+      const info = infoDe(el);
+      const m = medidas(el);
+      const a = ancoras(p, cel);
+      const pend = pendentes.get(chaveDe(el))?.props || {};
+      const sufixo = cel ? "Mobile" : "";
+      const valor = (k, padrao) => (cel ? p[`${k}Mobile`] ?? p[k] : p[k]) ?? padrao;
+
+      const uT = unidadeDe(valor("tamanho", 48));
+      const numT = paraNumero(m.w, uT, m.W);
+      const uV = unidadeDe(a.valorV);
+      const pxV = a.v === "topo" ? m.topo : m.H - m.topo - m.h;
+      const numV = paraNumero(pxV, uV, m.H);
+      const uH = unidadeDe(a.valorH);
+      const pxH = a.h === "esquerda" ? m.esq : m.W - m.esq - m.w;
+      const numH = paraNumero(pxH, uH, m.W);
+      // Seletor de unidade: trocar converte o valor e mantém o enfeite no
+      // mesmo lugar. Em seções que mudam de altura (FAQ abrindo) o % do
+      // topo muda junto; vw não.
+      const seletor = (alvo, u) => {
+        const opcoes = ["vw", "%", "px", ...(u === "vh" ? ["vh"] : [])];
+        const atual = u === "num" ? "px" : u;
+        return `<select data-unidade="${alvo}">${opcoes.map((o) => `<option ${o === atual ? "selected" : ""}>${o}</option>`).join("")}</select>`;
+      };
+
+      const giro = numeroDe(valor("giro", 0)) || 0;
+      const opac = numeroDe(valor("opacidade", 1));
+      const camadaPadrao = p.frente ? 1 : 0;
+      const cam = numeroDe(valor("camada", camadaPadrao));
+      const vaza = cel ? (tem(p.vazarMobile) ? !!p.vazarMobile : !!p.vazar) : !!p.vazar;
+      const alt = (k) => (k in pend ? "dep-ed-alterado" : "");
+
+      caixa.innerHTML = `
+        <h4>${info.rotulo} · ${el.dataset.forma}</h4>
+        ${info.repetido ? `<div class="dep-ed-erro"><small>Este enfeite aparece em vários lugares a partir de um só código (ex.: uma função). A mudança vale para todos e vai para a lista de mudanças, para fazer à mão.</small></div>` : ""}
+        <small>Mudanças vão para as props do <b>${cel ? "celular" : "desktop"}</b>.</small>
+        <div class="dep-ed-campo ${alt(a.chaveV)}"><span>${a.v === "topo" ? "Topo" : "Baixo"} <code>${a.chaveV}</code></span>
+          <span><input type="number" step="0.1" data-pos="v" value="${numV}"> ${seletor("v", uV)}</span></div>
+        <div class="dep-ed-campo ${alt(a.chaveH)}"><span>${a.h === "esquerda" ? "Esquerda" : "Direita"} <code>${a.chaveH}</code></span>
+          <span><input type="number" step="0.1" data-pos="h" value="${numH}"> ${seletor("h", uH)}</span></div>
+        <div class="dep-ed-campo ${alt("tamanho" + sufixo)}"><span>Tamanho <code>tamanho${sufixo}</code></span>
+          <span><input type="number" step="0.1" min="0" data-campo="tamanho" value="${numT}"> ${seletor("t", uT)}</span></div>
+        <div class="dep-ed-campo ${alt("giro" + sufixo)}"><span>Giro <code>giro${sufixo}</code></span>
+          <span><input type="number" step="1" data-campo="giro" value="${giro}"> graus</span></div>
+        <div class="dep-ed-campo ${alt("opacidade" + sufixo)}"><span>Opacidade <code>opacidade${sufixo}</code></span>
+          <span><input type="range" min="0" max="1" step="0.05" data-campo="opacidade" value="${opac}"> <b class="dep-ed-op">${opac}</b></span></div>
+        <div class="dep-ed-campo ${alt("camada" + sufixo)}"><span>Camada <code>camada${sufixo}</code></span>
+          <span><input type="number" step="1" data-campo="camada" value="${cam}">
+          <small>0 atrás da onda · 1 frente da onda · 3 frente do texto</small></span></div>
+        <div class="dep-ed-campo ${alt("vazar" + sufixo)}"><span>Vazar <code>vazar${sufixo}</code></span>
+          <label><input type="checkbox" data-campo="vazar" ${vaza ? "checked" : ""}> continua na seção vizinha</label></div>
+        <div class="dep-ed-campo ${alt("noCelular")}"><span>No celular <code>noCelular</code></span>
+          <label><input type="checkbox" data-campo="noCelular" ${p.noCelular ? "checked" : ""}> aparece no celular</label></div>
+        <div class="dep-acoes">
+          ${pendentes.has(chaveDe(el)) ? `<button type="button" data-acao="desfazer">Desfazer este</button>` : ""}
+        </div>`;
+
+      // Posição digitada: converte para px na unidade mostrada.
+      caixa.querySelectorAll("input[data-pos]").forEach((inp) =>
+        inp.addEventListener("change", () => {
+          const n = parseFloat(inp.value);
+          if (Number.isNaN(n)) return;
+          const eixo = inp.dataset.pos;
+          const u = eixo === "v" ? uV : uH;
+          const base = eixo === "v" ? m.H : m.W;
+          const px = paraPx(n, u, base);
+          const chave = eixo === "v" ? a.chaveV : a.chaveH;
+          registrar(el, { [chave]: converter(px, u, base) });
+        }),
+      );
+
+      caixa.querySelectorAll("select[data-unidade]").forEach((sel) =>
+        sel.addEventListener("change", () => {
+          const u = sel.value;
+          if (sel.dataset.unidade === "v") registrar(el, { [a.chaveV]: converter(pxV, u, m.H) });
+          else if (sel.dataset.unidade === "h") registrar(el, { [a.chaveH]: converter(pxH, u, m.W) });
+          else registrar(el, { [cel ? "tamanhoMobile" : "tamanho"]: converter(m.w, u, m.W) });
+          ultimoRender = null;
+          renderForm(dep.selecionado);
+        }),
+      );
+
+      caixa.querySelectorAll("[data-campo]").forEach((inp) => {
+        const campo = inp.dataset.campo;
+        const evento = inp.type === "range" ? "input" : "change";
+        inp.addEventListener(evento, () => {
+          const k = campo === "noCelular" ? "noCelular" : campo + sufixo;
+          if (campo === "tamanho") {
+            const n = parseFloat(inp.value);
+            if (Number.isNaN(n)) return;
+            const px = paraPx(n, uT, m.W);
+            redimensionar(el, px);
+            return;
+          }
+          if (campo === "vazar" || campo === "noCelular") {
+            registrar(el, { [k]: inp.checked });
+            return;
+          }
+          const n = parseFloat(inp.value);
+          if (Number.isNaN(n)) return;
+          if (campo === "opacidade") caixa.querySelector(".dep-ed-op").textContent = n;
+          registrar(el, { [k]: n });
+        });
+      });
+
+      caixa.querySelector('[data-acao="desfazer"]')?.addEventListener("click", () => desfazer(el));
+    }
+
+    // No celular, enfeites sem noCelular ficam escondidos: lista para ligar.
+    function renderEscondidos() {
+      if (!vaga) return;
+      const caixa = vaga.querySelector(".dep-ed-escondidos");
+      if (!editando || !celular()) {
+        caixa.innerHTML = "";
+        return;
+      }
+      const escondidos = originais().filter((el) => !el.classList.contains("no-celular"));
+      if (!escondidos.length) {
+        caixa.innerHTML = "";
+        return;
+      }
+      caixa.innerHTML = `<hr><b>Escondidos no celular (${escondidos.length})</b><br><small>Clique para fazer aparecer no celular.</small><div></div>`;
+      const lista = caixa.querySelector("div");
+      escondidos.forEach((el) => {
+        const a = document.createElement("a");
+        a.textContent = `${el.dataset.origem} · ${el.dataset.forma}`;
+        a.style.cssText = "display:block;cursor:pointer;text-decoration:underline;color:#3b2bb5";
+        a.addEventListener("click", () => {
+          registrar(el, { noCelular: true });
+          const e = dep.enfeites.find((x) => x.el === el);
+          if (e) dep.selecionar(e, true);
+        });
+        lista.appendChild(a);
+      });
+    }
+
+    // ----------------------------------------- lista e salvamento
+    function textoDaLista(soEstes = null) {
+      const linhas = ["Mudanças nos enfeites (feitas no modo de edição)", ""];
+      for (const [chave, p] of pendentes) {
+        if (soEstes && !soEstes.has(chave)) continue;
+        const info = infoDe(p.el);
+        const orig = propsOriginais(p.el);
+        linhas.push(`${info.arquivo ?? "(arquivo desconhecido)"}, ${info.rotulo}${info.linha ? ` (linha ${info.linha})` : ""}`);
+        for (const [k, v] of Object.entries(p.props)) {
+          const antes = k in orig ? JSON.stringify(orig[k]) : "(não tinha)";
+          linhas.push(`  ${k}: ${antes} → ${JSON.stringify(v)}`);
+        }
+        linhas.push("");
+      }
+      return linhas.join("\n");
+    }
+
+    function renderPendentes(mensagem = "") {
+      if (!vaga) return;
+      const caixa = vaga.querySelector(".dep-ed-pendentes");
+      if (!editando) return;
+      if (!mensagem && recado) {
+        mensagem = recado;
+        recado = "";
+      }
+      if (!pendentes.size) {
+        caixa.innerHTML = mensagem || `<small>Nenhuma mudança ainda.</small>`;
+        return;
+      }
+      const itens = [...pendentes.values()]
+        .map((p, i) => `<div><a data-i="${i}">${p.el.dataset.origem}</a> <small>${Object.keys(p.props).join(", ")}</small></div>`)
+        .join("");
+      caixa.innerHTML = `
+        <b>${pendentes.size} enfeite${pendentes.size > 1 ? "s" : ""} com mudanças</b>
+        ${itens}
+        <div class="dep-acoes">
+          <button type="button" class="dep-ed-primario" data-acao="salvar">Salvar no código</button>
+          <button type="button" data-acao="copiar">Copiar lista de mudanças</button>
+          <button type="button" data-acao="descartar">Descartar tudo</button>
+        </div>
+        <small>Feche ou salve no VS Code os arquivos de enfeites antes de salvar aqui, para ele não gravar a versão antiga por cima.</small>
+        ${mensagem}`;
+      const valores = [...pendentes.values()];
+      caixa.querySelectorAll("a[data-i]").forEach((a) =>
+        a.addEventListener("click", () => {
+          const el = valores[Number(a.dataset.i)].el;
+          const e = dep.enfeites.find((x) => x.el === el);
+          if (e) dep.selecionar(e, true);
+        }),
+      );
+      caixa.querySelector('[data-acao="salvar"]').addEventListener("click", salvar);
+      caixa.querySelector('[data-acao="copiar"]').addEventListener("click", async (ev) => {
+        const texto = textoDaLista();
+        try {
+          await navigator.clipboard.writeText(texto);
+          ev.target.textContent = "Copiado!";
+          setTimeout(() => (ev.target.textContent = "Copiar lista de mudanças"), 1200);
+        } catch {
+          renderPendentes(`<textarea readonly>${texto}</textarea>`);
+        }
+      });
+      caixa.querySelector('[data-acao="descartar"]').addEventListener("click", () => {
+        if (!confirm("Descartar todas as mudanças não salvas dos enfeites?")) return;
+        [...pendentes.values()].forEach((p) => desfazer(p.el, { redesenhar: false }));
+        remontarVazados();
+        dep.desenhar();
+        renderPendentes();
+        ultimoRender = null;
+        renderForm(dep.selecionado);
+      });
+    }
+
+    async function salvar() {
+      const mudancas = [];
+      const chaves = [];
+      for (const [chave, p] of pendentes) {
+        const info = infoDe(p.el);
+        if (!info.arquivo || !info.nome || info.repetido) continue;
+        mudancas.push({ arquivo: info.arquivo, nome: info.nome, indice: info.indice, props: p.props });
+        chaves.push(chave);
+      }
+      const naoAutomaticos = new Set([...pendentes.keys()].filter((c) => !chaves.includes(c)));
+
+      let resultados = [];
+      try {
+        const r = await fetch("/__enfeites/salvar", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ mudancas }),
+        });
+        if (!r.ok) throw new Error(`o servidor respondeu ${r.status}`);
+        resultados = (await r.json()).resultados || [];
+      } catch (erro) {
+        renderPendentes(
+          `<div class="dep-ed-erro">Não consegui salvar (${erro.message}). Reinicie o <code>npm run dev</code> se acabou de atualizar o projeto. Lista para fazer à mão:</div>` +
+          `<textarea readonly>${textoDaLista()}</textarea>`,
+        );
+        return;
+      }
+
+      // Quem falhou volta para a lista manual.
+      resultados.forEach((res, i) => {
+        if (!res.ok) naoAutomaticos.add(chaves[i]);
+      });
+      const salvos = chaves.filter((c) => !naoAutomaticos.has(c));
+      const textoManual = naoAutomaticos.size ? textoDaLista(naoAutomaticos) : "";
+      const erros = resultados.filter((r) => !r.ok).map((r) => `${r.rotulo}: ${r.erro}`);
+
+      // Os salvos deixam de ser pendência (o código agora já tem o valor).
+      salvos.forEach((c) => pendentes.delete(c));
+      salvarSessao();
+
+      const msg =
+        `<div class="dep-ed-ok">${salvos.length} enfeite${salvos.length === 1 ? "" : "s"} salvo${salvos.length === 1 ? "" : "s"} no código.</div>` +
+        (erros.length ? `<div class="dep-ed-erro">${erros.join("<br>")}</div>` : "") +
+        (textoManual ? `<div>Estes precisam ser feitos à mão:</div><textarea readonly>${textoManual}</textarea>` : "");
+      renderPendentes(msg);
+      sessao.gravar(CHAVE_AVISO, msg);
+
+      // A página recarrega com o código novo; se o servidor já não
+      // recarregou sozinho, recarrega aqui (a edição volta ligada).
+      if (salvos.length && !naoAutomaticos.size) setTimeout(() => location.reload(), 900);
+    }
+
+    // ------------------------------------------- ligação com o depurador
+    dep.ganchos.aoAlternar.push((ligado) => {
+      if (ligado) {
+        montarVaga();
+        if (sessao.ler(CHAVE_EDITANDO) === "1") ligarEdicao(true);
+      } else {
+        // Fechar o depurador desliga a edição de vez (não reabre sozinha).
+        editando = false;
+        html.classList.remove("dep-editando");
+        sessao.gravar(CHAVE_EDITANDO, null);
+        vaga = null;
+      }
+    });
+    dep.ganchos.aoDesenhar.push(() => {
+      atualizarModo();
+      renderEscondidos();
+    });
+    dep.ganchos.aoSelecionar.push((e) => renderForm(e));
+    addEventListener("resize", () => {
+      ultimoRender = null;
+      atualizarModo();
+    });
+    MIDIA_CELULAR.addEventListener("change", () => {
+      ultimoRender = null;
+      atualizarModo();
+      renderEscondidos();
+      renderForm(dep.selecionado);
+    });
+
+    // Mudanças não salvas de antes de recarregar a página voltam a valer.
+    // (Depois de salvar, a página recarrega com ?enfeites no endereço: o
+    // depurador reabre sozinho e a edição volta ligada.)
+    restaurarSessao();
+    atualizarContador();
+  })();
+</script>
