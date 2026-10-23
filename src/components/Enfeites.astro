@@ -3,43 +3,18 @@
 // ENFEITES
 //
 // Desenha uma lista de enfeites de uma vez. As listas de cada seção
-// ficam em src/data/enfeites.js.
+// ficam em src/data/enfeites.js (as da Citação, em Citacao.astro).
 //
 // Uso:  <Enfeites lista={ENFEITES_HERO} />
 //
-// Listas que moram dentro de um componente (e não em enfeites.js) dizem
-// de onde vêm, para o depurador saber abrir o arquivo certo:
-//       <Enfeites lista={ENFEITES} nome="ENFEITES"
-//                 arquivo="src/components/Citacao.astro" />
-// =========================================================================
-
-import Enfeite from "./Enfeite.astro";
-import * as DADOS from "../data/enfeites.js";
-import { origemDe } from "../data/localizarEnfeites.js";
-
 // recortar: true quando a lista fica solta na seção (o padrão), para os
 // enfeites serem cortados na borda dela. Listas dentro de uma caixa menor
 // (como a ilustração do "Para quem") passam recortar={false}.
-const {
-  lista = [],
-  nome = null,
-  arquivo = "src/data/enfeites.js",
-  recortar = true,
-} = Astro.props;
+// =========================================================================
 
-// Só no modo dev: descobre o nome da lista (ENFEITES_HERO etc.) para o
-// depurador mostrar na etiqueta de cada enfeite.
-const nomeDaLista =
-  import.meta.env.DEV &&
-  (nome ?? Object.keys(DADOS).find((k) => (DADOS as any)[k] === lista));
+import Enfeite from "./Enfeite.astro";
+
+const { lista = [], recortar = true } = Astro.props;
 ---
 
-{
-  lista.map((enfeite: any, i: number) => (
-    <Enfeite
-      recortar={recortar}
-      {...enfeite}
-      origem={nomeDaLista ? origemDe(arquivo, nomeDaLista, i) : null}
-    />
-  ))
-}
+{lista.map((enfeite: any) => <Enfeite recortar={recortar} {...enfeite} />)}

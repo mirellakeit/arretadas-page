@@ -21,12 +21,6 @@ import Enfeite from "./Enfeite.astro";
 import Enfeites from "./Enfeites.astro";
 import TexturaPapel from "./TexturaPapel.astro";
 import { ENFEITES_SOBRE_PROJETO, BRILHO_VIDEO } from "../data/enfeites.js";
-import { origemDe } from "../data/localizarEnfeites.js";
-
-// Só para o depurador de enfeites (modo dev).
-const ORIGEM_BRILHO = import.meta.env.DEV
-  ? origemDe("src/data/enfeites.js", "BRILHO_VIDEO")
-  : null;
 
 // Fotos ordenadas pelo número do nome. Sem isso o "10" viria antes do
 // "2", porque a ordem alfabética compara letra por letra.
@@ -116,7 +110,7 @@ const TEXTO =
               </svg>
             </button>
           </div>
-          <Enfeite {...BRILHO_VIDEO} origem={ORIGEM_BRILHO} />
+          <Enfeite {...BRILHO_VIDEO} />
         </div>
 
         <!-- Uma bolinha por foto. A da foto atual fica cheia. -->

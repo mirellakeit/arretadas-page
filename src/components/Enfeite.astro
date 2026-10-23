@@ -40,9 +40,6 @@
 //   vazarMobile o mesmo, só no celular (padrão: igual ao vazar)
 //   recortar  preenchido pelo <Enfeites>: true para enfeites que ficam
 //             soltos na seção e por isso são cortados na borda dela
-//   origem    preenchido sozinho pelo <Enfeites>: diz em que arquivo e
-//             linha o enfeite foi escrito. Só aparece no modo dev, para o
-//             depurador (tecla E, ou ?enfeites na URL)
 //   giro      rotação em graus
 //   giroMobile rotação só no celular (precisa de noCelular)
 //   espelhar  espelha horizontalmente no desktop
@@ -98,7 +95,6 @@ const {
   frente = false,
   camada = null,
   camadaMobile = null,
-  origem = null,
   vazar = false,
   vazarMobile = null,
   recortar = false,
@@ -114,22 +110,6 @@ const {
 // entra na ordem de camadas de lá (onda, texto) igual a um enfeite dela.
 const vazaDesktop = Boolean(vazar);
 const vazaCelular = vazarMobile === null ? vazaDesktop : Boolean(vazarMobile);
-
-// Só no modo dev: dados que o depurador de enfeites mostra na etiqueta.
-// No build de produção nada disso vai para o HTML.
-const depuracao = import.meta.env.DEV
-  ? {
-      "data-origem": origem?.rotulo ?? "enfeite sem origem",
-      "data-arquivo": origem?.arquivo ?? null,
-      "data-caminho": origem?.caminho ?? null,
-      "data-linha": origem?.linha ?? null,
-      "data-props": JSON.stringify(
-        Object.fromEntries(
-          Object.entries(Astro.props).filter(([k]) => k !== "origem"),
-        ),
-      ),
-    }
-  : {};
 
 // Número é px, texto vai como veio (vw, clamp, calc...).
 const medida = (v: any) => (typeof v === "number" ? `${v}px` : v);
@@ -203,7 +183,7 @@ const estilo = [
   temValor(giroMobile) ? `--giro-mobile:${giroMobile}deg` : null,
   `color:${cor}`,
   // Opacidade em variável (e não direto em opacity) para o celular poder
-  // ter a sua, e para o modo de edição trocar sem mexer no resto.
+  // ter a sua (opacidadeMobile).
   `--opacidade:${opacidade}`,
   temValor(opacidadeMobile) ? `--opacidade-mobile:${opacidadeMobile}` : null,
   papel ? `--forma:url("${FORMAS_URL[chaveForma!]}")` : null,
@@ -227,8 +207,6 @@ const estilo = [
   <span
     class:list={["enfeite", "brota", { "no-celular": noCelular, frente }]}
     style={estilo}
-    data-forma={forma}
-    {...depuracao}
   >
     <span class="desenho">
       <Svg nome={forma} recolorir={recolorir} />
@@ -380,7 +358,6 @@ const estilo = [
     copia.setAttribute("aria-hidden", "true");
 
     const desenho = copia.querySelector(":scope > .enfeite") as HTMLElement;
-    desenho.dataset.continuacao = "";
     // Mesma caixa do original (antes do giro), em px, deslocada pela
     // distância entre as duas seções.
     Object.assign(desenho.style, {
@@ -453,10 +430,6 @@ const estilo = [
     clearTimeout(espera);
     espera = window.setTimeout(montar, 100);
   };
-
-  // O modo de edição (npm run dev) avisa com este evento quando liga ou
-  // desliga o vazar, move ou redimensiona um enfeite.
-  document.addEventListener("enfeites:remontar", () => montar());
 
   if (document.querySelector(".recorte.vaza, .recorte.vaza-celular")) {
     montar();
