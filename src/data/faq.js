@@ -10,7 +10,7 @@ export const PERGUNTAS = [
   {
     pergunta: "Qual a carga horária total?",
     resposta:
-      "A formação tem 25 horas no total, divididas em 5 módulos de 5 horas cada. Todo o conteúdo fica disponível na plataforma do curso, e você estuda no seu ritmo.",
+      "A formação tem 30 horas no total. Todo o conteúdo fica disponível na plataforma do curso, e você estuda no seu ritmo.",
   },
   {
     pergunta: "É realmente gratuito?",
