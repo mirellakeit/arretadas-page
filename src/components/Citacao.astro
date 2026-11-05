@@ -261,6 +261,7 @@ const ENFEITES = [
         ))
       }
     </p>
+    <cite class="autoria">~ Maria Cleudes Pessoa</cite>
   </blockquote>
 </Faixa>
 
@@ -299,6 +300,18 @@ const ENFEITES = [
     line-height: 1.109375;
     letter-spacing: 0.5px;
     max-width: none;
+  }
+
+  .autoria {
+    display: block;
+    margin-top: clamp(0.7rem, 2.5vw, 1.2rem);
+    margin-right: clamp(0.6rem, 1.5vw, 1.4rem);
+    color: var(--branco);
+    font-size: clamp(0.9rem, 1.5vw, 1.4rem);
+    font-style: normal;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-align: end;
   }
 
   /* No desktop, uma linha por bloco e sem quebra interna. */
